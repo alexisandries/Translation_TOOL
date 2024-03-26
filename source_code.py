@@ -11,6 +11,7 @@ from openai import OpenAI
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 
+st.set_page_config(layout="wide")
 
 openai.api_key  = os.getenv('OPENAI_API_KEY')
 mistral_api_key = os.getenv("MISTRAL_API_KEY")
