@@ -16,8 +16,6 @@ openai.api_key  = os.getenv('OPENAI_API_KEY')
 mistral_api_key = os.getenv("MISTRAL_API_KEY")
 PASSWORD = os.getenv("MDM_PASSWORD")
 
-# PASSWORD = os.getenv("MDM_PASSWORD")
-
 def read_pdf(file):
     text = ''
     # Convert Streamlit's UploadedFile to a bytes stream compatible with fitz
