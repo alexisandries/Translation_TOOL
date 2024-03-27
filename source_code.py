@@ -240,9 +240,9 @@ def main():
                     
                 with col12:
                     # Creating a download button for the translated text
-                    st.download_button(label="Download Current Text", data=st.translated_text, file_name="translations.docx", mime="text/plain")
+                    st.download_button(label="Download Current Text", data=translated_text, file_name="translation.txt", mime="text/plain")
                     if 'translations_file' in st.session_state and st.session_state.translations_file:
-                        st.download_button(label="Download Translations File", data=st.session_state.translations_file, file_name="translations.docx", mime="text/plain")
+                        st.download_button(label="Download Translations File", data=st.session_state.translations_file, file_name="translations_file.txt", mime="text/plain")
                 
     if st.sidebar.button('Display Translations File'):
         if 'translations_file' in st.session_state and st.session_state.translations_file:
