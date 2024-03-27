@@ -196,7 +196,7 @@ def main():
             st.text_area("Extracted Text", value=text, height=150, disabled=True)
         
         # Manual text input as an alternative to file upload
-        text_input = st.text_area('Or enter text to translate', height=200)
+        text_input = st.text_area('Or enter text to translate', height=150)
     
         # Combine file text and manual text input if both are provided
         combined_text = text + "\n" + text_input
@@ -231,24 +231,29 @@ def main():
             st.session_state.last_translation = None
         
         st.write("**Click to translate your text**")
-        if st.button('Translate'):
+        if st.button('Translate TEXT'):
             if combined_text:
                 translated_text = translate_text(combined_text, from_language, to_language, temp_choice, select_model, briefing_1, prompt_2)
                 st.session_state.last_translation = f"{select_model}, {temp_choice}:\n\n{translated_text}"
                 st.write(translated_text)
-                st.write('**Add translation to unique file**')
-                if st.button('Add to File') and st.session_state.last_translation:
-                    st.session_state.translations_file.append(st.session_state.last_translation)
-                    st.success('Text added to the file!')
+                  
             else:
                 st.error('Please upload or paste a text to translate.')
+
+        st.write("#####Select action")
+        st.write("Please consider thet clicking one button will make the translation disappear and relaunch your session. Your text will remain available to relaunch another translation, with a new set of parameters.")
+        
+        if st.button('Add to FILE') and st.session_state.last_translation:
+            st.write('**Add translation to unique file with translations**')        
+            st.session_state.translations_file.append(st.session_state.last_translation)
+            st.success('Text added to the file!')
         
         col1, col2 = st.columns(2)
         with col1: 
             if 'translations_file' in st.session_state and st.session_state.translations_file:
                 translations_str = '\n'.join(st.session_state.translations_file)  # Join list items into a string
                 st.write('**Download file with translations**')
-                st.download_button(label="Download file",
+                st.download_button(label="Download FILE",
                                    data=translations_str,  
                                    file_name="translations_file.txt",
                                    mime="text/plain")
@@ -256,17 +261,17 @@ def main():
         with col2:
             if translated_text is not None:
                 st.write('**Download current translation**')
-                st.download_button(label="Download text", data=translated_text, file_name="translation.txt", mime="text/plain")
+                st.download_button(label="Download TEXT", data=translated_text, file_name="translation.txt", mime="text/plain")
             
         st.write('**Show file with saved translations**')
-        if st.button('Display file'):
+        if st.button('Display FILE'):
             if st.session_state.translations_file:
                 st.write("Contents of the translations file:", st.session_state.translations_file)
             else:
                 st.write("The translations file is empty.")
         
-        st.write("Click to empty translations file")
-        if st.button('Reset'):
+        st.write("**Click to empty translations file**")
+        if st.button('Reset FILE'):
             st.session_state.translations_file = []
             st.success('Translations file has been reset.')
         
