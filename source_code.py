@@ -247,12 +247,10 @@ def main():
             else:
                  st.error('Please upload or paste a text to translate.')
                  
+        if st.session_state.translations_file: 
             if st.button('Display Translations File'):
-                if st.session_state.translations_file:
-                    st.write("Contents of the translations file:", st.session_state.translations_file)
-                else:
-                    st.error('The translations file is empty or does not exist. Please add translations before displaying.')  
-
+                st.write("Contents of the translations file:", st.session_state.translations_file)
+            
             if st.button('Reset Translations File'):
                 st.session_state.translations_file = []
                 st.success('Translations file has been reset.')
