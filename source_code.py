@@ -229,7 +229,7 @@ def main():
         
         if 'last_translation' not in st.session_state:
             st.session_state.last_translation = None
-        
+        st.write("**click to translate:**")
         if st.button('Translate'):
             if combined_text:
                 translated_text = translate_text(combined_text, from_language, to_language, temp_choice, select_model, briefing_1, prompt_2)
@@ -240,31 +240,39 @@ def main():
         
         col1, col2 = st.columns(2)
         with col1:
+            st.write('**Add translation to Translations File:**')
             if st.button('Add to Translations File') and st.session_state.last_translation:
                 st.session_state.translations_file.append(st.session_state.last_translation)
                 st.success('Text added to the file!')
         
         with col2:
             if translated_text is not None:
-                st.download_button(label="Download Current Text", data=translated_text, file_name="translation.txt", mime="text/plain")
+                st.write('Download Current Text')
+                st.download_button(label="Download", data=translated_text, file_name="translation.txt", mime="text/plain")
+        
+        
+        col1, col2 = st.columns(2)
+        with col1: 
             if 'translations_file' in st.session_state and st.session_state.translations_file:
                 translations_str = '\n'.join(st.session_state.translations_file)  # Join list items into a string
-                st.download_button(label="Download Translations File",
+                st.write('Download file with translations')
+                st.download_button(label="Download",
                                    data=translations_str,  
                                    file_name="translations_file.txt",
                                    mime="text/plain")
-                
+        with col2: 
+            st.write("Click to empty translations file")
+            if st.button('Reset'):
+                st.session_state.translations_file = []
+                st.success('Translations file has been reset.')
+            
+        st.write('**Show saved translations**')
         if st.button('Display Translations File'):
             if st.session_state.translations_file:
                 st.write("Contents of the translations file:", st.session_state.translations_file)
             else:
                 st.write("The translations file is empty.")
         
-        if st.button('Reset Translations File'):
-            st.session_state.translations_file = []
-            st.success('Translations file has been reset.')
-
-
         
         # if st.button('Translate'):
         #     if combined_text:
