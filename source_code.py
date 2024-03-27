@@ -228,7 +228,7 @@ def main():
                 translated_text = translate_text(combined_text, from_language, to_language, temp_choice, select_model, briefing_1, prompt_2)
                 st.write(translated_text)
                 
-                col11, col12 = st.columns(2)
+                col11, col12, col13, col14 = st.columns(4)
                 with col11:
                     if st.button('Add to Translations_file'):
                         # Initialize or append to translations_file in session state
@@ -243,16 +243,18 @@ def main():
                     st.download_button(label="Download Current Text", data=translated_text, file_name="translation.txt", mime="text/plain")
                     if 'translations_file' in st.session_state and st.session_state.translations_file:
                         st.download_button(label="Download Translations File", data=st.session_state.translations_file, file_name="translations_file.txt", mime="text/plain")
-                
-    if st.sidebar.button('Display Translations File'):
-        if 'translations_file' in st.session_state and st.session_state.translations_file:
-            st.write("Contents of the translations file:", st.session_state.translations_file)
-        else:
-            st.error('The translations file is empty or does not exist. Please add translations before displaying.')  
+
+                with col13:
+                    if st.button('Display Translations File'):
+                        if 'translations_file' in st.session_state and st.session_state.translations_file:
+                            st.write("Contents of the translations file:", st.session_state.translations_file)
+                        else:
+                            st.error('The translations file is empty or does not exist. Please add translations before displaying.')  
             
-    if st.sidebar.button('Reset Translations File'):
-        st.sidebar.session_state.translations_file = []
-        st.sidebar.success('Translations file has been reset.')
+                with col14:
+                    if st.sidebar.button('Reset Translations File'):
+                        st.sidebar.session_state.translations_file = []
+                        st.sidebar.success('Translations file has been reset.')
     
     with tab2:
         st.subheader('Refinement tool')
