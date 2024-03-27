@@ -252,9 +252,9 @@ def main():
             if st.button('Display Translations File'):
                 st.write("Contents of the translations file:", st.session_state.translations_file)
             
-            if st.button('Reset Translations File'):
-                st.session_state.translations_file = []
-                st.success('Translations file has been reset.')
+            # if st.button('Reset Translations File'):
+            #     st.session_state.translations_file = []
+            #     st.success('Translations file has been reset.')
         else:
             st.write("Add some file to translations_file")
             
