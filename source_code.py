@@ -148,7 +148,7 @@ def enhance_text(text, temp_choice_2, select_model, briefing, prompt):
 def main():
     
     # Streamlit UI
-    st.title('Translation & Optimization Tool')
+    st.title('Wizzkid AI: Translate, Refine or Craft your text')
     
     select_model = st.sidebar.radio('Select your model', ['GPT 3.5', 'GPT 4.0', 'MISTRAL large' ])
     
@@ -165,19 +165,10 @@ def main():
     
         if pass_word == PASSWORD:
             pass
-        
-    # User input for translations
-    col1, col2 = st.columns(2)
-    with col1:
-        from_language = st.selectbox('From Language', ['English', 'French', 'Dutch'], index=1)
-    with col2:
-        to_language = st.selectbox('To Language', ['French', 'Dutch', 'English'], index=2)
-    temp_choice = st.slider('Select a value', min_value=0.2, max_value=0.8, step=0.1, key='temp1')
-    
-    st.write("*Lower Temperature (~0.2 to 0.4):* Recommended for more accurate, literal translations.")
-    st.write("*Higher Temperature (~0.6 to 0.8):* Encourages more creative and fluid translations.")
-    
-    # File upload
+
+    tab1, tab2, tab3 = st.tabs(['TRANSLATE', 'REFINE', 'CRAFT'])
+
+     # File upload
     uploaded_file = st.file_uploader("Upload file (PDF, PPTX, XLSX, DOCX)", type=['pdf', 'pptx', 'xlsx', 'docx'])
     text = ""
     
@@ -198,141 +189,158 @@ def main():
     # Combine file text and manual text input if both are provided
     combined_text = text + "\n" + text_input
     
+    with tab1: 
+    
+        # User input for translations
+        col1, col2 = st.columns(2)
+        with col1:
+            from_language = st.selectbox('From Language', ['English', 'French', 'Dutch'], index=1)
+        with col2:
+            to_language = st.selectbox('To Language', ['French', 'Dutch', 'English'], index=2)
         
-    briefing_1 = """
-    As TranslationsAI, you embody the pinnacle of translation expertise, seamlessly bridging languages with unparalleled precision and eloquence. Your core languages include French, Dutch, and English. Each translation you produce adheres to the highest standards of reliability, ensuring that the meaning and nuance of the original text are perfectly preserved. Additionally, you imbue every translated piece with native fluency, adapting idioms, cultural references, and stylistic nuances to resonate authentically with the target audience. If necessary, you will seamlessly provide more adaptive translations that recreate the original's intent and style as if it were conceived in the target language. As a consequence, your translations are enriched with the depth and vibrancy characteristic of a skilled writer native to the destination language.
-    """
+        temp_choice = st.slider('Select a Temperature', min_value=0.2, max_value=0.8, step=0.1, key='temp1')
     
-    briefing_2="""
-    You are TranslationsAI, a highly specialized translation assistant designed to provide accurate and fluent translations between French, Dutch, and English. Your translations should reflect a deep understanding of the source material while maintaining the nuances, tone, and cultural relevance of the original text in the target language. You aim to achieve translations that are indistinguishable from texts originally written in the target language, ensuring both linguistic precision and fluency.
-    """
-    
-    prompt_1= f"""
-    Translate the following text from {from_language} to {to_language}, ensuring the translation is both accurate and sounds natural as if originally written in the target language. Consider cultural nuances and idiomatic expressions to enhance fluency and readability.
+        st.write("**Lower Temperature (~0.2 to 0.4):** Recommended for more accurate, literal translations.")
+        st.write("**Higher Temperature (~0.6 to 0.8):** Encourages more creative and fluid translations.")
+            
+        briefing_1 = """
+        As TranslationsAI, you embody the pinnacle of translation expertise, seamlessly bridging languages with unparalleled precision and eloquence. Your core languages include French, Dutch, and English. Each translation you produce adheres to the highest standards of reliability, ensuring that the meaning and nuance of the original text are perfectly preserved. Additionally, you imbue every translated piece with native fluency, adapting idioms, cultural references, and stylistic nuances to resonate authentically with the target audience. If necessary, you will seamlessly provide more adaptive translations that recreate the original's intent and style as if it were conceived in the target language. As a consequence, your translations are enriched with the depth and vibrancy characteristic of a skilled writer native to the destination language.
+        """
         
-    Text to Translate:
-    {combined_text}
-    """
-    
-    prompt_2= f"""
-    Please rewrite the following text in {to_language}, making it sound as if it were originally written by a native speaker. The original text is in {from_language}. Adapt expressions, idioms, and cultural references to ensure the translation is fluent and resonates with native speakers, even if it means straying from a literal translation. If sentences are not fluent or sound too much as translated, please rewrite them in orther to keep the original idea, but use phrases that are familiar, rythmic and consistent in the target language.
-    
-    Text to Translate:
-    {combined_text}
-    """
-    
-    if st.button('Translate'):
-        if combined_text:
-            translated_text = translate_text(combined_text, from_language, to_language, temp_choice, select_model, briefing_1, prompt_2)
-            st.write(translated_text)
+        briefing_2="""
+        You are TranslationsAI, a highly specialized translation assistant designed to provide accurate and fluent translations between French, Dutch, and English. Your translations should reflect a deep understanding of the source material while maintaining the nuances, tone, and cultural relevance of the original text in the target language. You aim to achieve translations that are indistinguishable from texts originally written in the target language, ensuring both linguistic precision and fluency.
+        """
+        
+        prompt_1= f"""
+        Translate the following text from {from_language} to {to_language}, ensuring the translation is both accurate and sounds natural as if originally written in the target language. Consider cultural nuances and idiomatic expressions to enhance fluency and readability.
             
-            # Creating a download button for the translated text
-            st.download_button(label="Download Text", data=translated_text, file_name="translation.txt", mime="text/plain")
-            
-            # Initialize or append to unique_file in session state
-            if 'unique_file' not in st.session_state:
-                st.session_state.unique_file = [translated_text]
-            else:
-                st.session_state.unique_file.append(f"{select_model}, {temp_choice}:\n\n{translated_text}")
-                st.success('Text added to the file!')
-            
-            # Display the contents of the unique_file list
-            if st.session_state.unique_file:
-                st.write("Contents of the unique file:", st.session_state.unique_file)
+        Text to Translate:
+        {combined_text}
+        """
+        
+        prompt_2= f"""
+        Please rewrite the following text in {to_language}, making it sound as if it were originally written by a native speaker. The original text is in {from_language}. Adapt expressions, idioms, and cultural references to ensure the translation is fluent and resonates with native speakers, even if it means straying from a literal translation. If sentences are not fluent or sound too much as translated, please rewrite them in orther to keep the original idea, but use phrases that are familiar, rythmic and consistent in the target language.
+        
+        Text to Translate:
+        {combined_text}
+        """
+    
+        if st.button('Translate'):
+            if combined_text:
+                translated_text = translate_text(combined_text, from_language, to_language, temp_choice, select_model, briefing_1, prompt_2)
+                st.write(translated_text)
+                
+                col11, col12 = st.columns(2)
+                with col11:
+                    if st.button('Add to Translations_file')
+                        # Initialize or append to unique_file in session state
+                        if 'translations_file' not in st.session_state:
+                            st.session_state.unique_file = [translated_text]
+                        else:
+                            st.session_state.unique_file.append(f"{select_model}, {temp_choice}:\n\n{translated_text}")
+                            st.success('Text added to the file!')
+                    
+                with col12:
+                    # Creating a download button for the translated text
+                    st.download_button(label="Download Text", data=translated_text, file_name="translation.txt", mime="text/plain")
+
+                
+                
+    if st.sidebar.button('Display Translations File'):
+        if st.session_state.unique_file:
+            st.write("Contents of the unique file:", st.session_state.unique_file)
         else:
-            st.error('Please upload a file or enter some text to translate.')
+            st.error('Please upload a file or enter some text to translate.')    
             
-    if st.button('Reset Unique File'):
-        st.session_state.unique_file = []
-        st.success('Unique file has been reset.')
+    if st.sidebar.button('Reset Translations File'):
+        st.sidebar.session_state.translations_file = []
+        st.sidebar.success('Unique file has been reset.')
     
-    if st.button('Display Unique File'):
-        st.write(st.session_state.unique_file)
-    
-    st.title('Optimization tool')
-    st.write("Activate agents to rework the translation(s). Choose the agent that you want to activate.")
-    st.write("How to use agents? Once you have compiled your unique file with one or more versions, you can ask an agent to review the translation(s) and offer you a new, enhanced text.")
-    
-    st.write('Update your model choice if necessary')
-    temp_choice_2 = st.slider('Select a New Temperature', min_value=0.1, max_value=0.8, step=0.1, key='temp2')
-    agent_choice = st.radio('Pick Agent:', ['Expert in Marketing', 'Master in Copywriting', 'Doctor in Factual Communication'])
-    unique_text = st.session_state.get('unique_file', [])  
-    
-    
-    if agent_choice == 'Expert in Marketing':
-    
-        briefing_marketeer = f"""
-        Act as a marketing expert, native in the language of {unique_text}, skilled in rewriting texts to make them more engaging. You are responsible for rephrasing entire paragraphs if necessary, applying your expertise in persuasive and compelling communication. Your goal is to enhance the text's appeal to its intended audience, making it more captivating and effective in achieving its purpose. Use your deep understanding of marketing strategies and audience engagement techniques to refine the text, ensuring it resonates well with its readers. Consider tone, style, and key messaging as you craft a version that aligns with best practices in marketing and communication.
-        """
-    
-        prompt_marketeer = f"""
-        Given your expertise as a marketing expert specialized in crafting engaging and persuasive content, I seek your assistance in rewriting the following text. The original version feels lackluster and fails to engage the audience effectively. Your task is to inject vibrancy, persuasiveness, and clarity into the message, making it resonate with our target audience. 
+    with tab2:
+        st.title('Optimization tool')
+        st.write("Activate agents to rework the translation(s). Choose the agent that you want to activate.")
+        st.write("How to use agents? Once you have compiled your unique file with one or more versions, you can ask an agent to review the translation(s) and offer you a new, enhanced text.")
         
-        Please evaluate any provided versions or translations of the text. Use them as a foundation to identify the strongest elements or combine the best parts of each. Your goal is to produce a single, cohesive version that stands out as the most compelling and persuasive piece, utilizing your deep understanding of marketing strategies, audience engagement, and persuasive communication techniques.
+        st.write('Update your model choice if necessary')
+        temp_choice_2 = st.slider('Select a New Temperature', min_value=0.1, max_value=0.8, step=0.1, key='temp2')
+        agent_choice = st.radio('Pick Agent:', ['Expert in Marketing', 'Master in Copywriting', 'Doctor in Factual Communication'])
+        unique_text = st.session_state.get('unique_file', [])  
         
-        Feel empowered to rephrase whole sections, adjust the tone, and refine the style as needed. We aim for a text that not only captivates and persuades but also clearly communicates our key messages, setting our offering apart in the minds of our audience.
         
-        Text to enhance, using the same language, in which you are native:
-        {unique_text}
-        """
-    
-        if st.button('Enhance'):
+        if agent_choice == 'Expert in Marketing':
         
-            enhanced_marketeer = enhance_text(unique_text, temp_choice_2, select_model, briefing_marketeer, prompt_marketeer)
-            st.write(enhanced_marketeer)
+            briefing_marketeer = f"""
+            Act as a marketing expert, native in the language of {unique_text}, skilled in rewriting texts to make them more engaging. You are responsible for rephrasing entire paragraphs if necessary, applying your expertise in persuasive and compelling communication. Your goal is to enhance the text's appeal to its intended audience, making it more captivating and effective in achieving its purpose. Use your deep understanding of marketing strategies and audience engagement techniques to refine the text, ensuring it resonates well with its readers. Consider tone, style, and key messaging as you craft a version that aligns with best practices in marketing and communication.
+            """
+        
+            prompt_marketeer = f"""
+            Given your expertise as a marketing expert specialized in crafting engaging and persuasive content, I seek your assistance in rewriting the following text. The original version feels lackluster and fails to engage the audience effectively. Your task is to inject vibrancy, persuasiveness, and clarity into the message, making it resonate with our target audience. 
             
-            # Creating a download button for the translated text
-            st.download_button(label="Download Text", data=enhanced_marketeer, file_name="translation_enhanced_marketeer.txt", mime="text/plain")
+            Please evaluate any provided versions or translations of the text. Use them as a foundation to identify the strongest elements or combine the best parts of each. Your goal is to produce a single, cohesive version that stands out as the most compelling and persuasive piece, utilizing your deep understanding of marketing strategies, audience engagement, and persuasive communication techniques.
             
-    if agent_choice == 'Master in Copywriting':
-        
-        briefing_copywriter = f"""
-        Act as a master in copywriting, native in the language of {unique_text}, possessing exceptional skills in rewriting and rephrasing texts to achieve unparalleled fluency and naturalness in the target language. Your primary responsibility is to enhance the readability and flow of the text, ensuring it feels native and intuitive to the audience. Utilize your expertise in language and syntax to transform the content into a masterpiece of clarity and engagement. Your objective is to refine the text in a way that speaks directly to the reader's experience, making it effortlessly understandable and highly relatable. Focus on linguistic precision, cultural resonance, and the seamless conveyance of ideas, tailoring the message to fit the natural speech patterns and preferences of the target audience.
-        """
-    
-        prompt_copywriter = f"""
-        Given your mastery in copywriting and your ability to craft text that flows naturally and fluently for the native language of our target audience, I request your help in rewriting the text provided below. The current version, while informative, lacks the linguistic finesse and natural tone necessary to truly resonate with our readers. Your mission is to transform this text, enhancing its readability, ensuring it aligns perfectly with the native expressions and cultural nuances of the audience.
-        
-        Examine any available versions or translations of the text, identifying opportunities to improve its flow, clarity, and engagement. Draw upon your sophisticated understanding of language, style, and syntax to produce a version that stands as an exemplar of copywriting excellence—fluent, natural, and compelling.
-        
-        Your expertise in creating content that mirrors the conversational and cultural tone of the target audience is crucial. We are looking for a text that not only conveys the intended message but does so in a way that feels completely at home to the reader, as if it were crafted by and for someone from their own community.
-        
-        Text to enhance, using the same language, in which you are native:
-        {unique_text}
-        """
-    
-        if st.button('Enhance'):
-        
-            enhanced_copywriter = enhance_text(unique_text, temp_choice_2, select_model, briefing_copywriter, prompt_copywriter)
-            st.write(enhanced_copywriter)
+            Feel empowered to rephrase whole sections, adjust the tone, and refine the style as needed. We aim for a text that not only captivates and persuades but also clearly communicates our key messages, setting our offering apart in the minds of our audience.
             
-            # Creating a download button for the translated text
-            st.download_button(label="Download Text", data=enhanced_copywriter, file_name="translation_enhanced_copywriter.txt", mime="text/plain")
-    
-    if agent_choice == 'Doctor in Factual Communication':
-    
-        briefing_doctor = f"""
-        Assume the role of a Doctor in factual communication, native in the language of {unique_text}, an expert in articulating clear, evidence-based, and convincing messages. Your expertise lies in grounding communication in solid facts, data, and research to ensure credibility and authority. You are adept at presenting information in a manner that is not only informative but also compelling and result-oriented. Your task involves distilling complex information into digestible, impactful messages that directly address and engage the target audience. Focus on accuracy, clarity, and the strategic use of evidence to bolster arguments, aiming to educate, persuade, and drive action. Your approach should be straightforward, avoiding ambiguity to foster trust and confidence in the message conveyed.
-        """
-    
-        prompt_doctor = f"""
-        Given your expertise as a Doctor in factual communication, with a deep understanding of how to craft messages that are both evidence-based and compelling, your assistance is requested in rewriting the text provided below. The existing content needs to be transformed to not only accurately convey the necessary information but to do so in a manner that is engaging, convincing, and direct, ensuring it resonates with an audience seeking reliable and authoritative data.
+            Text to enhance, using the same language, in which you are native:
+            {unique_text}
+            """
         
-        Please leverage your ability to formulate comprehensive, to-the-point messages and convey clear, concise, and impactful statements. Your revision should amplify the text’s credibility and persuasiveness by highlighting solid facts, statistics, or findings that support the message, presented in a way that is accessible and compelling to the reader. 
-        
-        Your goal is to produce a version of the text that stands as a benchmark of factual communication—direct, result-oriented, and grounded in undeniable evidence. This text should not only inform but also motivate the reader towards a specific understanding or action, based on the strength and clarity of the information presented.
-        
-        Text to enhance, using the same language, in which you are native:
-        {unique_text}
-        """
-    
-        if st.button('Enhance'):
-        
-            enhanced_doctor = enhance_text(unique_text, temp_choice_2, select_model, briefing_doctor, prompt_doctor)
-            st.write(enhanced_doctor)
+            if st.button('Enhance'):
             
-            # Creating a download button for the translated text
-            st.download_button(label="Download Text", data=enhanced_doctor, file_name="translation_enhanced_doctor.txt", mime="text/plain")
+                enhanced_marketeer = enhance_text(unique_text, temp_choice_2, select_model, briefing_marketeer, prompt_marketeer)
+                st.write(enhanced_marketeer)
+                
+                # Creating a download button for the translated text
+                st.download_button(label="Download Text", data=enhanced_marketeer, file_name="translation_enhanced_marketeer.txt", mime="text/plain")
+                
+        if agent_choice == 'Master in Copywriting':
+            
+            briefing_copywriter = f"""
+            Act as a master in copywriting, native in the language of {unique_text}, possessing exceptional skills in rewriting and rephrasing texts to achieve unparalleled fluency and naturalness in the target language. Your primary responsibility is to enhance the readability and flow of the text, ensuring it feels native and intuitive to the audience. Utilize your expertise in language and syntax to transform the content into a masterpiece of clarity and engagement. Your objective is to refine the text in a way that speaks directly to the reader's experience, making it effortlessly understandable and highly relatable. Focus on linguistic precision, cultural resonance, and the seamless conveyance of ideas, tailoring the message to fit the natural speech patterns and preferences of the target audience.
+            """
+        
+            prompt_copywriter = f"""
+            Given your mastery in copywriting and your ability to craft text that flows naturally and fluently for the native language of our target audience, I request your help in rewriting the text provided below. The current version, while informative, lacks the linguistic finesse and natural tone necessary to truly resonate with our readers. Your mission is to transform this text, enhancing its readability, ensuring it aligns perfectly with the native expressions and cultural nuances of the audience.
+            
+            Examine any available versions or translations of the text, identifying opportunities to improve its flow, clarity, and engagement. Draw upon your sophisticated understanding of language, style, and syntax to produce a version that stands as an exemplar of copywriting excellence—fluent, natural, and compelling.
+            
+            Your expertise in creating content that mirrors the conversational and cultural tone of the target audience is crucial. We are looking for a text that not only conveys the intended message but does so in a way that feels completely at home to the reader, as if it were crafted by and for someone from their own community.
+            
+            Text to enhance, using the same language, in which you are native:
+            {unique_text}
+            """
+        
+            if st.button('Enhance'):
+            
+                enhanced_copywriter = enhance_text(unique_text, temp_choice_2, select_model, briefing_copywriter, prompt_copywriter)
+                st.write(enhanced_copywriter)
+                
+                # Creating a download button for the translated text
+                st.download_button(label="Download Text", data=enhanced_copywriter, file_name="translation_enhanced_copywriter.txt", mime="text/plain")
+        
+        if agent_choice == 'Doctor in Factual Communication':
+        
+            briefing_doctor = f"""
+            Assume the role of a Doctor in factual communication, native in the language of {unique_text}, an expert in articulating clear, evidence-based, and convincing messages. Your expertise lies in grounding communication in solid facts, data, and research to ensure credibility and authority. You are adept at presenting information in a manner that is not only informative but also compelling and result-oriented. Your task involves distilling complex information into digestible, impactful messages that directly address and engage the target audience. Focus on accuracy, clarity, and the strategic use of evidence to bolster arguments, aiming to educate, persuade, and drive action. Your approach should be straightforward, avoiding ambiguity to foster trust and confidence in the message conveyed.
+            """
+        
+            prompt_doctor = f"""
+            Given your expertise as a Doctor in factual communication, with a deep understanding of how to craft messages that are both evidence-based and compelling, your assistance is requested in rewriting the text provided below. The existing content needs to be transformed to not only accurately convey the necessary information but to do so in a manner that is engaging, convincing, and direct, ensuring it resonates with an audience seeking reliable and authoritative data.
+            
+            Please leverage your ability to formulate comprehensive, to-the-point messages and convey clear, concise, and impactful statements. Your revision should amplify the text’s credibility and persuasiveness by highlighting solid facts, statistics, or findings that support the message, presented in a way that is accessible and compelling to the reader. 
+            
+            Your goal is to produce a version of the text that stands as a benchmark of factual communication—direct, result-oriented, and grounded in undeniable evidence. This text should not only inform but also motivate the reader towards a specific understanding or action, based on the strength and clarity of the information presented.
+            
+            Text to enhance, using the same language, in which you are native:
+            {unique_text}
+            """
+        
+            if st.button('Enhance'):
+            
+                enhanced_doctor = enhance_text(unique_text, temp_choice_2, select_model, briefing_doctor, prompt_doctor)
+                st.write(enhanced_doctor)
+                
+                # Creating a download button for the translated text
+                st.download_button(label="Download Text", data=enhanced_doctor, file_name="translation_enhanced_doctor.txt", mime="text/plain")
 
 
 if __name__ == "__main__":
