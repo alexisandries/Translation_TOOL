@@ -234,6 +234,7 @@ def main():
                         # Initialize or append to translations_file in session state
                         if 'translations_file' not in st.session_state:
                             st.session_state.translations_file = [f"{select_model}, {temp_choice}:\n\n{translated_text}"]
+                            st.success('Text added to the file!')
                         else:
                             st.session_state.translations_file.append(f"{select_model}, {temp_choice}:\n\n{translated_text}")
                             st.success('Text added to the file!')
@@ -255,7 +256,7 @@ def main():
                 st.session_state.translations_file = []
                 st.success('Translations file has been reset.')
         else:
-            pass
+            st.write("Add some file to translations_file")
             
     with tab2:
         st.subheader('Refinement tool')
