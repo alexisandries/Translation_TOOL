@@ -242,7 +242,7 @@ def main():
             else:
                 st.error('Please upload or paste a text to translate.')
 
-        if translated_text is not None:: 
+        if translated_text is not None:
             st.write('**Add translation to unique file with translations**')
             if st.button('Add to FILE') :            
                 st.session_state.translations_file.append(st.session_state.last_translation)
