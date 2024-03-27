@@ -147,9 +147,6 @@ def enhance_text(text, temp_choice_2, select_model, briefing, prompt):
 
 def main():
     
-    # Streamlit UI
-    st.title('Wizzkid AI: Translate, Refine or Craft your text')
-    
     select_model = st.sidebar.radio('Select your model', ['GPT 3.5', 'GPT 4.0', 'MISTRAL large' ])
     
     if select_model != 'GPT 3.5':
@@ -165,7 +162,8 @@ def main():
     
         if pass_word == PASSWORD:
             pass
-
+            
+    st.subheader('Translate, Refine or Craft your text')
     tab1, tab2, tab3 = st.tabs(['TRANSLATE', 'REFINE', 'CRAFT'])
 
      # File upload
@@ -233,27 +231,27 @@ def main():
                 col11, col12 = st.columns(2)
                 with col11:
                     if st.button('Add to Translations_file'):
-                        # Initialize or append to unique_file in session state
+                        # Initialize or append to translations_file in session state
                         if 'translations_file' not in st.session_state:
-                            st.session_state.unique_file = [translated_text]
+                            st.session_state.translations_file = [translated_text]
                         else:
-                            st.session_state.unique_file.append(f"{select_model}, {temp_choice}:\n\n{translated_text}")
+                            st.session_state.translations_file.append(f"{select_model}, {temp_choice}:\n\n{translated_text}")
                             st.success('Text added to the file!')
                     
                 with col12:
                     # Creating a download button for the translated text
-                    st.download_button(label="Download Text", data=translated_text, file_name="translation.txt", mime="text/plain")
+                    st.download_button(label="Download Text", data=st.session_state.translations_file, file_name="translations.docx", mime="text/plain")
 
                 
     if st.sidebar.button('Display Translations File'):
-        if st.session_state.unique_file:
-            st.write("Contents of the unique file:", st.session_state.unique_file)
+        if st.session_state.translations_file:
+            st.write("Contents of the unique file:", st.session_state.translations_file)
         else:
             st.error('Please upload a file or enter some text to translate.')    
             
     if st.sidebar.button('Reset Translations File'):
         st.sidebar.session_state.translations_file = []
-        st.sidebar.success('Unique file has been reset.')
+        st.sidebar.success('Translations file has been reset.')
     
     with tab2:
         st.title('Optimization tool')
