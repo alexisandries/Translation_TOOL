@@ -244,10 +244,10 @@ def main():
 
                 
     if st.sidebar.button('Display Translations File'):
-        if st.session_state.translations_file:
-            st.write("Contents of the Translations file:", st.session_state.translations_file)
+        if 'translations_file' in st.session_state and st.session_state.translations_file:
+            st.write("Contents of the translations file:", st.session_state.translations_file)
         else:
-            st.error('Please upload a file or enter some text to translate.')    
+            st.error('The translations file is empty or does not exist. Please add translations before displaying.')  
             
     if st.sidebar.button('Reset Translations File'):
         st.sidebar.session_state.translations_file = []
