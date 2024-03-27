@@ -268,9 +268,9 @@ def main():
                 st.write("The translations file is empty.")
         
         st.write("Click to empty translations file")
-            if st.button('Reset'):
-                st.session_state.translations_file = []
-                st.success('Translations file has been reset.')
+        if st.button('Reset'):
+            st.session_state.translations_file = []
+            st.success('Translations file has been reset.')
         
         # if st.button('Translate'):
         #     if combined_text:
