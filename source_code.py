@@ -245,7 +245,7 @@ def main():
                 
     if st.sidebar.button('Display Translations File'):
         if st.session_state.translations_file:
-            st.write("Contents of the unique file:", st.session_state.translations_file)
+            st.write("Contents of the Translations file:", st.session_state.translations_file)
         else:
             st.error('Please upload a file or enter some text to translate.')    
             
@@ -254,14 +254,14 @@ def main():
         st.sidebar.success('Translations file has been reset.')
     
     with tab2:
-        st.title('Optimization tool')
+        st.subheader('Refinement tool')
         st.write("Activate agents to rework the translation(s). Choose the agent that you want to activate.")
         st.write("How to use agents? Once you have compiled your unique file with one or more versions, you can ask an agent to review the translation(s) and offer you a new, enhanced text.")
         
         st.write('Update your model choice if necessary')
         temp_choice_2 = st.slider('Select a New Temperature', min_value=0.1, max_value=0.8, step=0.1, key='temp2')
         agent_choice = st.radio('Pick Agent:', ['Expert in Marketing', 'Master in Copywriting', 'Doctor in Factual Communication'])
-        unique_text = st.session_state.get('unique_file', [])  
+        unique_text = st.session_state.get('translations_file', [])  
         
         
         if agent_choice == 'Expert in Marketing':
