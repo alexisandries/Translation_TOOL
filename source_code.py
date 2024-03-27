@@ -165,27 +165,6 @@ def main():
             
     st.subheader('Translate, Refine or Craft your text')
     tab1, tab2, tab3 = st.tabs(['TRANSLATE', 'REFINE', 'CRAFT'])
-
-     # File upload
-    uploaded_file = st.file_uploader("Upload file (PDF, PPTX, XLSX, DOCX)", type=['pdf', 'pptx', 'xlsx', 'docx'])
-    text = ""
-    
-    if uploaded_file:
-        if uploaded_file.type == "application/pdf":
-            text = read_pdf(uploaded_file)
-        elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-            text = read_pptx(uploaded_file)
-        elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-            text = read_excel(uploaded_file)
-        elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-            text = read_docx(uploaded_file)
-        st.text_area("Extracted Text", value=text, height=150, disabled=True)
-    
-    # Manual text input as an alternative to file upload
-    text_input = st.text_area('Or enter text to translate', height=200)
-    
-    # Combine file text and manual text input if both are provided
-    combined_text = text + "\n" + text_input
     
     with tab1: 
     
@@ -200,7 +179,28 @@ def main():
     
         st.write("**Lower Temperature (~0.2 to 0.4):** Recommended for more accurate, literal translations.")
         st.write("**Higher Temperature (~0.6 to 0.8):** Encourages more creative and fluid translations.")
-            
+
+        # File upload
+        uploaded_file = st.file_uploader("Upload file (PDF, PPTX, XLSX, DOCX)", type=['pdf', 'pptx', 'xlsx', 'docx'])
+        text = ""
+        
+        if uploaded_file:
+            if uploaded_file.type == "application/pdf":
+                text = read_pdf(uploaded_file)
+            elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                text = read_pptx(uploaded_file)
+            elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                text = read_excel(uploaded_file)
+            elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                text = read_docx(uploaded_file)
+            st.text_area("Extracted Text", value=text, height=150, disabled=True)
+        
+        # Manual text input as an alternative to file upload
+        text_input = st.text_area('Or enter text to translate', height=200)
+    
+        # Combine file text and manual text input if both are provided
+        combined_text = text + "\n" + text_input
+        
         briefing_1 = """
         As TranslationsAI, you embody the pinnacle of translation expertise, seamlessly bridging languages with unparalleled precision and eloquence. Your core languages include French, Dutch, and English. Each translation you produce adheres to the highest standards of reliability, ensuring that the meaning and nuance of the original text are perfectly preserved. Additionally, you imbue every translated piece with native fluency, adapting idioms, cultural references, and stylistic nuances to resonate authentically with the target audience. If necessary, you will seamlessly provide more adaptive translations that recreate the original's intent and style as if it were conceived in the target language. As a consequence, your translations are enriched with the depth and vibrancy characteristic of a skilled writer native to the destination language.
         """
