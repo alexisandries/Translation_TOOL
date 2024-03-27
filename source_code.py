@@ -247,7 +247,7 @@ def main():
             else:
                  st.error('Please upload or paste a text to translate.')
                  
-        if 'translations_file' in st.session.state and st.session_state.translations_file: 
+        if 'translations_file' in st.session_state and st.session_state.translations_file: 
             if st.button('Display Translations File'):
                 st.write("Contents of the translations file:", st.session_state.translations_file)
             
