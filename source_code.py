@@ -236,12 +236,12 @@ def main():
                 translated_text = translate_text(combined_text, from_language, to_language, temp_choice, select_model, briefing_1, prompt_2)
                 st.session_state.last_translation = f"{select_model}, {temp_choice}:\n\n{translated_text}"
                 st.write(translated_text)
-                  
+                st.write("##### Select action")
+                st.write("Please consider thet clicking one button will make the translation disappear and relaunch your session. Your text will remain available to relaunch another translation, with a new set of parameters.")  
+            
             else:
                 st.error('Please upload or paste a text to translate.')
 
-        st.write("#####Select action")
-        st.write("Please consider thet clicking one button will make the translation disappear and relaunch your session. Your text will remain available to relaunch another translation, with a new set of parameters.")
         
         if st.button('Add to FILE') and st.session_state.last_translation:
             st.write('**Add translation to unique file with translations**')        
