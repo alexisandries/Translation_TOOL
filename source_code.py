@@ -236,15 +236,13 @@ def main():
                 translated_text = translate_text(combined_text, from_language, to_language, temp_choice, select_model, briefing_1, prompt_2)
                 st.session_state.last_translation = f"{select_model}, {temp_choice}:\n\n{translated_text}"
                 st.write(translated_text)
+                st.write('**Add translation to unique file**')
+                if st.button('Add to File') and st.session_state.last_translation:
+                    st.session_state.translations_file.append(st.session_state.last_translation)
+                    st.success('Text added to the file!')
             else:
                 st.error('Please upload or paste a text to translate.')
         
-        with col1:
-            st.write('**Add translation to unique file**')
-            if st.button('Add to File') and st.session_state.last_translation:
-                st.session_state.translations_file.append(st.session_state.last_translation)
-                st.success('Text added to the file!')
-                
         col1, col2 = st.columns(2)
         with col1: 
             if 'translations_file' in st.session_state and st.session_state.translations_file:
