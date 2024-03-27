@@ -242,11 +242,11 @@ def main():
             else:
                 st.error('Please upload or paste a text to translate.')
 
-        
-        if st.button('Add to FILE') and st.session_state.last_translation:
-            st.write('**Add translation to unique file with translations**')        
-            st.session_state.translations_file.append(st.session_state.last_translation)
-            st.success('Text added to the file!')
+        if st.session_state.last_translation: 
+            st.write('**Add translation to unique file with translations**')
+            if st.button('Add to FILE') :            
+                st.session_state.translations_file.append(st.session_state.last_translation)
+                st.success('Text added to the file!')
         
         col1, col2 = st.columns(2)
         with col1: 
