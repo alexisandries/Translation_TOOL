@@ -248,8 +248,12 @@ def main():
             if translated_text is not None:
                 st.download_button(label="Download Current Text", data=translated_text, file_name="translation.txt", mime="text/plain")
             if 'translations_file' in st.session_state and st.session_state.translations_file:
-                st.download_button(label="Download Translations File", data=st.session_state.translations_file, file_name="translations_file.txt", mime="text/plain")
-
+                translations_str = '\n'.join(st.session_state.translations_file)  # Join list items into a string
+                st.download_button(label="Download Translations File",
+                                   data=translations_str,  
+                                   file_name="translations_file.txt",
+                                   mime="text/plain")
+                
         if st.button('Display Translations File'):
             if st.session_state.translations_file:
                 st.write("Contents of the translations file:", st.session_state.translations_file)
