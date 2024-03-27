@@ -223,40 +223,77 @@ def main():
         {combined_text}
         """
 
+        if 'translations_file' not in st.session_state:
+            st.session_state.translations_file = []
+        
+        if 'last_translation' not in st.session_state:
+            st.session_state.last_translation = None
+        
         if st.button('Translate'):
             if combined_text:
                 translated_text = translate_text(combined_text, from_language, to_language, temp_choice, select_model, briefing_1, prompt_2)
+                st.session_state.last_translation = f"{select_model}, {temp_choice}:\n\n{translated_text}"
                 st.write(translated_text)
-                
-                col6, col7 = st.columns(2)
-                with col6:
-                    if st.button('Add to Translations_file'):
-                        # Initialize or append to translations_file in session state
-                        if 'translations_file' not in st.session_state:
-                            st.session_state.translations_file = [f"{select_model}, {temp_choice}:\n\n{translated_text}"]
-                            st.success('Text added to the file!')
-                        else:
-                            st.session_state.translations_file.append(f"{select_model}, {temp_choice}:\n\n{translated_text}")
-                            st.success('Text added to the file!')
-                    
-                with col7:
-                    # Creating a download button for the translated text
-                    st.download_button(label="Download Current Text", data=translated_text, file_name="translation.txt", mime="text/plain")
-                    if 'translations_file' in st.session_state and st.session_state.translations_file:
-                        st.download_button(label="Download Translations File", data=st.session_state.translations_file, file_name="translations_file.txt", mime="text/plain")
-
             else:
-                 st.error('Please upload or paste a text to translate.')
-                 
-        if 'translations_file' in st.session_state: 
-            if st.button('Display Translations File'):
+                st.error('Please upload or paste a text to translate.')
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button('Add to Translations File') and st.session_state.last_translation:
+                st.session_state.translations_file.append(st.session_state.last_translation)
+                st.success('Text added to the file!')
+        
+        with col2:
+            st.download_button(label="Download Current Text", data=translated_text, file_name="translation.txt", mime="text/plain")
+            if 'translations_file' in st.session_state and st.session_state.translations_file:
+                st.download_button(label="Download Translations File", data=st.session_state.translations_file, file_name="translations_file.txt", mime="text/plain")
+
+        if st.button('Display Translations File'):
+            if st.session_state.translations_file:
                 st.write("Contents of the translations file:", st.session_state.translations_file)
+            else:
+                st.write("The translations file is empty.")
+        
+        if st.button('Reset Translations File'):
+            st.session_state.translations_file = []
+            st.success('Translations file has been reset.')
+
+
+        
+        # if st.button('Translate'):
+        #     if combined_text:
+        #         translated_text = translate_text(combined_text, from_language, to_language, temp_choice, select_model, briefing_1, prompt_2)
+        #         st.write(translated_text)
+                
+        #         col6, col7 = st.columns(2)
+        #         with col6:
+        #             if st.button('Add to Translations_file'):
+        #                 # Initialize or append to translations_file in session state
+        #                 if 'translations_file' not in st.session_state:
+        #                     st.session_state.translations_file = [f"{select_model}, {temp_choice}:\n\n{translated_text}"]
+        #                     st.success('Text added to the file!')
+        #                 else:
+        #                     st.session_state.translations_file.append(f"{select_model}, {temp_choice}:\n\n{translated_text}")
+        #                     st.success('Text added to the file!')
+                    
+        #         with col7:
+        #             # Creating a download button for the translated text
+        #             st.download_button(label="Download Current Text", data=translated_text, file_name="translation.txt", mime="text/plain")
+        #             if 'translations_file' in st.session_state and st.session_state.translations_file:
+        #                 st.download_button(label="Download Translations File", data=st.session_state.translations_file, file_name="translations_file.txt", mime="text/plain")
+
+        #     else:
+        #          st.error('Please upload or paste a text to translate.')
+                 
+        # if 'translations_file' in st.session_state: 
+        #     if st.button('Display Translations File'):
+        #         st.write("Contents of the translations file:", st.session_state.translations_file)
             
-            # if st.button('Reset Translations File'):
-            #     st.session_state.translations_file = []
-            #     st.success('Translations file has been reset.')
-        else:
-            st.write("Add some file to translations_file")
+        #     # if st.button('Reset Translations File'):
+        #     #     st.session_state.translations_file = []
+        #     #     st.success('Translations file has been reset.')
+        # else:
+        #     st.write("Add some file to translations_file")
             
     with tab2:
         st.subheader('Refinement tool')
