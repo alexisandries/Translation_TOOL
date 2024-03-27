@@ -222,7 +222,8 @@ def main():
         Text to Translate:
         {combined_text}
         """
-
+        translated_text = None
+        
         if 'translations_file' not in st.session_state:
             st.session_state.translations_file = []
         
@@ -244,7 +245,8 @@ def main():
                 st.success('Text added to the file!')
         
         with col2:
-            st.download_button(label="Download Current Text", data=translated_text, file_name="translation.txt", mime="text/plain")
+            if translated_text is not None:
+                st.download_button(label="Download Current Text", data=translated_text, file_name="translation.txt", mime="text/plain")
             if 'translations_file' in st.session_state and st.session_state.translations_file:
                 st.download_button(label="Download Translations File", data=st.session_state.translations_file, file_name="translations_file.txt", mime="text/plain")
 
