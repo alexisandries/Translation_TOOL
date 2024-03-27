@@ -232,7 +232,7 @@ def main():
                 
                 col11, col12 = st.columns(2)
                 with col11:
-                    if st.button('Add to Translations_file')
+                    if st.button('Add to Translations_file'):
                         # Initialize or append to unique_file in session state
                         if 'translations_file' not in st.session_state:
                             st.session_state.unique_file = [translated_text]
@@ -244,7 +244,6 @@ def main():
                     # Creating a download button for the translated text
                     st.download_button(label="Download Text", data=translated_text, file_name="translation.txt", mime="text/plain")
 
-                
                 
     if st.sidebar.button('Display Translations File'):
         if st.session_state.unique_file:
