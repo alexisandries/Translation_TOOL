@@ -172,7 +172,7 @@ def main():
         if pass_word == PASSWORD:
             pass
             
-    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Chat with LLM', 'Craft, Refine and Translate your text'])
+    tool_choice = st.sidebar.radio("**Choose your tool**", ['Chat with LLM', 'Craft, Refine and Translate your text'])
 
     
     
