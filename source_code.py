@@ -13,9 +13,9 @@ from mistralai.models.chat_completion import ChatMessage
 
 st.set_page_config(layout="wide")
 
-openai.api_key  = os.getenv('OPENAI_API_KEY')
-mistral_api_key = os.getenv("MISTRAL_API_KEY")
-PASSWORD = os.getenv("MDM_PASSWORD")
+openai.api_key  = st.secrets('OPENAI_API_KEY')
+mistral_api_key = st.secrets("MISTRAL_API_KEY")
+PASSWORD = st.secrets("MDM_PASSWORD")
 
 def read_pdf(file):
     text = ''
@@ -179,7 +179,7 @@ def main():
     if tool_choice =='Chat with LLM':
 
        
-        st.title("ChatGPT-bot")
+        st.title("Chatbot")
 
         temp_choice = st.slider('Select a Temperature', min_value=0.0, max_value=1.0, step=0.1, key='llm_bot')
 
@@ -205,7 +205,7 @@ def main():
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
         
-        if prompt := st.chat_input("Yo bro"):
+        if prompt := st.chat_input():
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
