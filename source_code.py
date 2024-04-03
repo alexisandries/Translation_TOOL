@@ -136,7 +136,7 @@ def main():
     if tool_choice =='Chat with LLM':
 
        
-        st.title("ChatGPT-bot")
+        st.title("Chatbot")
 
         temp_choice = st.slider('Select a Temperature', min_value=0.0, max_value=1.0, step=0.1, key='llm_bot')
 
