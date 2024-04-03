@@ -90,57 +90,14 @@ def run_model(messages, temp_choice, select_model):
 
     
 
-def translate_to_français(text, from_language, temp_choice, select_model):
+def translate_text(text, messages, from_language, to_language, temp_choice, select_model):
     """
     Translates text from one language to another with a specified style using OpenAI's API.
-    """
-
-    messages = [
-        {"role":"system", "content": f""" Vous êtes un traducteur professionnel hautement qualifié, spécialisé dans le secteur des grandes ONG médicales, des droits humains et de la communication à haut impact. Vous avez une parfaite maîtrise de la langue source {from_language} et du français, avec une connaissance approfondie des nuances culturelles et terminologiques de ces langues."""},
-        {"role":"user", "content": f"""
-        Objectif : Traduire le texte suivant vers le français, en respectant les plus hauts standards de fiabilité, de fluidité, et d'adaptation culturelle. La traduction doit être fidèle au sens du texte source tout en étant naturellement compréhensible pour un locuteur natif de la langue cible.
-        
-        Directives spécifiques :
-        1. **Fidélité et fiabilité** : Assurez-vous que la traduction reflète fidèlement le contenu, le sens et le ton du texte source. Évitez les omissions ou les ajouts non justifiés. Il est autorisé de s'écarter du texte source pour mieux s'accorder aux directives 2 à 5.  
-        2. **Cohérence terminologique** : Utilisez la terminologie spécifique au domaine du texte, et assurez-vous que son usage est cohérent tout au long de la traduction. Consultez des glossaires spécialisés si nécessaire.
-        3. **Adaptation culturelle** : Adaptez les références culturelles, les idiomes et les expressions spécifiques de manière à ce qu'elles soient pertinentes et compréhensibles dans la langue cible.
-        4. **Lisibilité et naturel** : La traduction doit être extrêmement fluide et naturelle, comme si le texte avait été initialement écrit dans la langue cible. Prêtez attention à la syntaxe, au style et au rythme du texte pour garantir une lecture souple et convaincante.
-        5. **Respect des conventions** : Suivez les conventions grammaticales, orthographiques et de ponctuation de la langue cible. Adaptez les formats de date, de monnaie et d'autres éléments spécifiques selon les normes en vigueur dans la culture cible.
-        
-        Texte à traduire :
-        {text}
-        
-        Veuillez procéder à la traduction en tenant compte de toutes ces directives pour produire un texte qui réponde aux exigences d'une traduction professionnelle de haute qualité."""}  
-    ]
-    
+    """ 
     return run_model(messages, temp_choice, select_model)
 
-def enhance_to_français(text, objectif, public_cible, temp_choice, select_model):
+def enhance_text(text, objectif, public_cible, temp_choice, select_model):
 
-    messages = [
-        {"role":"system", "content": """Assister l'expert en rédaction pour évaluer et améliorer le texte fourni. L'expert doit se concentrer sur l'élimination des indices de traduction, l'enrichissement du contenu, l'optimisation de la fluidité et l'authenticité linguistique, tout en ajustant le texte pour qu'il résonne profondément avec le public cible. Le processus comprend deux phases principales : une évaluation initiale suivie d'une amélioration basée sur cette évaluation."""},
-        {"role":"user", "content": f"""
-        
-        L'objectif du texte est comme suit:
-        {objectif}
-
-        Le public cible est le suivant: 
-        {public_cible}
-        
-        Veuillez suivre les étapes ci-dessous pour améliorer le texte :
-        
-        1. **Évaluation Initiale** : Identifiez les forces et les faiblesses du texte. Focus sur la clarté, la cohérence, les redondances et l'efficacité en adéquation avec les objectifs et publics-cible. 
-        2. **Amélioration** : Sur la base de votre évaluation, procédez aux améliorations nécessaires. Assurez-vous de :
-           - Éliminer les marques de traduction.
-           - Améliorer la fluidité et l'authenticité.
-           - Ajuster la structure, le contenu, le style, le ton et le choix des mots aux objectifs et public cible.
-           - Adapter si nécessaire les expressions et les références culturelles.
-    
-        Texte à évaluer et à améliorer :
-        {text}
-        """}  
-    ]
-    
     return run_model(messages, temp_choice, select_model)
 
 
@@ -172,14 +129,14 @@ def main():
         if pass_word == PASSWORD:
             pass
             
-    tool_choice = st.sidebar.radio("**Choose your TOOL**", ['Chat with LLM', 'Craft, Refine and Translate your text'])
+    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Chat with LLM', 'Craft, Refine and Translate your text'])
 
     
     
     if tool_choice =='Chat with LLM':
 
        
-        st.title("Chatbot")
+        st.title("ChatGPT-bot")
 
         temp_choice = st.slider('Select a Temperature', min_value=0.0, max_value=1.0, step=0.1, key='llm_bot')
 
@@ -205,7 +162,7 @@ def main():
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
         
-        if prompt := st.chat_input():
+        if prompt := st.chat_input("Yo bro"):
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
@@ -295,10 +252,72 @@ def main():
                 
                 if combined_text:
                     if to_language == 'French':
-                        translated_text = translate_to_français(combined_text, from_language, temp_choice, select_model)
-                   
-                        st.session_state.last_text = f"{select_model}, Temp {temp_choice}, 'translated':\n\n{translated_text}"
-                        st.write(translated_text)
+
+                        message_translate = [
+                            {"role": "system", "content": f"Vous êtes un traducteur professionnel expert en {from_language} et français, spécialisé dans les secteurs des grandes ONG médicales, des droits humains et de la communication publique. Votre maîtrise des nuances culturelles et terminologiques est essentielle."},
+                            {"role": "user", "content": f"""
+                            **Objectif:** 
+                            - Traduisez le texte ci-dessous en français de manière à ce qu'il paraisse naturel et authentique pour un locuteur natif.
+                            
+                            **Directives:**
+                            1. **Fidélité et Adaptabilité**: Le texte doit fidèlement refléter le sens original, tout en s'adaptant pour respecter les nuances de la langue cible.
+                            2. **Terminologie**: Utilisez une terminologie spécifique et cohérente, en consultant des glossaires au besoin.
+                            3. **Adaptation Culturelle**: Ajustez les références culturelles pour qu'elles résonnent naturellement avec le public cible.
+                            4. **Fluidité et clarté**: Aspirez à une traduction fluide, comme si le texte avait été rédigé en français à l'origine. Le message doit être exprimé de manière claire et persuasive. 
+                            5. **Conventions Linguistiques**: Respectez les règles grammaticales, orthographiques, et les conventions de formatage spécifiques au français.
+                            
+                            **Texte à traduire:**
+                            {combined_text}
+                            
+                            Suivez ces directives pour assurer une traduction de haute qualité et contentez-vous de présenter la traduction dans votre réponse, sans commentaires."""}
+                        ]
+
+                    elif to_language == 'Dutch':
+                        
+                        message_translate = [
+                            {"role":"system", "content": f""" Je bent een expert in het vertalen voor medische NGO's, mensenrechten, en publieke communicatie. Je spreekt {from_language} en het Nederlands vloeiend, met grondige kennis van beide culturen en terminologieën."""},
+                            {"role":"user", "content": f"""
+                            **Doel:**
+                            - Vertaal onderstaande tekst naar het Nederlands, waarbij de vertaling natuurlijk en authentiek moet klinken voor Vlamingen.
+
+                            **Richtlijnen:**
+                            1. **Trouw en Vrijheid**: Blijf trouw aan betekenis, stijl en toon, maar pas aan voor een betere aansluiting bij de doeltaal.
+                            2. **Terminologie**: Gebruik specifieke vakterminologie consistent. Raadpleeg zo nodig glossaria.
+                            3. **Culturele Aanpassing**: Pas culturele en idiomatische uitdrukkingen aan voor natuurlijk begrip.
+                            4. **Vloeiendheid en helderheid**: Zorg voor een vloeiende, natuurlijke tekst alsof origineel in het Frans geschreven. De boodschap wordt helder en overtuigend geformuleerd. 
+                            5. **Conventies:** Respecteer grammatica, spelling, interpunctie, en formatteer datums en valuta volgens de Franse normen.
+                            
+                            **Te Vertalen Tekst:** 
+                            {combined_text}
+                            
+                            Volg deze instructies voor een optimale vertaling en geef in uw antwoord enkel de vertaling weer, zonder commentaren."""}  
+                        ]
+
+                    else: 
+
+                        message_translate = [
+                            {"role": "system", "content": f"""You are a professional translator expert in {from_language} and English, specializing in the sectors of large medical NGOs, human rights, and public communication. Your mastery of cultural and terminological nuances is essential."""},
+                            {"role": "user", "content": f"""
+                            Objective: Translate the following text into English in a way that it appears natural and authentic to a native speaker.
+                        
+                            Guidelines:
+                            1. **Fidelity and Adaptability**: The text must faithfully reflect the original meaning, while adapting to respect the nuances of the target language.
+                            2. **Terminology**: Use specific and consistent terminology, consulting glossaries as needed.
+                            3. **Cultural Adaptation**: Adjust cultural references to resonate naturally with the target audience.
+                            4. **Fluidity**: Aim for a translation that is fluid and clear, as if the text were originally written in English.
+                            5. **Linguistic Conventions**: Adhere to grammatical, spelling, and formatting conventions specific to English.
+                            
+                            Text to translate:
+                            {combined_text}
+                            
+                            Follow these guidelines to ensure a high-quality translation and present only the translation when answering."""}
+                        ]
+                    
+
+                    translated_text = run_model(message_translate, temp_choice, select_model)
+               
+                    st.session_state.last_text = f"{select_model}, Temp {temp_choice}, 'translated':\n\n{translated_text}"
+                    st.write(translated_text)
                                
                 else:
                     st.error('Please upload or paste a text to translate.')
@@ -310,8 +329,125 @@ def main():
                 st.write('**Enhance text (translation or latest in memory)**')
                 objectif = st.text_input("Describe clearly and concisely the goal or objective of text (use language of target audience)")
                 public_cible = st.text_input("Describe target audience")
+                text = st.session_state.last_text
+                
                 if st.button('Enhance'):
-                    enhanced_text = enhance_to_français(st.session_state.last_text, objectif, public_cible, temp_choice, select_model)
+                        
+                    if to_language == 'French':
+                    
+                        message_enhance = [
+                            {"role":"system", "content": """
+                            
+                            **Mission** : Assister l'expert en rédaction pour évaluer et améliorer le texte fourni, en se concentrant sur:
+                            - l'optimisation de la fluidité 
+                            - l'authenticité linguistique 
+                            - l'augmentation de l'impact."""},
+                            
+                            {"role":"user", "content": f"""
+                            
+                            **Objectif du texte:**
+                            {objectif}
+                    
+                            **Public-cible du texte:** 
+                            {public_cible}
+                            
+                            **Processus d'amélioration:**
+                          
+                            1. **Évaluation Initiale**  
+                                - Identifiez les forces et les faiblesses du texte en termes de clarté, de cohérence et d'impact en adéquation avec les objectifs/public-cible. 
+                            2. **Amélioration**  
+                                Sur la base de l'évaluation initiale: 
+                               - Éliminez les marques de traduction apparentes.
+                               - Adapter les expressions et les références culturelles.
+                               - Renforcez la fluidité et l'authenticité du texte.
+                               - Ajuster la structure, le contenu, le style, le ton et le vocabulaire pour mieux correspondre aux objectifs et au public cible et augmenter son impact.
+                               
+                        
+                            Texte à évaluer et à améliorer :
+                            {text}
+
+                            Dans la réponse, vous incorporez uniquement le texte amélioré, sans l'évaluation initiale ou tout autre commentaire. 
+                            """}  
+                        ]
+
+
+                    elif to_language == 'Dutch':
+                    
+                        message_enhance = [
+            
+                            {"role": "system", "content": """
+                            
+                            **Missie**: Assisteer de redactie-expert bij het evalueren en verbeteren van de aangeleverde tekst, met focus op :
+                            - Het optimaliseren van de vloeiendheid
+                            - De taalkundige authenticiteit
+                            - Het vergroten van de impact"""},
+                            
+                            {"role": "user", "content": f"""
+                            
+                            **Doel van de tekst:**
+                            {objectif}
+                        
+                            **Doelgroep van de tekst:** 
+                            {public_cible}
+                            
+                            **Verbeteringsproces:**
+                        
+                            1. **Initiële Evaluatie**
+                                - Identificeer de sterke en zwakke punten van de tekst qua duidelijkheid, consistentie, en doeltreffendheid in lijn met de doelstellingen/doelgroep.
+                            2. **Verbetering**
+                                Op basis van de initiële evaluatie:
+                               - Verwijder duidelijke vertaalindicatoren. 
+                               - Pas culturele uitdrukkingen en referenties aan.
+                               - Versterk de vloeiendheid en authenticiteit van de tekst.
+                               - Pas de structuur, inhoud, stijl, toon, en vocabulaire aan om beter aan te sluiten bij de doelstellingen en doelgroep en om de impact te vergroten.
+                              
+                            Tekst om te evalueren en te verbeteren:
+                            {text}
+
+                            In het antwoord neemt u enkel de verbeterde tekst op, zonder de initiële evaluatie of ander commentaar.
+                            """}  
+                        ]
+
+
+                    else:
+
+                        message_enhance = [
+                            {"role": "system", "content": """
+                            
+                            **Mission**: Assist the editorial expert in evaluating and improving the provided text, focusing on:
+                            
+                            - Optimizing fluency
+                            - Linguistic authenticity
+                            - Increasing impact"""},
+                            
+                            {"role": "user", "content": f"""
+                            
+                            **Purpose of the text:**
+                            {objectif}
+                            
+                            **Target audience of the text:** 
+                            {public_cible}
+                            
+                            **Improvement process:**
+                            
+                            1. **Initial Evaluation**
+                                - Identify the strengths and weaknesses of the text in terms of clarity, consistency, and effectiveness in line with the objectives/target audience.
+                            2. **Improvement**
+                                Based on the initial evaluation:
+                               - Remove clear translation indicators.
+                               - Adapt cultural expressions and references.
+                               - Strengthen the fluency and authenticity of the text.
+                               - Adjust the structure, content, style, tone, and vocabulary to better align with the objectives and target audience and to increase impact.
+                              
+                            Text to evaluate and improve:
+                            {text}
+
+                            The answer only contains the improved text version, and not the results of the initial evaluation or other comments. 
+                            """}  
+                        ]
+
+                    
+                    enhanced_text = run_model(message_enhance, temp_choice, select_model)
                     st.session_state.last_text = f"{select_model}, Temp {temp_choice}, enhanced:\n\n{enhanced_text}"
                     st.write(st.session_state.last_text)
                     
@@ -347,7 +483,7 @@ def main():
                     st.sidebar.write('**Text in memory**') 
                     st.sidebar.write(st.session_state.last_text[:colon_index])
                      
-    
+        
 
         with tab2:
             st.subheader('Refine')
