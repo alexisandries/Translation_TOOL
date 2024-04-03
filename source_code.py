@@ -476,12 +476,12 @@ def main():
                     st.session_state.central_file = []
                     st.success('Translations file has been reset.')
     
-                if 'last_text' in st.session_state:
-                    # Find the index of the first colon
-                    colon_index = st.session_state.last_text.find(':')
-                    st.sidebar.write("\n\n")
-                    st.sidebar.write('**Text in memory**') 
-                    st.sidebar.write(st.session_state.last_text[:colon_index])
+            if 'last_text' in st.session_state:
+                # Find the index of the first colon
+                colon_index = st.session_state.last_text.find(':')
+                st.sidebar.write("\n\n")
+                st.sidebar.write('**Text in memory**') 
+                st.sidebar.write(st.session_state.last_text[:colon_index])
                      
         
 
