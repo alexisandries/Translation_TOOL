@@ -222,6 +222,8 @@ def main():
             uploaded_file = st.file_uploader("Upload file (PDF, PPTX, XLSX, DOCX)", type=['pdf', 'pptx', 'xlsx', 'docx'])
             text = ""
             
+            combined_text == None
+            
             if uploaded_file:
                 if uploaded_file.type == "application/pdf":
                     text = read_pdf(uploaded_file)
@@ -250,7 +252,7 @@ def main():
             st.write("**Click to translate (uploaded or in box)**")
             if st.button('Translate'):
                 
-                if combined_text != None:
+                if combined_text is not None:
                     if to_language == 'French':
 
                         message_translate = [
