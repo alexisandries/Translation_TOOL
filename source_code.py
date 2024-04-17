@@ -222,7 +222,7 @@ def main():
             uploaded_file = st.file_uploader("Upload file (PDF, PPTX, XLSX, DOCX)", type=['pdf', 'pptx', 'xlsx', 'docx'])
             text = ""
             
-            combined_text == None
+            combined_text = None
             
             if uploaded_file:
                 if uploaded_file.type == "application/pdf":
