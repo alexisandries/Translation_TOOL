@@ -326,132 +326,136 @@ def main():
             # This check ensures we only attempt to use 'last_text' if it's been defined
             if 'last_text' in st.session_state and st.session_state.last_text:
                 
-                st.write('**Enhance text (translation or latest in memory)**')
-                objectif = st.text_input("Describe clearly and concisely the goal or objective of text (use language of target audience)")
-                public_cible = st.text_input("Describe target audience")
-                text = st.session_state.last_text
-                
-                if st.button('Enhance'):
-                        
-                    if to_language == 'French':
+                if st.session_state.last_text is not None:
                     
-                        message_enhance = [
-                            {"role":"system", "content": """
-                            
-                            **Mission** : Assister l'expert en rédaction pour évaluer et améliorer le texte fourni, en se concentrant sur:
-                            - l'optimisation de la fluidité 
-                            - l'authenticité linguistique 
-                            - l'augmentation de l'impact."""},
-                            
-                            {"role":"user", "content": f"""
-                            
-                            **Objectif du texte:**
-                            {objectif}
+                    st.write('**Enhance text (translation or latest in memory)**')
+                    objectif = st.text_input("Describe clearly and concisely the goal or objective of text (use language of target audience)")
+                    public_cible = st.text_input("Describe target audience")
+                    text = st.session_state.last_text
                     
-                            **Public-cible du texte:** 
-                            {public_cible}
+                    if st.button('Enhance'):
                             
-                            **Processus d'amélioration:**
-                          
-                            1. **Évaluation Initiale**  
-                                - Identifiez les forces et les faiblesses du texte en termes de clarté, de cohérence et d'impact en adéquation avec les objectifs/public-cible. 
-                            2. **Amélioration**  
-                                Sur la base de l'évaluation initiale: 
-                               - Éliminez les marques de traduction apparentes.
-                               - Adapter les expressions et les références culturelles.
-                               - Renforcez la fluidité et l'authenticité du texte.
-                               - Ajuster la structure, le contenu, le style, le ton et le vocabulaire pour mieux correspondre aux objectifs et au public cible et augmenter son impact.
-                               
+                        if to_language == 'French':
                         
-                            Texte à évaluer et à améliorer :
-                            {text}
-
-                            Dans la réponse, vous incorporez uniquement le texte amélioré, sans l'évaluation initiale ou tout autre commentaire. 
-                            """}  
-                        ]
-
-
-                    elif to_language == 'Dutch':
-                    
-                        message_enhance = [
-            
-                            {"role": "system", "content": """
-                            
-                            **Missie**: Assisteer de redactie-expert bij het evalueren en verbeteren van de aangeleverde tekst, met focus op :
-                            - Het optimaliseren van de vloeiendheid
-                            - De taalkundige authenticiteit
-                            - Het vergroten van de impact"""},
-                            
-                            {"role": "user", "content": f"""
-                            
-                            **Doel van de tekst:**
-                            {objectif}
+                            message_enhance = [
+                                {"role":"system", "content": """
+                                
+                                **Mission** : Assister l'expert en rédaction pour évaluer et améliorer le texte fourni, en se concentrant sur:
+                                - l'optimisation de la fluidité 
+                                - l'authenticité linguistique 
+                                - l'augmentation de l'impact."""},
+                                
+                                {"role":"user", "content": f"""
+                                
+                                **Objectif du texte:**
+                                {objectif}
                         
-                            **Doelgroep van de tekst:** 
-                            {public_cible}
-                            
-                            **Verbeteringsproces:**
-                        
-                            1. **Initiële Evaluatie**
-                                - Identificeer de sterke en zwakke punten van de tekst qua duidelijkheid, consistentie, en doeltreffendheid in lijn met de doelstellingen/doelgroep.
-                            2. **Verbetering**
-                                Op basis van de initiële evaluatie:
-                               - Verwijder duidelijke vertaalindicatoren. 
-                               - Pas culturele uitdrukkingen en referenties aan.
-                               - Versterk de vloeiendheid en authenticiteit van de tekst.
-                               - Pas de structuur, inhoud, stijl, toon, en vocabulaire aan om beter aan te sluiten bij de doelstellingen en doelgroep en om de impact te vergroten.
+                                **Public-cible du texte:** 
+                                {public_cible}
+                                
+                                **Processus d'amélioration:**
                               
-                            Tekst om te evalueren en te verbeteren:
-                            {text}
-
-                            In het antwoord neemt u enkel de verbeterde tekst op, zonder de initiële evaluatie of ander commentaar.
-                            """}  
-                        ]
-
+                                1. **Évaluation Initiale**  
+                                    - Identifiez les forces et les faiblesses du texte en termes de clarté, de cohérence et d'impact en adéquation avec les objectifs/public-cible. 
+                                2. **Amélioration**  
+                                    Sur la base de l'évaluation initiale: 
+                                   - Éliminez les marques de traduction apparentes.
+                                   - Adapter les expressions et les références culturelles.
+                                   - Renforcez la fluidité et l'authenticité du texte.
+                                   - Ajuster la structure, le contenu, le style, le ton et le vocabulaire pour mieux correspondre aux objectifs et au public cible et augmenter son impact.
+                                   
+                            
+                                Texte à évaluer et à améliorer :
+                                {text}
+    
+                                Dans la réponse, vous incorporez uniquement le texte amélioré, sans l'évaluation initiale ou tout autre commentaire. 
+                                """}  
+                            ]
+    
+    
+                        elif to_language == 'Dutch':
+                        
+                            message_enhance = [
+                
+                                {"role": "system", "content": """
+                                
+                                **Missie**: Assisteer de redactie-expert bij het evalueren en verbeteren van de aangeleverde tekst, met focus op :
+                                - Het optimaliseren van de vloeiendheid
+                                - De taalkundige authenticiteit
+                                - Het vergroten van de impact"""},
+                                
+                                {"role": "user", "content": f"""
+                                
+                                **Doel van de tekst:**
+                                {objectif}
+                            
+                                **Doelgroep van de tekst:** 
+                                {public_cible}
+                                
+                                **Verbeteringsproces:**
+                            
+                                1. **Initiële Evaluatie**
+                                    - Identificeer de sterke en zwakke punten van de tekst qua duidelijkheid, consistentie, en doeltreffendheid in lijn met de doelstellingen/doelgroep.
+                                2. **Verbetering**
+                                    Op basis van de initiële evaluatie:
+                                   - Verwijder duidelijke vertaalindicatoren. 
+                                   - Pas culturele uitdrukkingen en referenties aan.
+                                   - Versterk de vloeiendheid en authenticiteit van de tekst.
+                                   - Pas de structuur, inhoud, stijl, toon, en vocabulaire aan om beter aan te sluiten bij de doelstellingen en doelgroep en om de impact te vergroten.
+                                  
+                                Tekst om te evalueren en te verbeteren:
+                                {text}
+    
+                                In het antwoord neemt u enkel de verbeterde tekst op, zonder de initiële evaluatie of ander commentaar.
+                                """}  
+                            ]
+    
+    
+                        else:
+    
+                            message_enhance = [
+                                {"role": "system", "content": """
+                                
+                                **Mission**: Assist the editorial expert in evaluating and improving the provided text, focusing on:
+                                
+                                - Optimizing fluency
+                                - Linguistic authenticity
+                                - Increasing impact"""},
+                                
+                                {"role": "user", "content": f"""
+                                
+                                **Purpose of the text:**
+                                {objectif}
+                                
+                                **Target audience of the text:** 
+                                {public_cible}
+                                
+                                **Improvement process:**
+                                
+                                1. **Initial Evaluation**
+                                    - Identify the strengths and weaknesses of the text in terms of clarity, consistency, and effectiveness in line with the objectives/target audience.
+                                2. **Improvement**
+                                    Based on the initial evaluation:
+                                   - Remove clear translation indicators.
+                                   - Adapt cultural expressions and references.
+                                   - Strengthen the fluency and authenticity of the text.
+                                   - Adjust the structure, content, style, tone, and vocabulary to better align with the objectives and target audience and to increase impact.
+                                  
+                                Text to evaluate and improve:
+                                {text}
+    
+                                The answer only contains the improved text version, and not the results of the initial evaluation or other comments. 
+                                """}  
+                            ]
 
                     else:
-
-                        message_enhance = [
-                            {"role": "system", "content": """
-                            
-                            **Mission**: Assist the editorial expert in evaluating and improving the provided text, focusing on:
-                            
-                            - Optimizing fluency
-                            - Linguistic authenticity
-                            - Increasing impact"""},
-                            
-                            {"role": "user", "content": f"""
-                            
-                            **Purpose of the text:**
-                            {objectif}
-                            
-                            **Target audience of the text:** 
-                            {public_cible}
-                            
-                            **Improvement process:**
-                            
-                            1. **Initial Evaluation**
-                                - Identify the strengths and weaknesses of the text in terms of clarity, consistency, and effectiveness in line with the objectives/target audience.
-                            2. **Improvement**
-                                Based on the initial evaluation:
-                               - Remove clear translation indicators.
-                               - Adapt cultural expressions and references.
-                               - Strengthen the fluency and authenticity of the text.
-                               - Adjust the structure, content, style, tone, and vocabulary to better align with the objectives and target audience and to increase impact.
-                              
-                            Text to evaluate and improve:
-                            {text}
-
-                            The answer only contains the improved text version, and not the results of the initial evaluation or other comments. 
-                            """}  
-                        ]
-
+                        st.write("No text stored in session.")
                     
                     enhanced_text = run_model(message_enhance, temp_choice, select_model)
                     st.session_state.last_text = f"{select_model}, Temp {temp_choice}, enhanced:\n\n{enhanced_text}"
                     st.write(st.session_state.last_text)
                     
-    
+                
                 
                 st.write('**Add text in memory to central file**')
                 if st.button('Add to FILE'):
