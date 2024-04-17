@@ -221,9 +221,7 @@ def main():
             # File upload
             uploaded_file = st.file_uploader("Upload file (PDF, PPTX, XLSX, DOCX)", type=['pdf', 'pptx', 'xlsx', 'docx'])
             text = ""
-            
-            combined_text = None
-            
+                      
             if uploaded_file:
                 if uploaded_file.type == "application/pdf":
                     text = read_pdf(uploaded_file)
@@ -239,8 +237,11 @@ def main():
             text_input = st.text_area('Or enter text to translate', height=150)
         
             # Combine file text and manual text input if both are provided
-            combined_text = text + "\n" + text_input     
-            
+            if text or text_input: 
+                combined_text = text + "\n" + text_input     
+            else: 
+                combined_text = None
+                
             translated_text = None
             
             if 'central_file' not in st.session_state:
@@ -252,7 +253,7 @@ def main():
             st.write("**Click to translate (uploaded or in box)**")
             if st.button('Translate'):
                 
-                if combined_text is None :
+                if combined_text == None :
                     st.error('Please upload or paste a text to translate.')
                     
                 else:
