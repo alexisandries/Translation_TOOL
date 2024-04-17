@@ -488,7 +488,7 @@ def main():
                     st.sidebar.write('**Text in memory**') 
                     st.sidebar.write(st.session_state.last_text[:colon_index])
                 else:
-                    st.sidebar("No text stored in session.")   
+                    st.write("No text stored in session.")   
         
 
         with tab2:
