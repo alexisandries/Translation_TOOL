@@ -250,7 +250,7 @@ def main():
             st.write("**Click to translate (uploaded or in box)**")
             if st.button('Translate'):
                 
-                if combined_text:
+                if combined_text is not None:
                     if to_language == 'French':
 
                         message_translate = [
