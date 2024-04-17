@@ -485,9 +485,10 @@ def main():
                     st.sidebar.write("\n\n")
                     st.sidebar.write('**Text in memory**')
                     st.sidebar.write(st.session_state['last_text'][:colon_index])
+                    st.sidebar.write(f'{from_language} to {to_language}')
                 
                 else:
-                    st.write("No text currently stored in session.")   
+                    st.write("...")   
         
 
         with tab2:
