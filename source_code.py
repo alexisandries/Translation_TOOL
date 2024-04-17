@@ -453,7 +453,7 @@ def main():
                         st.write(st.session_state.last_text)
                         
                     else:
-                        st.write("No text stored in session.")
+                        st.write("")
                     
                 
                 st.write('**Add text in memory to central file**')
@@ -485,7 +485,7 @@ def main():
                     st.sidebar.write("\n\n")
                     st.sidebar.write('**Text in memory**')
                     st.sidebar.write(st.session_state['last_text'][:colon_index])
-                    st.sidebar.write(f'{from_language} to {to_language}')
+                    st.sidebar.write(f'Text in {to_language}')
                 
                 else:
                     st.write("...")   
