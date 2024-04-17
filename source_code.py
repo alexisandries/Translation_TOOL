@@ -481,6 +481,7 @@ def main():
             
             if 'last_text' in st.session_state:
                 if st.session_state['last_text'] is not None:
+                    colon_index = st.session_state['last_text'].find(':')      
                     st.sidebar.write("\n\n")
                     st.sidebar.write('**Text in memory**')
                     st.sidebar.write(st.session_state['last_text'][:colon_index])
