@@ -245,7 +245,7 @@ def main():
                 st.session_state.central_file = []
             
             if 'last_text' not in st.session_state:
-                st.session_state.last_text = None
+                st.session_state['last_text'] = None
             
             st.write("**Click to translate (uploaded or in box)**")
             if st.button('Translate'):
@@ -448,14 +448,13 @@ def main():
                                 """}  
                             ]
 
+                        enhanced_text = run_model(message_enhance, temp_choice, select_model)
+                        st.session_state.last_text = f"{select_model}, Temp {temp_choice}, enhanced:\n\n{enhanced_text}"
+                        st.write(st.session_state.last_text)
+                        
                     else:
                         st.write("No text stored in session.")
                     
-                    enhanced_text = run_model(message_enhance, temp_choice, select_model)
-                    st.session_state.last_text = f"{select_model}, Temp {temp_choice}, enhanced:\n\n{enhanced_text}"
-                    st.write(st.session_state.last_text)
-                    
-                
                 
                 st.write('**Add text in memory to central file**')
                 if st.button('Add to FILE'):
@@ -481,14 +480,16 @@ def main():
                     st.success('Translations file has been reset.')
             
             if 'last_text' in st.session_state:
-                if st.session_state.last_text is not None:
-                    # Find the index of the first colon
-                    colon_index = st.session_state.last_text.find(':')
-                    st.sidebar.write("\n\n")
-                    st.sidebar.write('**Text in memory**') 
-                    st.sidebar.write(st.session_state.last_text[:colon_index])
+                if st.session_state['last_text'] is not None:
+                    if colon_index != -1:
+                        st.sidebar.write("\n\n")
+                        st.sidebar.write('**Text in memory**')
+                        st.sidebar.write(st.session_state['last_text'][:colon_index])
+                    else:
+                        st.sidebar.write("No colon found.")
+                
                 else:
-                    st.write("No text stored in session.")   
+                    st.write("No text currently stored in session.")   
         
 
         with tab2:
