@@ -252,7 +252,10 @@ def main():
             st.write("**Click to translate (uploaded or in box)**")
             if st.button('Translate'):
                 
-                if combined_text is not None:
+                if combined_text is None :
+                    st.error('Please upload or paste a text to translate.')
+                    
+                else:
                     if to_language == 'French':
 
                         message_translate = [
@@ -320,10 +323,7 @@ def main():
                
                     st.session_state.last_text = f"{select_model}, Temp {temp_choice}, 'translated':\n\n{translated_text}"
                     st.write(translated_text)
-                               
-                else:
-                    st.error('Please upload or paste a text to translate.')
-                
+        
            
             # This check ensures we only attempt to use 'last_text' if it's been defined
             if 'last_text' in st.session_state and st.session_state.last_text:
