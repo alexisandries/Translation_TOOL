@@ -481,12 +481,9 @@ def main():
             
             if 'last_text' in st.session_state:
                 if st.session_state['last_text'] is not None:
-                    if colon_index != -1:
-                        st.sidebar.write("\n\n")
-                        st.sidebar.write('**Text in memory**')
-                        st.sidebar.write(st.session_state['last_text'][:colon_index])
-                    else:
-                        st.sidebar.write("No colon found.")
+                    st.sidebar.write("\n\n")
+                    st.sidebar.write('**Text in memory**')
+                    st.sidebar.write(st.session_state['last_text'][:colon_index])
                 
                 else:
                     st.write("No text currently stored in session.")   
