@@ -250,7 +250,7 @@ def main():
             st.write("**Click to translate (uploaded or in box)**")
             if st.button('Translate'):
                 
-                if combined_text is not None:
+                if combined_text != None:
                     if to_language == 'French':
 
                         message_translate = [
@@ -410,7 +410,6 @@ def main():
                                 """}  
                             ]
     
-    
                         else:
     
                             message_enhance = [
@@ -452,8 +451,8 @@ def main():
                         st.session_state.last_text = f"{select_model}, Temp {temp_choice}, enhanced:\n\n{enhanced_text}"
                         st.write(st.session_state.last_text)
                         
-                else:
-                    st.write("pleeaaaaassss")
+                    else:
+                        st.write("")
                     
                 
                 st.write('**Add text in memory to central file**')
