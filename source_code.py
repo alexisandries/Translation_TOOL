@@ -475,14 +475,16 @@ def main():
                 if st.sidebar.button('RESET'):
                     st.session_state.central_file = []
                     st.success('Translations file has been reset.')
-    
+            
             if 'last_text' in st.session_state:
-                # Find the index of the first colon
-                colon_index = st.session_state.last_text.find(':')
-                st.sidebar.write("\n\n")
-                st.sidebar.write('**Text in memory**') 
-                st.sidebar.write(st.session_state.last_text[:colon_index])
-                     
+                if st.session_state.last_text is not None:
+                    # Find the index of the first colon
+                    colon_index = st.session_state.last_text.find(':')
+                    st.sidebar.write("\n\n")
+                    st.sidebar.write('**Text in memory**') 
+                    st.sidebar.write(st.session_state.last_text[:colon_index])
+                else:
+                    st.sidebar("No text stored in session.")   
         
 
         with tab2:
