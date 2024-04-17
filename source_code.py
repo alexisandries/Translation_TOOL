@@ -269,7 +269,7 @@ def main():
                             **Texte à traduire:**
                             {combined_text}
                             
-                            Suivez ces directives pour assurer une traduction de haute qualité et contentez-vous de présenter la traduction dans votre réponse, sans commentaires."""}
+                            Suivez ces directives pour assurer une traduction de haute qualité et contentez-vous de présenter la traduction dans votre réponse, sans commentaires ni remarques introductives, explicatives ou autres."""}
                         ]
 
                     elif to_language == 'Dutch':
@@ -452,8 +452,8 @@ def main():
                         st.session_state.last_text = f"{select_model}, Temp {temp_choice}, enhanced:\n\n{enhanced_text}"
                         st.write(st.session_state.last_text)
                         
-                    else:
-                        st.write("")
+                else:
+                    st.write("pleeaaaaassss")
                     
                 
                 st.write('**Add text in memory to central file**')
