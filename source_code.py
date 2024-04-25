@@ -130,7 +130,7 @@ def main():
         st.title("Chatbot")
         temp_choice = st.slider('Select a Temperature', min_value=0.0, max_value=1.0, step=0.1, key='llm_bot')
 
-        llm_model : None
+        llm_model = None
         if select_model == 'GPT 3.5':
             llm_model = 'gpt-3.5-turbo'
         elif select_model == 'GPT 4.0':
@@ -166,6 +166,7 @@ def main():
                     stream=True,
                 )
                 response = st.write_stream(stream)
+                st.write("Using model: ", llm_model)
 
             st.session_state.messages.append({"role": "assistant", "content": response})
         
@@ -186,7 +187,9 @@ def main():
                 st.session_state.messages = []
                 st.sidebar.success('Chat has been reset.')
                 st.rerun()
-        
+
+            
+    
     if tool_choice == 'Craft, Refine and Translate your text':
         
         st.subheader('Translate, Refine or Craft your text')
