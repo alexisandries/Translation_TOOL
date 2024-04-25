@@ -74,7 +74,7 @@ def run_model(messages, temp_choice, select_model):
         if select_model == 'GPT 3.5':
             llm_model = 'gpt-3.5-turbo-0125'
         if select_model == 'GPT 4.0':
-            llm_model = 'gpt-4-0125-preview'
+            llm_model = 'gpt-4-turbo'
         
         try:
             client = OpenAI()
@@ -144,7 +144,7 @@ def main():
             llm_model = 'gpt-3.5-turbo-0125'
             client = OpenAI()
         elif select_model == 'GPT 4.0':
-            llm_model = 'gpt-4-0125-preview'
+            llm_model = 'gpt-4-turbo'
             client = OpenAI()
         else: 
             st.write('Please select an OpenAI model, we are working to get acces to Mistral')
