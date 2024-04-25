@@ -72,7 +72,7 @@ def run_model(messages, temp_choice, select_model):
 
     else: 
         if select_model == 'GPT 3.5':
-            llm_model = 'gpt-3.5-turbo-0125'
+            llm_model = 'gpt-3.5-turbo'
         if select_model == 'GPT 4.0':
             llm_model = 'gpt-4-turbo'
         
@@ -166,9 +166,8 @@ def main():
                     stream=True,
                 )
                 response = st.write_stream(stream)
-                st.write("Using model: ", llm_model)
-                st.write("Using model: ", model)
-
+                # st.write("Using model: ", llm_model)
+               
             st.session_state.messages.append({"role": "assistant", "content": response})
         
         st.sidebar.markdown("---")       
