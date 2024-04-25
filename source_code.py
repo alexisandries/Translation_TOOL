@@ -155,36 +155,19 @@ def main():
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
-
-            response = client.chat.completions.create(
-                model=st.session_state["llm_model"],
-                messages=[
-                    {"role": m["role"], "content": m["content"]} for m in st.session_state.messages
-                ]
-            )
-            st.session_state.messages.append({"role": "assistant", "content": response["choices"][0]["message"]["content"]})
+        
             with st.chat_message("assistant"):
-                st.markdown(response["choices"][0]["message"]["content"])
+                stream = client.chat.completions.create(
+                    model=st.session_state["llm_model"],
+                    messages=[
+                        {"role": m["role"], "content": m["content"]}
+                        for m in st.session_state.messages
+                    ],
+                    stream=True,
+                )
+                response = st.write_stream(stream)
 
-        
-        # if prompt := st.chat_input():
-        #     st.session_state.messages.append({"role": "user", "content": prompt})
-        #     with st.chat_message("user"):
-        #         st.markdown(prompt)
-        
-        #     with st.chat_message("assistant"):
-        #         stream = client.chat.completions.create(
-        #             model=st.session_state["llm_model"],
-        #             messages=[
-        #                 {"role": m["role"], "content": m["content"]}
-        #                 for m in st.session_state.messages
-        #             ],
-        #             stream=True,
-        #         )
-        #         response = st.write_stream(stream)
-
-        #     st.session_state.messages.append({"role": "assistant", "content": response})
-        
+            st.session_state.messages.append({"role": "assistant", "content": response})
         
         st.sidebar.markdown("---")       
         if st.session_state.messages:
