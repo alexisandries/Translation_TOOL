@@ -112,48 +112,37 @@ def refine_text(text, temp_choice, select_model, briefing, prompt):
 
 
 def main():
-    
+
+    client = OpenAI()
     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 3.5', 'GPT 4.0', 'MISTRAL large' ])
     
     if select_model != 'GPT 3.5':
-        
         pass_word = st.sidebar.text_input('Enter the password:')
-    
         if not pass_word:
             st.stop()
-            
-        elif pass_word != PASSWORD:
+        if pass_word != PASSWORD:
             st.error('The password you entered is incorrect.')
             st.stop()
-    
-        if pass_word == PASSWORD:
-            pass
             
     tool_choice = st.sidebar.radio("**Choose your tool:**", ['Chat with LLM', 'Craft, Refine and Translate your text'])
-
-    
     
     if tool_choice =='Chat with LLM':
-
-       
         st.title("Chatbot")
-
         temp_choice = st.slider('Select a Temperature', min_value=0.0, max_value=1.0, step=0.1, key='llm_bot')
 
+        llm_model : None
         if select_model == 'GPT 3.5':
-            llm_model = 'gpt-3.5-turbo-0125'
-            client = OpenAI()
+            llm_model = 'gpt-3.5-turbo'
         elif select_model == 'GPT 4.0':
             llm_model = 'gpt-4-turbo'
-            client = OpenAI()
         else: 
             st.write('Please select an OpenAI model, we are working to get acces to Mistral')
             st.stop()
 
         st.write("**Selected model**:", select_model)       
 
-        # if "llm_model" not in st.session_state:
-        st.session_state["llm_model"] = llm_model
+        if "llm_model" not in st.session_state:
+            st.session_state["llm_model"] = llm_model
         
         if "messages" not in st.session_state:
             st.session_state.messages = []
@@ -161,24 +150,40 @@ def main():
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
-        
+
         if prompt := st.chat_input():
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
-        
-            with st.chat_message("assistant"):
-                stream = client.chat.completions.create(
-                    model=st.session_state["llm_model"],
-                    messages=[
-                        {"role": m["role"], "content": m["content"]}
-                        for m in st.session_state.messages
-                    ],
-                    stream=True,
-                )
-                response = st.write_stream(stream)
 
-            st.session_state.messages.append({"role": "assistant", "content": response})
+            response = client.chat.create(
+                model=st.session_state["llm_model"],
+                messages=[
+                    {"role": m["role"], "content": m["content"]} for m in st.session_state.messages
+                ]
+            )
+            st.session_state.messages.append({"role": "assistant", "content": response["choices"][0]["message"]["content"]})
+            with st.chat_message("assistant"):
+                st.markdown(response["choices"][0]["message"]["content"])
+
+        
+        # if prompt := st.chat_input():
+        #     st.session_state.messages.append({"role": "user", "content": prompt})
+        #     with st.chat_message("user"):
+        #         st.markdown(prompt)
+        
+        #     with st.chat_message("assistant"):
+        #         stream = client.chat.completions.create(
+        #             model=st.session_state["llm_model"],
+        #             messages=[
+        #                 {"role": m["role"], "content": m["content"]}
+        #                 for m in st.session_state.messages
+        #             ],
+        #             stream=True,
+        #         )
+        #         response = st.write_stream(stream)
+
+        #     st.session_state.messages.append({"role": "assistant", "content": response})
         
         
         st.sidebar.markdown("---")       
