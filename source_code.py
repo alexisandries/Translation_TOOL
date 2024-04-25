@@ -141,8 +141,8 @@ def main():
 
         st.write("**Selected model**:", select_model)       
 
-        if "llm_model" not in st.session_state:
-            st.session_state["llm_model"] = llm_model
+        # if "llm_model" not in st.session_state:
+        #     st.session_state["llm_model"] = llm_model
         
         if "messages" not in st.session_state:
             st.session_state.messages = []
@@ -158,7 +158,7 @@ def main():
         
             with st.chat_message("assistant"):
                 stream = client.chat.completions.create(
-                    model=st.session_state["llm_model"],
+                    model=llm_model,
                     messages=[
                         {"role": m["role"], "content": m["content"]}
                         for m in st.session_state.messages
