@@ -156,7 +156,7 @@ def main():
             with st.chat_message("user"):
                 st.markdown(prompt)
 
-            response = client.chat.create(
+            response = client.chat.completions.create(
                 model=st.session_state["llm_model"],
                 messages=[
                     {"role": m["role"], "content": m["content"]} for m in st.session_state.messages
