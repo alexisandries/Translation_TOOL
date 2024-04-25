@@ -152,8 +152,8 @@ def main():
 
         st.write("**Selected model**:", select_model)       
 
-        if "llm_model" not in st.session_state:
-            st.session_state["llm_model"] = llm_model
+        # if "llm_model" not in st.session_state:
+        st.session_state["llm_model"] = llm_model
         
         if "messages" not in st.session_state:
             st.session_state.messages = []
