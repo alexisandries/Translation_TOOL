@@ -112,7 +112,7 @@ def refine_text(text, temp_choice, select_model, briefing, prompt):
 def generate_response(input_text):
     llm_model = "gpt-4-turbo"
     llm = ChatOpenAI(temperature=0.0, model=llm_model)
-    st.info(llm(input_text))
+    st.write(llm(input_text))
 
 def main():
 
@@ -194,8 +194,8 @@ def main():
     if tool_choice == 'Reply to RGs':
         st.write("under construction")
         with st.form('my_form'):
-            text = st.text_area('Enter text:', 'What are the three key pieces of advice for learning how to code?')
-            submitted = st.form_submit_button('Submit')
+            text = st.text_input('Enter text:', 'What are the three key pieces of advice for learning how to code?')
+            submitted = st.form_submit_button(label='Submit')
             if submitted:
                 generate_response(text)
                 
