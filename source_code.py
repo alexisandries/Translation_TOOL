@@ -10,7 +10,7 @@ from io import BytesIO
 from openai import OpenAI
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
-# from langchain.llms import OpenAI
+from langchain.llms import OpenAI
 
 st.set_page_config(layout="wide")
 
