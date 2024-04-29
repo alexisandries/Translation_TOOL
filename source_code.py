@@ -180,8 +180,10 @@ def main():
             if st.sidebar.button('Restart session'):
                 st.session_state.messages = []
                 st.sidebar.success('Chat has been reset.')
+                st.cache_resource.clear()
+                st.cache_data.clear()
+                st.sidebar.success('Cache had been cleared.')
                 st.rerun()
-
             
     
     if tool_choice == 'Craft, Refine and Translate your text':
