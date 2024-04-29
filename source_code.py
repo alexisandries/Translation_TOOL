@@ -126,7 +126,7 @@ def main():
         st.stop()
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4.0', 'MISTRAL large' ])
-    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Chat with LLM', 'Chat with Langchain', 'Craft, Refine and Translate your text'])
+    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Chat with LLM', 'Reply to RGs', 'Craft, Refine and Translate your text'])
     
     if tool_choice =='Chat with LLM':
         st.title("Chatbot")
