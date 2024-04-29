@@ -13,7 +13,7 @@ from mistralai.models.chat_completion import ChatMessage
 
 st.set_page_config(layout="wide")
 
-openai_api_key  = st.secrets["OPENAI_API_KEY"]
+openai.api_key  = st.secrets["OPENAI_API_KEY"]
 mistral_api_key = st.secrets["MISTRAL_API_KEY"]
 PASSWORD = st.secrets["MDM_PASSWORD"]
 
@@ -107,6 +107,9 @@ def refine_text(text, temp_choice, select_model, briefing, prompt):
 
     return run_model(messages, temp_choice, select_model)
 
+def generate_response(input_text):
+    llm = OpenAI(temperature=0.7, openai_api_key=openai_api_key)
+    st.info(llm(input_text))
 
 def main():
 
@@ -120,7 +123,7 @@ def main():
         st.stop()
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4.0', 'MISTRAL large' ])
-    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Chat with LLM', 'Craft, Refine and Translate your text'])
+    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Chat with LLM', 'Chat with Langchain', 'Craft, Refine and Translate your text'])
     
     if tool_choice =='Chat with LLM':
         st.title("Chatbot")
@@ -185,7 +188,9 @@ def main():
                 st.success('Cache had been cleared.')
                 st.rerun()
             
+    if tool_choice == 'Chat with Langchain':
     
+        
     if tool_choice == 'Craft, Refine and Translate your text':
         
         st.subheader('Translate, Refine or Craft your text')
