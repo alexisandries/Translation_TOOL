@@ -10,7 +10,6 @@ from io import BytesIO
 from openai import OpenAI
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
-from langchain.llms import OpenAI
 
 st.set_page_config(layout="wide")
 
@@ -109,10 +108,6 @@ def refine_text(text, temp_choice, select_model, briefing, prompt):
 
     return run_model(messages, temp_choice, select_model)
 
-def generate_response(input_text):
-    llm_model = "gpt-4-turbo"
-    llm = ChatOpenAI(temperature=0.0, model=llm_model)
-    st.write(llm(input_text))
 
 def main():
 
@@ -193,11 +188,7 @@ def main():
     
     if tool_choice == 'Reply to RGs':
         st.write("under construction")
-        with st.form('my_form'):
-            text = st.text_input('Enter text:', 'What are the three key pieces of advice for learning how to code?')
-            submitted = st.form_submit_button(label='Submit')
-            if submitted:
-                generate_response(text)
+        
                 
     if tool_choice == 'Craft, Refine and Translate your text':
         
