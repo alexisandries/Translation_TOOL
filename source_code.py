@@ -188,8 +188,8 @@ def main():
                 st.success('Cache had been cleared.')
                 st.rerun()
             
-    if tool_choice == 'Chat with Langchain':
-    
+    if tool_choice == 'Reply to RGs':
+        st.write("under construction")
         
     if tool_choice == 'Craft, Refine and Translate your text':
         
