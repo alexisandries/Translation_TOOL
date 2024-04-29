@@ -182,7 +182,7 @@ def main():
                 st.sidebar.success('Chat has been reset.')
                 st.cache_resource.clear()
                 st.cache_data.clear()
-                st.sidebar.success('Cache had been cleared.')
+                st.success('Cache had been cleared.')
                 st.rerun()
             
     
