@@ -157,15 +157,15 @@ def main():
                 st.markdown(prompt)
         
             with st.chat_message("assistant"):
-                stream = client.chat.completions.create(
-                    model=llm_model,
+                completion = client.chat.completions.create(
+                    model='gpt-4-turbo',
                     messages=[
                         {"role": m["role"], "content": m["content"]}
                         for m in st.session_state.messages
                     ],
                     stream=True,
                 )
-                response = st.write_stream(stream)
+                response = st.write_stream(completion)
                 st.write("Using model:", llm_model)
                
             st.session_state.messages.append({"role": "assistant", "content": response})
