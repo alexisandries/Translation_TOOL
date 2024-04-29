@@ -54,13 +54,13 @@ def run_model(messages, temp_choice, select_model):
     if select_model == 'MISTRAL large':        
         try:
 
-            model = "mistral-large-latest"
+            mistral_model = "mistral-large-latest"
             
             client_mistral = MistralClient(api_key=mistral_api_key)
                       
             # No streaming
             chat_response = client_mistral.chat(
-                model=model,
+                model=mistral_model,
                 messages=messages,
                 temperature=temp_choice
             )
@@ -126,7 +126,7 @@ def main():
         st.title("Chatbot")
         temp_choice = st.slider('Select a Temperature', min_value=0.0, max_value=1.0, step=0.1, key='llm_bot')
 
-        llm_model = None
+        llm_model = 'gpt-4-turbo'
         if select_model == 'GPT 4.0':
             llm_model = 'gpt-4-turbo'
         else: 
