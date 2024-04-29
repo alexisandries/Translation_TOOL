@@ -1,4 +1,5 @@
 import streamlit as st
+import openai
 import fitz  # PyMuPDF
 from pptx import Presentation
 from openpyxl import load_workbook
