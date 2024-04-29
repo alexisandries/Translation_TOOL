@@ -10,11 +10,13 @@ from io import BytesIO
 from openai import OpenAI
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
+from langchain.llms import OpenAI
 
 st.set_page_config(layout="wide")
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 mistral_api_key = st.secrets["MISTRAL_API_KEY"]
+
 PASSWORD = st.secrets["MDM_PASSWORD"]
 
 def read_pdf(file):
