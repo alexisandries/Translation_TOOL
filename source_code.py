@@ -71,10 +71,7 @@ def run_model(messages, temp_choice, select_model):
             return f"An error occurred: {e}"
 
     else: 
-        if select_model == 'GPT 3.5':
-            llm_model = 'gpt-3.5-turbo'
-        if select_model == 'GPT 4.0':
-            llm_model = 'gpt-4-turbo'
+        llm_model = 'gpt-4-turbo'
         
         try:
             client = OpenAI()
@@ -114,16 +111,15 @@ def refine_text(text, temp_choice, select_model, briefing, prompt):
 def main():
 
     client = OpenAI()
-    select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 3.5', 'GPT 4.0', 'MISTRAL large' ])
     
-    if select_model != 'GPT 3.5':
-        pass_word = st.sidebar.text_input('Enter the password:')
-        if not pass_word:
-            st.stop()
-        if pass_word != PASSWORD:
-            st.error('The password you entered is incorrect.')
-            st.stop()
-            
+    pass_word = st.sidebar.text_input('Enter the password:')
+    if not pass_word:
+        st.stop()
+    if pass_word != PASSWORD:
+        st.error('The password you entered is incorrect.')
+        st.stop()
+
+    select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4.0', 'MISTRAL large' ])
     tool_choice = st.sidebar.radio("**Choose your tool:**", ['Chat with LLM', 'Craft, Refine and Translate your text'])
     
     if tool_choice =='Chat with LLM':
@@ -131,9 +127,7 @@ def main():
         temp_choice = st.slider('Select a Temperature', min_value=0.0, max_value=1.0, step=0.1, key='llm_bot')
 
         llm_model = None
-        if select_model == 'GPT 3.5':
-            llm_model = 'gpt-3.5-turbo'
-        elif select_model == 'GPT 4.0':
+        if select_model == 'GPT 4.0':
             llm_model = 'gpt-4-turbo'
         else: 
             st.write('Please select an OpenAI model, we are working to get acces to Mistral')
