@@ -133,7 +133,7 @@ def main():
             st.write('Please select an OpenAI model, we are working to get acces to Mistral')
             st.stop()
 
-        st.write("**Selected model**:", select_model)       
+        st.write("**Selected model**:", llm_model)       
 
         # if "llm_model" not in st.session_state:
         #     st.session_state["llm_model"] = llm_model
@@ -160,7 +160,7 @@ def main():
                     stream=True,
                 )
                 response = st.write_stream(stream)
-                # st.write("Using model: ", llm_model)
+                st.write("Using model:", llm_model)
                
             st.session_state.messages.append({"role": "assistant", "content": response})
         
