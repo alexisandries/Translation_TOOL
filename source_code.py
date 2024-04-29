@@ -9,7 +9,7 @@ from io import BytesIO
 from openai import OpenAI
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
-
+# from langchain.llms import OpenAI
 
 st.set_page_config(layout="wide")
 
@@ -189,8 +189,6 @@ def main():
                 st.cache_data.clear()
                 st.success('Cache had been cleared.')
                 st.rerun()
-                
-from langchain.llms import OpenAI
     
     if tool_choice == 'Reply to RGs':
         st.write("under construction")
