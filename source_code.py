@@ -139,7 +139,7 @@ def main():
         # if "llm_model" not in st.session_state:
         #     st.session_state["llm_model"] = llm_model
         
-        st.session_state.api_key = api_key
+        st.session_state.api_key = openai.api_key
         
         if "messages" not in st.session_state:
             st.session_state.messages = []
