@@ -161,7 +161,7 @@ def main():
                     stream=True,
                 )
                 response = st.write_stream(completion)
-                st.write("Using model:", llm_model)
+                # st.write("Using model:", llm_model)
                
             st.session_state.messages.append({"role": "assistant", "content": response})
         
