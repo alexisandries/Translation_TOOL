@@ -13,10 +13,6 @@ from mistralai.models.chat_completion import ChatMessage
 
 st.set_page_config(layout="wide")
 
-openai.api_key = st.secrets["OPENAI_API_KEY"]
-mistral_api_key = st.secrets["MISTRAL_API_KEY"]
-
-PASSWORD = st.secrets["MDM_PASSWORD"]
 
 def read_pdf(file):
     text = ''
@@ -110,7 +106,11 @@ def refine_text(text, temp_choice, select_model, briefing, prompt):
 
 
 def main():
-
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
+    mistral_api_key = st.secrets["MISTRAL_API_KEY"]
+    
+    PASSWORD = st.secrets["MDM_PASSWORD"]
+    
     client = OpenAI()
     
     pass_word = st.sidebar.text_input('Enter the password:')
@@ -138,6 +138,8 @@ def main():
 
         # if "llm_model" not in st.session_state:
         #     st.session_state["llm_model"] = llm_model
+        
+        # st.session_state.api_key = api_key
         
         if "messages" not in st.session_state:
             st.session_state.messages = []
