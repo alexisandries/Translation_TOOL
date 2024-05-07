@@ -13,6 +13,8 @@ from mistralai.models.chat_completion import ChatMessage
 
 st.set_page_config(layout="wide")
 
+openai.api_key = st.secrets["OPENAI_API_KEY"]
+mistral_api_key = st.secrets["MISTRAL_API_KEY"]
 
 def read_pdf(file):
     text = ''
