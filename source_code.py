@@ -106,9 +106,9 @@ def refine_text(text, temp_choice, select_model, briefing, prompt):
 
     return run_model(messages, temp_choice, select_model)
 
-def reply_to_email(email, done_action_points, extra_info, llm_model, openai.api_key):
+def reply_to_email(email, done_action_points, extra_info, llm_model):
 
-    llm = ChatOpenAI(temperature=0.2, model=llm_model)
+    llm = ChatOpenAI(temperature=0.1, model=llm_model)
     
     template_language_detection = """
     Detect the language in which the text between triple backticks was written:
@@ -262,7 +262,7 @@ def main():
             st.write("Paste additional information you want to see mentionned in the answer, and which is not an action point.")
             extra_info = st.text_area('Add extra info', height=150)
 
-        result = reply_to_email(e_mail, done_action_points, extra_info, select_model, openai.api_key)
+        result = reply_to_email(e_mail, done_action_points, extra_info, select_model)
 
         if st.button("Click here to translate the original email"):
             st.write(result['Email_translation'])
