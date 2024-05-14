@@ -106,6 +106,124 @@ def refine_text(text, temp_choice, select_model, briefing, prompt):
 
     return run_model(messages, temp_choice, select_model)
 
+def reply_to_email(email, done_action_points, extra_info, llm_model, openai.api_key):
+
+    llm = ChatOpenAI(temperature=0.2, model=llm_model)
+    
+    template_language_detection = """
+    Detect the language in which the text between triple backticks was written:
+    '''
+    {e_mail}
+    '''
+    """
+    
+    prompt_language_detection = ChatPromptTemplate.from_template(template_language_detection)
+    
+    chain_language_detection = LLMChain(
+        llm=llm, 
+        prompt=prompt_language_detection, 
+        output_key="Email_language"
+    )
+    
+    template_translate_email = """
+    Translate the {e_mail} to French if {Email_language} is Dutch and to Dutch if {Email_language} is French :
+    '''
+    {e_mail}
+    '''
+    If {Email_language} is neither French nor Dutch, translate it to French and Dutch.
+    """
+    
+    prompt_translate_email = ChatPromptTemplate.from_template(template_translate_email)
+    
+    chain_translate_email = LLMChain(
+        llm=llm, 
+        prompt=prompt_translate_email, 
+        output_key="Email_translation"
+    )
+    
+    template_extract_action_points = """
+    Look at the email and extract all action points from it: 
+    '''
+    {e_mail}
+    '''
+    Consider that the mail is sent by a donor to an NGO. The action points to be listed are only those for the NGO to take care of. 
+    List the action points and add a translation in French if {Email_language} is Dutch and in Dutch if {Email_language} is French. 
+    
+    The list should have the format as in the following example:
+    
+    Example:
+    '''
+    1. Mettre fin au mandat dans les 24 heures / het mandaat stopzetten binnen de 24 uur
+    2. Confirmer par mail quand c'est fait / Per mail bevestigen wanneer het is stopgezet
+    '''
+    """
+    
+    prompt_extract_action_points = ChatPromptTemplate.from_template(template_extract_action_points)
+    
+    chain_extract_action_points = LLMChain(
+        llm=llm, 
+        prompt=prompt_extract_action_points, 
+        output_key="Email_action_points"
+    )
+    
+    template_propose_answer = """
+    Your task is to propose an answer in {Email_language} to the following email between backticks:
+    '''
+    {e_mail}
+    '''
+    Consider the {Email_action_points} and mention that the following action points between backticks have been taken care of:
+    '''
+    {done_action_points}
+    '''
+    Consider also the following info between backticks:
+    '''
+    {extra_info}
+    '''
+    Your answer should always be engaging, constructive, helpful and respectful. Consider not only the content but also the tone and sentiment of the message to determine the most suitable answer. 
+    Avoid any kind of controversy, ambiguities, or politically oriented answers.
+    If appropriate, while avoiding being too pushy or inpolite, mention the possibility to become a (regular) donor (again) by surfing to our website www.medecinsdumonde.be or www.doktersvandewereld.be (according to {Email_language}). 
+    Try to end by a positive note and/or a thank you.
+    """
+    
+    prompt_propose_answer = ChatPromptTemplate.from_template(template_propose_answer)
+    
+    chain_propose_answer = LLMChain(
+        llm=llm, 
+        prompt=prompt_propose_answer, 
+        output_key="Email_answer"
+    )
+    
+    template_translate_answer = """
+    Translate the {Email_answer} to French if {Email_language} is Dutch and to Dutch if {Email_language} is French :
+    '''
+    {Email_answer}
+    '''
+    If {Email_language} is neither French nor Dutch, translate it to French and Dutch.
+    """
+    
+    prompt_translate_answer = ChatPromptTemplate.from_template(template_translate_answer)
+    
+    chain_translate_answer = LLMChain(
+        llm=llm, 
+        prompt=prompt_translate_answer, 
+        output_key="Email_answer_translation"
+    )
+    
+    overall_chain = SequentialChain(
+        chains=[chain_language_detection, chain_translate_email, chain_extract_action_points, chain_propose_answer, chain_translate_answer],
+        input_variables=['e_mail', 'done_action_points', 'extra_info'],
+        output_variables=["Email_language", "Email_translation", "Email_action_points", "Email_answer", "Email_answer_translation"],
+        verbose=False
+    )
+    
+    # Invoke the overall chain
+    result = overall_chain({
+        'e_mail': e_mail,
+        'done_action_points': done_action_points,
+        'extra_info': extra_info
+    })
+
+    return result
 
 def main():
     openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -122,25 +240,46 @@ def main():
         st.error('The password you entered is incorrect.')
         st.stop()
 
-    select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4.0', 'MISTRAL large' ])
-    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Chat with LLM', 'Reply to RGs', 'Craft, Refine and Translate your text'])
+    select_model = st.sidebar.radio('**Select your MODEL**', ['gpt-4-turbo', 'gpt-4o' ])
+    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Reply to emails', 'Chat with LLM', 'Translate your text'])
+    
+    
+    if tool_choice == 'Reply to emails':
+        st.subheader("DONORSBOX ANSWERING TOOL")
+        e_mail = ""
+        action_points = ""
+        extra_info = ""
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.write("Paste here the email you want ChatGPT provide you with an answer. Don't forget to fill in the other text boxes also.")
+            st.write("**Please remove all personal information from the email.**")
+            e_mail = st.text_area('Paste email', height=150)
+        with col2: 
+            st.write("Paste here the action points you have or will have completed by the time you will answer the mail.")
+            action_points = st.text_area('Mention action points', height=150)
+        with col3: 
+            st.write("Paste additional information you want to see mentionned in the answer, and which is not an action point.")
+            extra_info = st.text_area('Add extra info', height=150)
+
+        result = reply_to_email(e_mail, done_action_points, extra_info, select_model, openai.api_key)
+
+        if st.button("Click here to translate the original email"):
+            st.write(result['Email_translation'])
+
+        if st.button("Click here to generate draft answer")
+            st.write('*Proposed answer to the mail*')
+            st.write(result['Email_answer'])
+            st.write('*Translation of answer*')
+            st.write(result['Email_answer_translation']
+        
     
     if tool_choice =='Chat with LLM':
         st.title("Chatbot")
         temp_choice = st.slider('Select a Temperature', min_value=0.0, max_value=1.0, step=0.1, key='llm_bot')
 
-        llm_model = 'gpt-4-turbo-2024-04-09'
-        if select_model == 'GPT 4.0':
-            llm_model = 'gpt-4-turbo-2024-04-09'
-        else: 
-            st.write('Please select an OpenAI model, we are working to get acces to Mistral')
-            st.stop()
-
-        st.write("**Selected model**:", llm_model)       
-
-        # if "llm_model" not in st.session_state:
-        #     st.session_state["llm_model"] = llm_model
-        
+        st.write("**Selected model**:", select_model)       
+      
         st.session_state.api_key = openai.api_key
         
         if "messages" not in st.session_state:
@@ -157,7 +296,7 @@ def main():
         
             with st.chat_message("assistant"):
                 completion = client.chat.completions.create(
-                    model='gpt-4-turbo-2024-04-09',
+                    model= select_model,
                     messages=[
                         {"role": m["role"], "content": m["content"]}
                         for m in st.session_state.messages
@@ -165,7 +304,6 @@ def main():
                     stream=True,
                 )
                 response = st.write_stream(completion)
-                # st.write("Using model:", llm_model)
                
             st.session_state.messages.append({"role": "assistant", "content": response})
         
@@ -190,11 +328,7 @@ def main():
                 st.success('Cache had been cleared.')
                 st.rerun()
     
-    if tool_choice == 'Reply to RGs':
-        st.write("under construction")
-        
-                
-    if tool_choice == 'Craft, Refine and Translate your text':
+    if tool_choice == 'Translate your text':
         
         st.subheader('Translate, Refine or Craft your text')
         tab1, tab2, tab3 = st.tabs(['TRANSLATE', 'REFINE', 'CRAFT'])
