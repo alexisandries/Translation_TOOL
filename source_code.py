@@ -242,8 +242,7 @@ def main():
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['gpt-4-turbo', 'gpt-4o' ])
     tool_choice = st.sidebar.radio("**Choose your tool:**", ['Reply to emails', 'Chat with LLM', 'Translate your text'])
-    
-    
+        
     if tool_choice == 'Reply to emails':
         st.subheader("DONORSBOX ANSWERING TOOL")
         e_mail = ""
@@ -274,7 +273,7 @@ def main():
             st.write(result['Email_answer_translation']
 
 
-    if tool_choice == 'Chat with LLM':
+    elif tool_choice == 'Chat with LLM':
                 
         st.title("Chatbot")
         temp_choice = st.slider('Select a Temperature', min_value=0.0, max_value=1.0, step=0.1, key='llm_bot')
@@ -329,7 +328,7 @@ def main():
                 st.success('Cache had been cleared.')
                 st.rerun()
     
-    if tool_choice == 'Translate your text':
+    elif tool_choice == 'Translate your text':
         
         st.subheader('Translate, Refine or Craft your text')
         tab1, tab2, tab3 = st.tabs(['TRANSLATE', 'REFINE', 'CRAFT'])
