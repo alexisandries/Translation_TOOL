@@ -267,7 +267,7 @@ def main():
         if st.button("Click here to translate the original email"):
             st.write(result['Email_translation'])
 
-        if st.button("Click here to generate draft answer")
+        if st.button("Click here to generate draft answer"):
             st.write('*Proposed answer to the mail*')
             st.write(result['Email_answer'])
             st.write('*Translation of answer*')
