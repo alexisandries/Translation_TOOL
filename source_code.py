@@ -275,62 +275,7 @@ def main():
             st.write(result['Email_answer'])
             st.write('*Translation of answer*')
             st.write(result['Email_answer_translation']
-
-    # if tool_choice == "Chat with LLM":
-                
-    #     st.title("Chatbot")
-    #     temp_choice = st.slider('Select a Temperature', min_value=0.0, max_value=1.0, step=0.1, key='llm_bot')
-
-    #     st.write("**Selected model**:", select_model)       
-      
-    #     st.session_state.api_key = openai.api_key
-        
-    #     if "messages" not in st.session_state:
-    #         st.session_state.messages = []
-        
-    #     for message in st.session_state.messages:
-    #         with st.chat_message(message["role"]):
-    #             st.markdown(message["content"])
-
-    #     if prompt := st.chat_input():
-    #         st.session_state.messages.append({"role": "user", "content": prompt})
-    #         with st.chat_message("user"):
-    #             st.markdown(prompt)
-        
-    #         with st.chat_message("assistant"):
-    #             completion = client.chat.completions.create(
-    #                 model= select_model,
-    #                 messages=[
-    #                     {"role": m["role"], "content": m["content"]}
-    #                     for m in st.session_state.messages
-    #                 ],
-    #                 stream=True,
-    #             )
-    #             response = st.write_stream(completion)
-               
-    #         st.session_state.messages.append({"role": "assistant", "content": response})
-        
-    #     st.sidebar.markdown("---")       
-    #     if st.session_state.messages:
-    #         st.sidebar.write('**Manage Chat Session**')           
-            
-    #         chat_messages = '\n'.join(
-    #             m['content'] for m in st.session_state.messages if 'content' in m and isinstance(m['content'], str)
-    #         )
-
-    #         st.sidebar.download_button(label="Download Session",
-    #                        data=chat_messages,  
-    #                        file_name="chat_messages.txt",
-    #                        mime="text/plain")
-            
-    #         if st.sidebar.button('Restart session'):
-    #             st.session_state.messages = []
-    #             st.sidebar.success('Chat has been reset.')
-    #             st.cache_resource.clear()
-    #             st.cache_data.clear()
-    #             st.success('Cache had been cleared.')
-    #             st.rerun()
-
+                     
      if tool_choice == 'Translate your text':
         st.subheader('Translate, Refine or Craft your text')
         tab1, tab2, tab3 = st.tabs(['TRANSLATE', 'REFINE', 'CRAFT'])
