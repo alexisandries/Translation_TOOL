@@ -331,7 +331,7 @@ def main():
     #             st.success('Cache had been cleared.')
     #             st.rerun()
                      
-    if tool_choice == 'Translate your text': 
+    else: 
         st.subheader('Translate, Refine or Craft your text')
         tab1, tab2, tab3 = st.tabs(['TRANSLATE', 'REFINE', 'CRAFT'])
         
