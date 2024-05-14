@@ -245,7 +245,7 @@ def main():
         st.stop()
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['gpt-4-turbo', 'gpt-4o' ])
-    tool_choice = st.sidebar.radio('**Choose your tool:**', ['Reply to emails', 'Translate your text'])
+    tool_choice = st.sidebar.radio('**Choose your tool:**', ['Reply to emails', 'Translate your textje'])
         
     if tool_choice == 'Reply to emails':
         st.subheader("DONORSBOX ANSWERING TOOL")
@@ -276,7 +276,7 @@ def main():
             st.write('*Translation of answer*')
             st.write(result['Email_answer_translation']
                      
-    if tool_choice == 'Translate your text':
+    if tool_choice == 'Translate your textje':
         st.subheader('Translate, Refine or Craft your text')
         tab1, tab2, tab3 = st.tabs(['TRANSLATE', 'REFINE', 'CRAFT'])
         
