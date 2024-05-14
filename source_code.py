@@ -273,7 +273,7 @@ def main():
             st.write(result['Email_answer_translation']
 
 
-    elif tool_choice == 'Chat with LLM':
+    if tool_choice == 'Chat with LLM' :
                 
         st.title("Chatbot")
         temp_choice = st.slider('Select a Temperature', min_value=0.0, max_value=1.0, step=0.1, key='llm_bot')
@@ -328,7 +328,7 @@ def main():
                 st.success('Cache had been cleared.')
                 st.rerun()
     
-    elif tool_choice == 'Translate your text':
+    if tool_choice == 'Translate your text':
         
         st.subheader('Translate, Refine or Craft your text')
         tab1, tab2, tab3 = st.tabs(['TRANSLATE', 'REFINE', 'CRAFT'])
