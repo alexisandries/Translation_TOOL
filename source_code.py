@@ -275,7 +275,7 @@ def main():
             st.write(result['Email_answer'])
             st.write('*Translation of answer*')
             st.write(result['Email_answer_translation']
-
+                     
 translaatje = str("Translate your textje")
     if tool_choice == translaatje:
         st.subheader('Translate, Refine or Craft your text')
