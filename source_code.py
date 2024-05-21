@@ -70,7 +70,7 @@ def run_model(messages, temp_choice, select_model):
             return f"An error occurred: {e}"
 
     else: 
-        llm_model = 'gpt-4-turbo-2024-04-09'
+        llm_model = 'gpt-4o'
         
         try:
             client = OpenAI()
@@ -129,9 +129,9 @@ def main():
         st.title("Chatbot")
         temp_choice = st.slider('Select a Temperature', min_value=0.0, max_value=1.0, step=0.1, key='llm_bot')
 
-        llm_model = 'gpt-4-turbo-2024-04-09'
+        llm_model = 'gpt-4o'
         if select_model == 'GPT 4.0':
-            llm_model = 'gpt-4-turbo-2024-04-09'
+            llm_model = 'gpt-4o'
         else: 
             st.write('Please select an OpenAI model, we are working to get acces to Mistral')
             st.stop()
@@ -157,7 +157,7 @@ def main():
         
             with st.chat_message("assistant"):
                 completion = client.chat.completions.create(
-                    model='gpt-4-turbo-2024-04-09',
+                    model='gpt-4o',
                     messages=[
                         {"role": m["role"], "content": m["content"]}
                         for m in st.session_state.messages
