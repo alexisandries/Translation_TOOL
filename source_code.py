@@ -123,7 +123,7 @@ def main():
         st.stop()
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4.0', 'MISTRAL large' ])
-    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Chat with LLM', 'Reply to RGs', 'Craft, Refine and Translate your text'])
+    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Chat with LLM', 'Translate your text'])
     
     if tool_choice =='Chat with LLM':
         st.title("Chatbot")
@@ -189,12 +189,8 @@ def main():
                 st.cache_data.clear()
                 st.success('Cache had been cleared.')
                 st.rerun()
-    
-    if tool_choice == 'Reply to RGs':
-        st.write("under construction")
-        
                 
-    if tool_choice == 'Craft, Refine and Translate your text':
+    if tool_choice == 'Translate your text':
         
         st.subheader('Translate, Refine or Craft your text')
         tab1, tab2, tab3 = st.tabs(['TRANSLATE', 'REFINE', 'CRAFT'])
