@@ -1,4 +1,4 @@
-, overtuigendectiveimport streamlit as st
+import streamlit as st
 import openai
 import fitz  # PyMuPDF
 from pptx import Presentation
@@ -275,7 +275,7 @@ def main():
                             {"role":"system", "content": f""" Je bent een expert in het feilloos vertalen van teksten voor de sector van medische NGO's en mensenrechten. Uw beheersing van culturele en terminologische nuances is uitstekend. """},
                             {"role":"user", "content": f"""
                             **Doel:**
-                            - Vertaal onderstaande tekst naar het Nederlands, waarbij de vertaling helder, overtuigend en authentiek moet klinken voor Vlamingen.
+                            - Vertaal onderstaande tekst naar het Nederlands, waarbij de vertaling helder, overtuigend en authentiek moet klinken voor een Vlaming.
 
                             **Richtlijnen:**
                             1. **Trouw en Vrijheid**: Blijf trouw aan betekenis, stijl en toon, maar pas aan voor een betere aansluiting bij de doeltaal.
