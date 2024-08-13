@@ -1,4 +1,4 @@
-import streamlit as st
+ectiveimport streamlit as st
 import openai
 import fitz  # PyMuPDF
 from pptx import Presentation
@@ -251,10 +251,10 @@ def main():
                     if to_language == 'French':
 
                         message_translate = [
-                            {"role": "system", "content": f"Vous êtes un traducteur professionnel expert en {from_language} et français, spécialisé dans les secteurs des grandes ONG médicales, des droits humains et de la communication publique. Votre maîtrise des nuances culturelles et terminologiques est essentielle."},
+                            {"role": "system", "content": f"Vous êtes un traducteur professionnel expert en {from_language} et français, spécialisé dans les secteurs des grandes ONG médicales et des droits humains. Votre maîtrise des nuances culturelles et terminologiques est excellente."},
                             {"role": "user", "content": f"""
                             **Objectif:** 
-                            - Traduisez le texte ci-dessous en français de manière à ce qu'il paraisse naturel et authentique pour un locuteur natif.
+                            - Traduisez le texte ci-dessous en français de manière à ce qu'il paraisse clair, convaincant et authentique pour un locuteur natif.
                             
                             **Directives:**
                             1. **Fidélité et Adaptabilité**: Le texte doit fidèlement refléter le sens original, tout en s'adaptant pour respecter les nuances de la langue cible.
@@ -266,13 +266,13 @@ def main():
                             **Texte à traduire:**
                             {combined_text}
                             
-                            Suivez ces directives pour assurer une traduction de haute qualité et contentez-vous de présenter la traduction dans votre réponse, sans commentaires ni remarques introductives, explicatives ou autres."""}
+                            Suivez ces directives pour assurer une traduction de haute qualité et bien structurée. Contentez-vous de présenter la traduction dans votre réponse, sans commentaires ni remarques introductives, explicatives ou autres."""}
                         ]
 
                     elif to_language == 'Dutch':
                         
                         message_translate = [
-                            {"role":"system", "content": f""" Je bent een expert in het vertalen voor medische NGO's, mensenrechten, en publieke communicatie. Je spreekt {from_language} en het Nederlands vloeiend, met grondige kennis van beide culturen en terminologieën."""},
+                            {"role":"system", "content": f""" Je bent een expert in het feilloos vertalen van teksten voor de sector van medische NGO's en mensenrechten. Uw beheersing van culturele en terminologische nuances is uitstekend. """},
                             {"role":"user", "content": f"""
                             **Doel:**
                             - Vertaal onderstaande tekst naar het Nederlands, waarbij de vertaling natuurlijk en authentiek moet klinken voor Vlamingen.
@@ -293,7 +293,7 @@ def main():
                     else: 
 
                         message_translate = [
-                            {"role": "system", "content": f"""You are a professional translator expert in {from_language} and English, specializing in the sectors of large medical NGOs, human rights, and public communication. Your mastery of cultural and terminological nuances is essential."""},
+                            {"role": "system", "content": f"""You are a professional translator expert in {from_language} and English, specializing in the sectors of large medical NGOs and human rights. Your mastery of cultural and terminological nuances is excellent."""},
                             {"role": "user", "content": f"""
                             Objective: Translate the following text into English in a way that it appears natural and authentic to a native speaker.
                         
