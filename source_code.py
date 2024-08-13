@@ -1,4 +1,4 @@
-ectiveimport streamlit as st
+, overtuigendectiveimport streamlit as st
 import openai
 import fitz  # PyMuPDF
 from pptx import Presentation
@@ -275,7 +275,7 @@ def main():
                             {"role":"system", "content": f""" Je bent een expert in het feilloos vertalen van teksten voor de sector van medische NGO's en mensenrechten. Uw beheersing van culturele en terminologische nuances is uitstekend. """},
                             {"role":"user", "content": f"""
                             **Doel:**
-                            - Vertaal onderstaande tekst naar het Nederlands, waarbij de vertaling natuurlijk en authentiek moet klinken voor Vlamingen.
+                            - Vertaal onderstaande tekst naar het Nederlands, waarbij de vertaling helder, overtuigend en authentiek moet klinken voor Vlamingen.
 
                             **Richtlijnen:**
                             1. **Trouw en Vrijheid**: Blijf trouw aan betekenis, stijl en toon, maar pas aan voor een betere aansluiting bij de doeltaal.
@@ -295,7 +295,7 @@ def main():
                         message_translate = [
                             {"role": "system", "content": f"""You are a professional translator expert in {from_language} and English, specializing in the sectors of large medical NGOs and human rights. Your mastery of cultural and terminological nuances is excellent."""},
                             {"role": "user", "content": f"""
-                            Objective: Translate the following text into English in a way that it appears natural and authentic to a native speaker.
+                            Objective: Translate the following text into English in a way that it appears clear, convincing and authentic to a native speaker.
                         
                             Guidelines:
                             1. **Fidelity and Adaptability**: The text must faithfully reflect the original meaning, while adapting to respect the nuances of the target language.
@@ -336,7 +336,6 @@ def main():
                                 
                                 **Mission** : Assister l'expert en rédaction pour évaluer et améliorer le texte fourni, en se concentrant sur:
                                 - l'optimisation de la fluidité 
-                                - l'authenticité linguistique 
                                 - l'augmentation de l'impact."""},
                                 
                                 {"role":"user", "content": f"""
@@ -353,10 +352,10 @@ def main():
                                     - Identifiez les forces et les faiblesses du texte en termes de clarté, de cohérence et d'impact en adéquation avec les objectifs et le public-cible. 
                                 2. **Amélioration**  
                                     Sur la base de l'évaluation initiale: 
-                                   - Éliminez les marques de traduction apparentes.
+                                   - Éliminez toute marque de traduction apparente.
                                    - Adapter si besoin les expressions et les références culturelles.
                                    - Surtout, renforcez la fluidité et l'authenticité du texte.
-                                   - Ajuster la structure, le contenu, le style, le ton et le vocabulaire pour mieux correspondre aux objectifs, aux directives supplémentaires et au public cible, et augmenter son impact.
+                                   - Ajuster la structure, le contenu, le style, le ton et le vocabulaire pour mieux correspondre aux objectifs, aux directives supplémentaires et au public cible du texte.
                                    
                             
                                 Texte à évaluer et à améliorer :
@@ -375,7 +374,6 @@ def main():
                                 
                                 **Missie**: Assisteer de redactie-expert bij het evalueren en verbeteren van de aangeleverde tekst, met focus op :
                                 - Het optimaliseren van de vloeiendheid
-                                - De taalkundige authenticiteit
                                 - Het vergroten van de impact"""},
                                 
                                 {"role": "user", "content": f"""
@@ -392,10 +390,10 @@ def main():
                                     - Identificeer de sterke en zwakke punten van de tekst qua duidelijkheid, consistentie, en doeltreffendheid in lijn met de doelstellingen, bijkomende richtlijnen en doelgroep.
                                 2. **Verbetering**
                                     Op basis van de initiële evaluatie:
-                                   - Verwijder duidelijke vertaalindicatoren. 
+                                   - Verwijder elke duidelijke vertaalindicatoren. 
                                    - Pas eventueel culturele uitdrukkingen en referenties aan.
                                    - Versterk vooral de vloeiendheid en authenticiteit van de tekst.
-                                   - Pas de structuur, inhoud, stijl, toon, en vocabulaire aan om beter aan te sluiten bij de doelstellingen en doelgroep en om de impact te vergroten.
+                                   - Pas de structuur, inhoud, stijl, toon, en vocabulaire aan om beter aan te sluiten bij de doelstellingen en doelgroep van de tekst.
                                   
                                 Tekst om te evalueren en te verbeteren:
                                 {text}
@@ -432,7 +430,7 @@ def main():
                                    - Remove clear translation indicators.
                                    - Adapt if necessary cultural expressions and references.
                                    - Above all, strengthen the fluency and authenticity of the text.
-                                   - Adjust the structure, content, style, tone, and vocabulary to better align with the objectives and target audience and to increase impact.
+                                   - Adjust the structure, content, style, tone, and vocabulary to better align with the objectives and target audience of the text.
                                   
                                 Text to evaluate and improve:
                                 {text}
