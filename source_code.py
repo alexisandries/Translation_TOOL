@@ -414,7 +414,7 @@ def main():
                 st.write("...")   
     
     
-    if tool_choice == ''Translate your text with multiagent pipeline and feedback':
+    if tool_choice == 'Translate your text with multiagent pipeline and feedback':
         st.write("Under construction")
 
 if __name__ == "__main__":
