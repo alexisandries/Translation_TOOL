@@ -292,9 +292,12 @@ def multiagent_translation(select_model):
     if 'multiagent_translation' not in st.session_state:
         st.session_state.multiagent_translation = ""
         st.session_state.feedback_round = 0
+        st.session_state.translation_complete = False
 
-    if st.button('Start Multiagent Translation'):
-        if combined_text:
+    start_button = st.button('Start Multiagent Translation')
+
+    if start_button or st.session_state.multiagent_translation:
+        if combined_text and start_button:
             source_lang = detect_language(combined_text)
             st.write(f"Detected language: {source_lang}")
             
@@ -304,36 +307,40 @@ def multiagent_translation(select_model):
             
             st.session_state.multiagent_translation = edited_translation
             st.session_state.feedback_round = 0
-        else:
+            st.session_state.translation_complete = False
+        elif not combined_text and start_button:
             st.error('Please upload or paste a text to translate.')
+            return
 
-    if st.session_state.multiagent_translation:
         st.write("Current translation:")
         st.write(st.session_state.multiagent_translation)
 
-        human_feedback = st.text_area("Provide feedback for improvement (or leave empty if satisfied):", key=f"feedback_{st.session_state.feedback_round}")
-        
-        if st.button("Submit Feedback", key=f"submit_{st.session_state.feedback_round}"):
-            if human_feedback.strip():
-                feedback_response = process_feedback(st.session_state.multiagent_translation, human_feedback, to_language, temp_choice, select_model)
-                revised_translation, explanation, confidence = parse_feedback_response(feedback_response)
-                st.write("Revised translation:")
-                st.write(revised_translation)
-                st.write(f"Explanation: {explanation}")
-                st.write(f"Confidence score: {confidence}")
-                st.session_state.multiagent_translation = revised_translation
-                st.session_state.feedback_round += 1
-                st.experimental_rerun()
-            else:
-                st.success("Translation process completed!")
-                st.session_state.last_text = f"{select_model}, Temp {temp_choice}, multiagent translated:\n\n{st.session_state.multiagent_translation}"
+        if not st.session_state.translation_complete:
+            human_feedback = st.text_area("Provide feedback for improvement (or leave empty if satisfied):", key="feedback_input")
+            submit_feedback = st.button("Submit Feedback", key="submit_feedback")
 
-    if st.session_state.multiagent_translation:
-        if st.button('Add to FILE'):
-            if 'central_file' not in st.session_state:
-                st.session_state.central_file = []
-            st.session_state.central_file.append(st.session_state.last_text)
-            st.success('Text added to central file!')
+            if submit_feedback:
+                if human_feedback.strip():
+                    feedback_response = process_feedback(st.session_state.multiagent_translation, human_feedback, to_language, temp_choice, select_model)
+                    revised_translation, explanation, confidence = parse_feedback_response(feedback_response)
+                    st.write("Revised translation:")
+                    st.write(revised_translation)
+                    st.write(f"Explanation: {explanation}")
+                    st.write(f"Confidence score: {confidence}")
+                    st.session_state.multiagent_translation = revised_translation
+                    st.session_state.feedback_round += 1
+                    st.experimental_rerun()
+                else:
+                    st.success("Translation process completed!")
+                    st.session_state.last_text = f"{select_model}, Temp {temp_choice}, multiagent translated:\n\n{st.session_state.multiagent_translation}"
+                    st.session_state.translation_complete = True
+
+        if st.session_state.translation_complete:
+            if st.button('Add to FILE'):
+                if 'central_file' not in st.session_state:
+                    st.session_state.central_file = []
+                st.session_state.central_file.append(st.session_state.last_text)
+                st.success('Text added to central file!')
 
 def manage_central_file():
     st.sidebar.write("\n\n")
