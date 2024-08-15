@@ -511,7 +511,7 @@ def main():
     
                 # Human Feedback Loop
                 while True:
-                    human_feedback = st.text_area("Provide feedback for further improvement (or type 'done' if satisfied):", key="human_feedback")
+                    human_feedback = st.text_area("Provide feedback for further improvement (or type 'done' if satisfied):", key="human_fb")
                     if human_feedback.lower() == 'done':
                         break
                     if human_feedback.strip():
