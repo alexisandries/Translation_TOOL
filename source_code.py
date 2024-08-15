@@ -515,6 +515,7 @@ def main():
                     human_feedback = st.text_area("Provide feedback for further improvement (or type 'done' if satisfied):", key=f"human_fb_{counter}")
                     if human_feedback.lower() == 'done':
                         break
+                    counter += 1
                     if human_feedback.strip():
                         feedback_prompt = PromptTemplate(
                             input_variables=["translated_text", "human_feedback", "target_language"],
@@ -536,7 +537,7 @@ def main():
                             Confidence: [Your confidence score here]
                             """
                         )
-                        counter += 1
+                        
                         feedback_response = run_model([{"role": "user", "content": feedback_prompt.format(translated_text=edited_translation, human_feedback=human_feedback, target_language=to_language)}], temp_choice, select_model)
                         revised_translation, explanation, confidence = parse_feedback_response(feedback_response)
                         st.write(f"Revised translation: {revised_translation}")
