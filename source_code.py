@@ -156,10 +156,10 @@ def main():
                 text = read_excel(uploaded_file)
             elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
                 text = read_docx(uploaded_file)
-            st.text_area("Extracted Text", value=text, height=150, disabled=True)
+            st.text_area("Extracted Text", value=text, height=150, disabled=True, key="extracted_enhancement")
         
         # Manual text input as an alternative to file upload
-        text_input = st.text_area('Or enter text to translate', height=150, key="input1")
+        text_input = st.text_area('Or enter text to translate', height=150, key="trans1_enhance")
     
         # Combine file text and manual text input if both are provided
         if text or text_input: 
@@ -433,7 +433,7 @@ def main():
         text = ""
         if uploaded_file:
             # (File reading logic remains the same)
-            st.text_area("Extracted Text", value=text, height=150, disabled=True)
+            st.text_area("Extracted Text", value=text, height=150, disabled=True, key="extract_multiagent")
         
         text_input = st.text_area('Or enter text to translate', height=150, key='multi_text_input')
         
@@ -511,7 +511,7 @@ def main():
     
                 # Human Feedback Loop
                 while True:
-                    human_feedback = st.text_area("Provide feedback for further improvement (or type 'done' if satisfied):")
+                    human_feedback = st.text_area("Provide feedback for further improvement (or type 'done' if satisfied):", key="human_feedback")
                     if human_feedback.lower() == 'done':
                         break
                     if human_feedback.strip():
