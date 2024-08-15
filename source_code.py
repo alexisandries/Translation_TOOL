@@ -163,31 +163,44 @@ def process_feedback(translated_text, human_feedback, target_language, temp_choi
         3. A confidence score (1-10) for your revised translation, where 1 is least confident and 10 is most confident
 
         Format your response EXACTLY as follows:
-        Revised Translation: [Your revised translation here]
-        Explanation: [Your explanation here]
-        Confidence: [Your confidence score here (must be an integer between 1 and 10)]
+        [START REVISED TRANSLATION]
+        Your revised translation here. This can span multiple lines if necessary.
+        [END REVISED TRANSLATION]
+        [START EXPLANATION]
+        Your explanation here. This can also span multiple lines if needed.
+        [END EXPLANATION]
+        [CONFIDENCE SCORE]: Your confidence score here (must be an integer between 1 and 10)
 
-        Ensure that each part starts on a new line and follows the exact format specified above.
+        Ensure that each part is enclosed in the specified tags and follows the exact format specified above.
         """
     )
     return run_model([{"role": "user", "content": prompt.format(translated_text=translated_text, human_feedback=human_feedback, target_language=target_language)}], temp_choice, select_model)
 
 def parse_feedback_response(response):
-    lines = response.split('\n')
     revised_translation = ""
     explanation = ""
     confidence = 0
 
-    for line in lines:
-        if line.startswith("Revised Translation:"):
-            revised_translation = line.replace('Revised Translation:', '').strip()
-        elif line.startswith("Explanation:"):
-            explanation = line.replace('Explanation:', '').strip()
-        elif line.startswith("Confidence:"):
-            try:
-                confidence = int(line.replace('Confidence:', '').strip())
-            except ValueError:
-                confidence = 0  # Default to 0 if parsing fails
+    # Extract revised translation
+    start_index = response.find("[START REVISED TRANSLATION]")
+    end_index = response.find("[END REVISED TRANSLATION]")
+    if start_index != -1 and end_index != -1:
+        revised_translation = response[start_index + len("[START REVISED TRANSLATION]"):end_index].strip()
+
+    # Extract explanation
+    start_index = response.find("[START EXPLANATION]")
+    end_index = response.find("[END EXPLANATION]")
+    if start_index != -1 and end_index != -1:
+        explanation = response[start_index + len("[START EXPLANATION]"):end_index].strip()
+
+    # Extract confidence score
+    confidence_index = response.find("[CONFIDENCE SCORE]:")
+    if confidence_index != -1:
+        confidence_str = response[confidence_index + len("[CONFIDENCE SCORE]:"):].strip().split()[0]
+        try:
+            confidence = int(confidence_str)
+        except ValueError:
+            confidence = 0  # Default to 0 if parsing fails
 
     return revised_translation, explanation, confidence
 
@@ -304,7 +317,8 @@ def multiagent_translation(select_model):
             if human_feedback.strip():
                 feedback_response = process_feedback(st.session_state.multiagent_translation, human_feedback, to_language, temp_choice, select_model)
                 revised_translation, explanation, confidence = parse_feedback_response(feedback_response)
-                st.write(f"Revised translation: {revised_translation}")
+                st.write("Revised translation:")
+                st.write(revised_translation)
                 st.write(f"Explanation: {explanation}")
                 st.write(f"Confidence score: {confidence}")
                 st.session_state.multiagent_translation = revised_translation
