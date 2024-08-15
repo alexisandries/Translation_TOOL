@@ -162,10 +162,12 @@ def process_feedback(translated_text, human_feedback, target_language, temp_choi
         2. A brief explanation of the changes you made (2-3 sentences)
         3. A confidence score (1-10) for your revised translation, where 1 is least confident and 10 is most confident
 
-        Format your response as follows:
+        Format your response EXACTLY as follows:
         Revised Translation: [Your revised translation here]
         Explanation: [Your explanation here]
-        Confidence: [Your confidence score here]
+        Confidence: [Your confidence score here (must be an integer between 1 and 10)]
+
+        Ensure that each part starts on a new line and follows the exact format specified above.
         """
     )
     return run_model([{"role": "user", "content": prompt.format(translated_text=translated_text, human_feedback=human_feedback, target_language=target_language)}], temp_choice, select_model)
