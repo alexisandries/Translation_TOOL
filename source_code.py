@@ -159,7 +159,7 @@ def main():
             st.text_area("Extracted Text", value=text, height=150, disabled=True)
         
         # Manual text input as an alternative to file upload
-        text_input = st.text_area('Or enter text to translate', height=150)
+        text_input = st.text_area('Or enter text to translate', height=150, key="input1")
     
         # Combine file text and manual text input if both are provided
         if text or text_input: 
