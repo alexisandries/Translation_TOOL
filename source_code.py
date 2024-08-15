@@ -172,9 +172,21 @@ def process_feedback(translated_text, human_feedback, target_language, temp_choi
 
 def parse_feedback_response(response):
     lines = response.split('\n')
-    revised_translation = lines[0].replace('Revised Translation:', '').strip()
-    explanation = lines[1].replace('Explanation:', '').strip()
-    confidence = int(lines[2].replace('Confidence:', '').strip())
+    revised_translation = ""
+    explanation = ""
+    confidence = 0
+
+    for line in lines:
+        if line.startswith("Revised Translation:"):
+            revised_translation = line.replace('Revised Translation:', '').strip()
+        elif line.startswith("Explanation:"):
+            explanation = line.replace('Explanation:', '').strip()
+        elif line.startswith("Confidence:"):
+            try:
+                confidence = int(line.replace('Confidence:', '').strip())
+            except ValueError:
+                confidence = 0  # Default to 0 if parsing fails
+
     return revised_translation, explanation, confidence
 
 # UI functions
