@@ -123,7 +123,7 @@ def main():
         st.stop()
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4.0', 'MISTRAL large' ])
-    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Translate your text with enhancement button', 'Translate your text with multiagent pipeline and feedback'])
+    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Translate your text with enhancement button', 'Translate your text with multiagent pipeline and human feedback'])
     
                     
     if tool_choice == 'Translate your text with enhancement button':
@@ -414,7 +414,7 @@ def main():
                 st.write("...")   
     
     
-    if tool_choice == 'Translate your text with multiagent pipeline and feedback':
+    if tool_choice == 'Translate your text with multiagent pipeline and human feedback':
         st.write("Under construction")
 
 if __name__ == "__main__":
