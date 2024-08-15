@@ -415,7 +415,134 @@ def main():
     
     
     if tool_choice == 'Translate your text with multiagent pipeline and human feedback':
-        st.write("Under construction")
+        
+        st.subheader('Multiagent Translation with Human Feedback')
+    
+        # User input for translations
+        col1, col2 = st.columns(2)
+        with col1:
+            from_language = st.selectbox('From Language', ['French', 'Dutch', 'English'], index=1, key='multi_from')
+        with col2:
+            to_language = st.selectbox('To Language', ['Dutch', 'French', 'English'], index=1, key='multi_to')
+    
+        temp_choice = st.slider('Select a Temperature', min_value=0.1, max_value=1.0, step=0.1, key='multi_temp')
+    
+        # File upload and text input (similar to the previous section)
+        uploaded_file = st.file_uploader("Upload file (PDF, PPTX, XLSX, DOCX)", type=['pdf', 'pptx', 'xlsx', 'docx'], key='multi_upload')
+        text = ""
+        if uploaded_file:
+            # (File reading logic remains the same)
+            st.text_area("Extracted Text", value=text, height=150, disabled=True)
+        
+        text_input = st.text_area('Or enter text to translate', height=150, key='multi_text_input')
+        
+        if text or text_input:
+            combined_text = text + "\n" + text_input
+        else:
+            combined_text = None
+    
+        if st.button('Start Multiagent Translation'):
+            if combined_text is None:
+                st.error('Please upload or paste a text to translate.')
+            else:
+                # Step 1: Source Language Analyzer
+                st.write("Step 1: Analyzing source text...")
+                source_analyzer_prompt = PromptTemplate(
+                    input_variables=["source_text"],
+                    template="""
+                    You are a skilled linguistic analyst. Analyze the given text and provide insights for translation. Focus on:
+                    1. Idioms, colloquialisms, or culturally specific references
+                    2. Tone and register of the text
+                    3. Ambiguous phrases or words with multiple meanings
+                    4. Specialized terminology or jargon
+    
+                    Source text: {source_text}
+    
+                    Please provide your analysis:
+                    """
+                )
+                source_analysis = run_model([{"role": "user", "content": source_analyzer_prompt.format(source_text=combined_text)}], temp_choice, select_model)
+                st.write(source_analysis)
+    
+                # Step 2: Translator
+                st.write("Step 2: Translating...")
+                translator_prompt = PromptTemplate(
+                    input_variables=["source_text", "analysis", "target_language"],
+                    template="""
+                    You are an expert translator. Translate the given text from its source language to {target_language}. Use the provided analysis to inform your translation. Pay attention to:
+                    1. Maintaining the original meaning and intent
+                    2. Preserving the tone and register
+                    3. Adapting idioms and cultural references appropriately
+                    4. Ensuring clarity and naturalness in the target language
+    
+                    Source text: {source_text}
+    
+                    Analysis: {analysis}
+    
+                    Target language: {target_language}
+    
+                    Please provide your translation:
+                    """
+                )
+                translation = run_model([{"role": "user", "content": translator_prompt.format(source_text=combined_text, analysis=source_analysis, target_language=to_language)}], temp_choice, select_model)
+                st.write(translation)
+    
+                # Step 3: Target Language Editor
+                st.write("Step 3: Editing translation...")
+                editor_prompt = PromptTemplate(
+                    input_variables=["translated_text", "target_language"],
+                    template="""
+                    You are a skilled editor specializing in {target_language}. Refine and improve the given translation. Focus on:
+                    1. Ensuring grammatical correctness and idiomatic usage
+                    2. Improving fluency and naturalness of expression
+                    3. Maintaining consistency in terminology and style
+                    4. Adapting the text to be culturally appropriate for the target audience
+    
+                    Translated text: {translated_text}
+    
+                    Target language: {target_language}
+    
+                    Please provide your edited version:
+                    """
+                )
+                edited_translation = run_model([{"role": "user", "content": editor_prompt.format(translated_text=translation, target_language=to_language)}], temp_choice, select_model)
+                st.write(edited_translation)
+    
+                # Human Feedback Loop
+                while True:
+                    human_feedback = st.text_area("Provide feedback for further improvement (or type 'done' if satisfied):")
+                    if human_feedback.lower() == 'done':
+                        break
+                    if human_feedback.strip():
+                        feedback_prompt = PromptTemplate(
+                            input_variables=["translated_text", "human_feedback", "target_language"],
+                            template="""
+                            You are a skilled editor and translator specializing in {target_language}. Refine the translation based on human feedback. 
+    
+                            Current translation: {translated_text}
+    
+                            Human feedback: {human_feedback}
+    
+                            Please provide:
+                            1. Your revised translation
+                            2. A brief explanation of the changes you made (2-3 sentences)
+                            3. A confidence score (1-10) for your revised translation, where 1 is least confident and 10 is most confident
+    
+                            Format your response as follows:
+                            Revised Translation: [Your revised translation here]
+                            Explanation: [Your explanation here]
+                            Confidence: [Your confidence score here]
+                            """
+                        )
+                        feedback_response = run_model([{"role": "user", "content": feedback_prompt.format(translated_text=edited_translation, human_feedback=human_feedback, target_language=to_language)}], temp_choice, select_model)
+                        revised_translation, explanation, confidence = parse_feedback_response(feedback_response)
+                        st.write(f"Revised translation: {revised_translation}")
+                        st.write(f"Explanation: {explanation}")
+                        st.write(f"Confidence score: {confidence}")
+                        edited_translation = revised_translation
+    
+                st.success("Translation process completed!")
+                st.session_state.last_text = f"{select_model}, Temp {temp_choice}, multiagent translated:\n\n{edited_translation}"
 
 if __name__ == "__main__":
     main()
