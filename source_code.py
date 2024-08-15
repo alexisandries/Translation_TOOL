@@ -64,7 +64,7 @@ def detect_language(text):
 def run_openai_model(messages, temp_choice):
     try:
         response = openai_client.chat.completions.create(
-            model='gpt-4',
+            model='gpt-4o',
             messages=messages,
             temperature=temp_choice
         )
@@ -222,7 +222,7 @@ def main():
         st.error('The password you entered is incorrect.')
         st.stop()
 
-    select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4.0', 'MISTRAL large'])
+    select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4o', 'MISTRAL large'])
     tool_choice = st.sidebar.radio("**Choose your tool:**", ['Translate with enhancement', 'Multiagent translation with feedback'])
 
     if tool_choice == 'Translate with enhancement':
@@ -472,7 +472,7 @@ if __name__ == "__main__":
 #         st.error('The password you entered is incorrect.')
 #         st.stop()
 
-#     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4.0', 'MISTRAL large' ])
+#     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4o', 'MISTRAL large' ])
 #     tool_choice = st.sidebar.radio("**Choose your tool:**", ['Translate your text with enhancement button', 'Translate your text with multiagent pipeline and human feedback'])
     
                     
