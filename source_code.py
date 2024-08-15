@@ -513,9 +513,10 @@ def main():
                 counter = 0
                 while True:
                     human_feedback = st.text_area("Provide feedback for further improvement (or type 'done' if satisfied):", key=f"human_fb_{counter}")
+                    counter += 1
                     if human_feedback.lower() == 'done':
                         break
-                    counter += 1
+                    
                     if human_feedback.strip():
                         feedback_prompt = PromptTemplate(
                             input_variables=["translated_text", "human_feedback", "target_language"],
