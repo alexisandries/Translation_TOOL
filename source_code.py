@@ -177,10 +177,10 @@ def polish_text(edited_text, target_language, temp_choice, select_model):
         4. Elegance and Precision: While maintaining accessibility, aim for a level of linguistic sophistication that demonstrates mastery of {target_language}.
         5. Emotional Resonance: Adjust the tone and word choice to evoke the appropriate emotional response in a native {target_language} reader.
         6. Rhythm and Cadence: Pay attention to the rhythm of the language, ensuring it aligns with the natural cadence of {target_language} prose.
-
-        Remember, your goal is to make this text indistinguishable from one originally conceived and masterfully written in {target_language}.
-        You should not make the text longer or hallucinate.  
-
+        
+        Your goal is to make this text indistinguishable from one originally conceived and masterfully written in {target_language}.
+        While you can rephrase the text for clarity, coherence, fluency, and naturalness, you must not add new information. Maintain the original meaning and content without hallucinating or expanding beyond the given text. 
+       
         Text to polish:
         {edited_text}
 
