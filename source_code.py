@@ -222,13 +222,12 @@ def display_text_input():
     return st.text_area('Or enter text to translate', height=150)
 
 def display_language_selection(key_suffix):
-    return st.selectbox('To Language', ['Dutch', 'French', 'English'], index=1, key=f'to_lang_{key_suffix}')
+    return st.selectbox('**To Language**', ['Dutch', 'French', 'English'], index=1, key=f'to_lang_{key_suffix}')
 
 def display_temperature_slider(key_suffix):
-    st.write("**Lower Temperature (~0.1 to 0.5):** Recommended for more secure translations.")
-    st.write("**Higher Temperature (~0.6 to 1.0):** Encourages more creative translations.")
-    return st.slider('Select a Temperature', min_value=0.1, max_value=1.0, step=0.1, key=f'temp_{key_suffix}')
-
+    return st.slider('**Select a Temperature**', min_value=0.1, max_value=1.0, step=0.1, key=f'temp_{key_suffix}')
+    return st.write("*Lower Temperature (~0.1 to 0.5):* Recommended for more secure translations.")
+    return st.write("*Higher Temperature (~0.6 to 1.0):* Encourages more creative translations.")
 
 # Main app logic
 def main():
