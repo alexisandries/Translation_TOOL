@@ -349,7 +349,7 @@ def multiagent_translation(select_model):
             # st.rerun()
             
             
-        if st.button('Add to FILE'):
+        if st.sidebar.button('Add to FILE'):
             st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{st.session_state.multiagent_translation}"
             if 'central_file' not in st.session_state:
                 st.session_state.central_file = []
