@@ -387,7 +387,7 @@ def multiagent_translation(select_model):
                     st.write(feedback_response)
                     # st.write(f"Explanation: {explanation}")
                     # st.write(f"Confidence score: {confidence}")
-                    st.session_state.multiagent_translation = revised_translation
+                    st.session_state.multiagent_translation = feedback_response
                     st.session_state.feedback_round += 1
                     st.experimental_rerun()
                 else:
