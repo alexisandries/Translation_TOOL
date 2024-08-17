@@ -140,7 +140,7 @@ def translate_text(text, analysis, target_language, temp_choice, select_model):
         Translation:
         """
     )
-    
+    st.write(f"analysis: {analysis}")
     return run_model([{"role": "user", "content": prompt.format(source_text=text, analysis=analysis, target_language=target_language)}], temp_choice, select_model)
 
 def edit_translation(translated_text, target_language, temp_choice, select_model):
@@ -162,6 +162,7 @@ def edit_translation(translated_text, target_language, temp_choice, select_model
         Please provide your refined version, focusing on making the text read as if it were originally written by a skilled native {target_language} author:
         """
     )
+    st.write(translated_text)
     return run_model([{"role": "user", "content": prompt.format(translated_text=translated_text, target_language=target_language)}], temp_choice, select_model)
 
 def polish_text(edited_text, target_language, temp_choice, select_model):
@@ -186,15 +187,16 @@ def polish_text(edited_text, target_language, temp_choice, select_model):
         Please provide your polished version:
         """
     )
+    st.write(edited_text)
     return run_model([{"role": "user", "content": prompt.format(edited_text=edited_text, target_language=target_language)}], temp_choice, select_model)
 
-def process_feedback(translated_text, human_feedback, target_language, temp_choice, select_model):
+def process_feedback(edited_text, human_feedback, target_language, temp_choice, select_model):
     prompt = PromptTemplate(
         input_variables=["translated_text", "human_feedback", "target_language"],
         template="""
-        You are a skilled editor and translator specializing in {target_language}. Refine the translation based on human feedback. 
+        You are a skilled editor and writer in {target_language}. Refine the translation based on human feedback. 
 
-        Current translation: {translated_text}
+        Current translation: {edited_text}
 
         Human feedback: {human_feedback}
 
@@ -215,7 +217,7 @@ def process_feedback(translated_text, human_feedback, target_language, temp_choi
         Ensure that each part is enclosed in the specified tags and follows the exact format specified above.
         """
     )
-    return run_model([{"role": "user", "content": prompt.format(translated_text=translated_text, human_feedback=human_feedback, target_language=target_language)}], temp_choice, select_model)
+    return run_model([{"role": "user", "content": prompt.format(edited_text=edited_text, human_feedback=human_feedback, target_language=target_language)}], temp_choice, select_model)
 
 def parse_feedback_response(response):
     revised_translation = ""
