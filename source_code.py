@@ -226,9 +226,7 @@ def display_language_selection(key_suffix):
 
 def display_temperature_slider(key_suffix):
     return st.slider('**Select a Temperature**', min_value=0.1, max_value=1.0, step=0.1, key=f'temp_{key_suffix}')
-    return st.write("*Lower Temperature (~0.1 to 0.5):* Recommended for more secure translations.")
-    return st.write("*Higher Temperature (~0.6 to 1.0):* Encourages more creative translations.")
-
+    
 # Main app logic
 def main():
     st.sidebar.title("Translation App")
@@ -254,6 +252,8 @@ def translate_with_enhancement(select_model):
     
     to_language = display_language_selection('enhance')
     temp_choice = display_temperature_slider('enhance')
+    st.write("*Lower Temperature (~0.1 to 0.5):* Recommended for more secure translations.")
+    st.write("*Higher Temperature (~0.6 to 1.0):* Encourages more creative translations.")
 
     file_text = display_file_uploader()
     manual_text = display_text_input()
@@ -285,6 +285,8 @@ def multiagent_translation(select_model):
 
     to_language = display_language_selection('multi')
     temp_choice = display_temperature_slider('multi')
+    st.write("*Lower Temperature (~0.1 to 0.5):* Recommended for more secure translations.")
+    st.write("*Higher Temperature (~0.6 to 1.0):* Encourages more creative translations.")
 
     file_text = display_file_uploader()
     manual_text = display_text_input()
