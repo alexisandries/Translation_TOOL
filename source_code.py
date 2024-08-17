@@ -252,8 +252,8 @@ def translate_with_enhancement(select_model):
     
     to_language = display_language_selection('enhance')
     temp_choice = display_temperature_slider('enhance')
-    st.write("*Lower Temperature (~0.1 to 0.5):* Recommended for more secure translations.")
-    st.write("*Higher Temperature (~0.6 to 1.0):* Encourages more creative translations.")
+    st.write("Lower Temperature (~0.1 to 0.5): Recommended for more secure translations.")
+    st.write("Higher Temperature (~0.6 to 1.0): Encourages more creative translations.")
 
     file_text = display_file_uploader()
     manual_text = display_text_input()
@@ -285,8 +285,8 @@ def multiagent_translation(select_model):
 
     to_language = display_language_selection('multi')
     temp_choice = display_temperature_slider('multi')
-    st.write("*Lower Temperature (~0.1 to 0.5):* Recommended for more secure translations.")
-    st.write("*Higher Temperature (~0.6 to 1.0):* Encourages more creative translations.")
+    st.write("Lower Temperature (~0.1 to 0.5): Recommended for more secure translations.")
+    st.write("Higher Temperature (~0.6 to 1.0): Encourages more creative translations.")
 
     file_text = display_file_uploader()
     manual_text = display_text_input()
@@ -520,7 +520,7 @@ if __name__ == "__main__":
 #         st.write("**Higher Temperature (~0.6 to 1.0):** Encourages more creative translations.")
 
 #         # File upload
-#         uploaded_file = st.file_uploader("Upload file (PDF, PPTX, XLSX, DOCX)", type=['pdf', 'pptx', 'xlsx', 'docx'])
+#         uploaded_file = st.file_uploader("**Upload file** (PDF, PPTX, XLSX, DOCX)", type=['pdf', 'pptx', 'xlsx', 'docx'])
 #         text = ""
                   
 #         if uploaded_file:
@@ -811,7 +811,7 @@ if __name__ == "__main__":
 #             # (File reading logic remains the same)
 #             st.text_area("Extracted Text", value=text, height=150, disabled=True, key="extract_multiagent")
         
-#         text_input = st.text_area('Or enter text to translate', height=150, key='multi_text_input')
+#         text_input = st.text_area('**Or enter text to translate**', height=150, key='multi_text_input')
         
 #         if text or text_input:
 #             combined_text = text + "\n" + text_input
