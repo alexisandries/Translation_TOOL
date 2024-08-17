@@ -254,10 +254,10 @@ def main():
 
     if tool_choice == 'Translation & Enhance':
         translate_with_enhancement(select_model)
-    elif tool_choice == 'Multiagent Translation':
+    if tool_choice == 'Multiagent Translation':
         multiagent_translation(select_model)
 
-    manage_central_file()
+        manage_central_file()
 
 def translate_with_enhancement(select_model):
     
