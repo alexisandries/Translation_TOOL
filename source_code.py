@@ -274,7 +274,7 @@ def display_language_selection(key_suffix):
     # Conditional display of text input when "Other" is selected
     if language_choice == "Other":
         language_choice = st.text_input("Please specify your language:")
-        st.write(f"You have selected: {other_language}")
+        st.write(f"You have selected: {language_choice}")
     else:
         st.write(f"You have selected: {language_choice}")
     return language_choice
