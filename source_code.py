@@ -265,8 +265,20 @@ def display_text_input():
     return st.text_area('Or enter text to translate', height=150)
 
 def display_language_selection(key_suffix):
-    return st.selectbox('**To Language**', ['Dutch', 'French', 'English'], index=1, key=f'to_lang_{key_suffix}')
-
+    # List of predefined language options
+    languages = ["Dutch", "French", "English", "Other"]
+    
+    # Selectbox for choosing the language
+    language_choice = st.selectbox("Choose your language:", languages, index=1, key=f'to_lang_{key_suffix}')
+    
+    # Conditional display of text input when "Other" is selected
+    if language_choice == "Other":
+        language_choice = st.text_input("Please specify your language:")
+        st.write(f"You have selected: {other_language}")
+    else:
+        st.write(f"You have selected: {language_choice}")
+    return language_choice
+    
 def display_temperature_slider(key_suffix):
     return st.slider('**Select a Temperature**', min_value=0.1, max_value=1.0, step=0.1, key=f'temp_{key_suffix}')
     
@@ -291,8 +303,6 @@ def main():
         manage_central_file()
 
 def translate_with_enhancement(select_model):
-    
-    
     
     st.subheader('Translate and upgrade your text')
     
