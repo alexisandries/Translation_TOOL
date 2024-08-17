@@ -162,7 +162,7 @@ def edit_translation(translated_text, target_language, temp_choice, select_model
         Please provide your refined version, without any comment, focusing on making the text read as if it were originally written by a skilled native {target_language} author:
         """
     )
-    st.write(translated_text)
+    st.write(translated text)
     return run_model([{"role": "user", "content": prompt.format(translated_text=translated_text, target_language=target_language)}], temp_choice, select_model)
 
 def polish_text(edited_text, target_language, temp_choice, select_model):
