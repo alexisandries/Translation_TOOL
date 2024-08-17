@@ -215,6 +215,7 @@ def process_feedback(edited_text, human_feedback, target_language, temp_choice, 
         Ensure that each part is enclosed in the specified tags and follows the exact format specified above.
         """
     )
+    st.write
     return run_model([{"role": "user", "content": prompt.format(edited_text=edited_text, human_feedback=human_feedback, target_language=target_language)}], temp_choice, select_model)
 
 def parse_feedback_response(response):
@@ -381,9 +382,9 @@ def multiagent_translation(select_model):
             if submit_feedback:
                 if human_feedback.strip():
                     feedback_response = process_feedback(st.session_state.multiagent_translation, human_feedback, to_language, temp_choice, select_model)
-                    revised_translation, explanation, confidence = parse_feedback_response(feedback_response)
+                    # revised_translation, explanation, confidence = parse_feedback_response(feedback_response)
                     st.write("Revised translation:")
-                    st.write(revised_translation)
+                    st.write(feedback_response)
                     st.write(f"Explanation: {explanation}")
                     st.write(f"Confidence score: {confidence}")
                     st.session_state.multiagent_translation = revised_translation
