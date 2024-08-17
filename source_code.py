@@ -188,48 +188,21 @@ def polish_text(edited_text, target_language, temp_choice, select_model):
     )
     return run_model([{"role": "user", "content": prompt.format(edited_text=edited_text, target_language=target_language)}], temp_choice, select_model)
 
-def process_feedback(edited_text, human_feedback, target_language, temp_choice, select_model):
+def process_feedback(polished_text, human_feedback, target_language, temp_choice, select_model):
     prompt = PromptTemplate(
-        input_variables=["translated_text", "human_feedback", "target_language"],
+        input_variables=["polished_text", "human_feedback", "target_language"],
         template="""
         You are a skilled editor and writer in {target_language}. Refine the translation based on human feedback. 
 
-        Current translation: {edited_text}
+        Current translation: {polished_text}
 
         Human feedback: {human_feedback}
 
         Please provide your revised translation without further comments:
         """
     )
-    return run_model([{"role": "user", "content": prompt.format(edited_text=edited_text, human_feedback=human_feedback, target_language=target_language)}], temp_choice, select_model)
+    return run_model([{"role": "user", "content": prompt.format(polished_text=polished_text, human_feedback=human_feedback, target_language=target_language)}], temp_choice, select_model)
 
-def parse_feedback_response(response):
-    revised_translation = ""
-    explanation = ""
-    confidence = 0
-
-    # Extract revised translation
-    start_index = response.find("[START REVISED TRANSLATION]")
-    end_index = response.find("[END REVISED TRANSLATION]")
-    if start_index != -1 and end_index != -1:
-        revised_translation = response[start_index + len("[START REVISED TRANSLATION]"):end_index].strip()
-
-    # Extract explanation
-    start_index = response.find("[START EXPLANATION]")
-    end_index = response.find("[END EXPLANATION]")
-    if start_index != -1 and end_index != -1:
-        explanation = response[start_index + len("[START EXPLANATION]"):end_index].strip()
-
-    # Extract confidence score
-    confidence_index = response.find("[CONFIDENCE SCORE]:")
-    if confidence_index != -1:
-        confidence_str = response[confidence_index + len("[CONFIDENCE SCORE]:"):].strip().split()[0]
-        try:
-            confidence = int(confidence_str)
-        except ValueError:
-            confidence = 0  # Default to 0 if parsing fails
-
-    return revised_translation, explanation, confidence
 
 # UI functions
 def display_file_uploader():
