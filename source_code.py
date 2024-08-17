@@ -111,11 +111,7 @@ def translate_text(text, analysis, target_language, temp_choice, select_model):
     prompt = PromptTemplate(
         input_variables=["source_text", "analysis", "target_language"],
         template="""
-        You are an expert translator. Translate the given text to {target_language}. Use the provided analysis to inform your translation. Pay attention to:
-        1. Maintaining the original meaning and intent
-        2. Preserving the tone and register
-        3. Adapting idioms and cultural references appropriately
-        4. Ensuring clarity and naturalness in the target language
+        You are an expert translator with deep knowledge of both the source and target languages, as well as their cultural contexts. Your task is to translate the following text into {target_language}, using the provided analysis to guide your work.
 
         Source text: {source_text}
 
@@ -123,29 +119,74 @@ def translate_text(text, analysis, target_language, temp_choice, select_model):
 
         Target language: {target_language}
 
-        Please provide your translation:
+        Guidelines for translation:
+        1. Meaning and Intent: Preserve the original message and intention with utmost accuracy.
+        2. Tone and Register: Match the style, formality level, and emotional tone of the original text.
+        3. Cultural Adaptation: 
+           - Adapt idioms, metaphors, and cultural references to resonate with the target audience.
+           - If a direct equivalent doesn't exist, provide a culturally appropriate alternative that conveys the same meaning.
+        4. Clarity and Fluency: Ensure the translation reads naturally and fluently in the target language.
+        5. Terminology: Use field-specific terminology accurately if present in the text.
+        6. Context: Consider the broader context and purpose of the text in your translation choices.
+        7. Ambiguity: If you encounter ambiguous phrases, translate to preserve the ambiguity if possible, or choose the most likely interpretation based on context.
+
+        Additional instructions:
+        - If you encounter any untranslatable elements, keep them in the original language and add a brief explanation in parentheses.
+        - For proper nouns, use the conventional spelling in the target language if one exists, otherwise keep the original.
+        - Maintain any formatting present in the source text (e.g., bullet points, paragraph breaks).
+
+        Please provide your translation below. If you have any notes or explanations about specific translation choices, include them in [brackets] after the relevant section.
+
+        Translation:
         """
     )
+    
     return run_model([{"role": "user", "content": prompt.format(source_text=text, analysis=analysis, target_language=target_language)}], temp_choice, select_model)
 
 def edit_translation(translated_text, target_language, temp_choice, select_model):
     prompt = PromptTemplate(
         input_variables=["translated_text", "target_language"],
         template="""
-        You are a skilled editor specializing in {target_language}. Refine and improve the given translation. Focus on:
-        1. Ensuring grammatical correctness and idiomatic usage
-        2. Improving fluency and naturalness of expression
-        3. Maintaining consistency in terminology and style
-        4. Adapting the text to be culturally appropriate for the target audience
+        You are a highly skilled editor and writer, native in {target_language}, with a deep understanding of its nuances, idioms, and cultural context. Your task is to refine and elevate the given translation, making it indistinguishable from text originally written in {target_language}.
+
+        Focus areas:
+        1. Fluency and Natural Expression: Ensure the text flows naturally, as if originally conceived in {target_language}. Pay special attention to sentence structures and expressions that are characteristic of native {target_language} writing.
+        2. Coherence and Text Flow: Improve the logical progression of ideas. Ensure sentences and paragraphs transition smoothly, creating a seamless narrative or argument.
+        3. Idiomatic Usage: Incorporate idiomatic expressions where appropriate to enhance the text's authenticity in {target_language}.
+        4. Cultural Adaptation: Adjust any remaining cultural references or concepts to resonate more deeply with a {target_language} audience.
+        5. Consistency in Style and Tone: Maintain a consistent voice throughout the text that feels authentic to {target_language} writing conventions.
+        6. Precision and Clarity: While maintaining fluency, ensure that the original meaning is preserved and communicated clearly.
 
         Translated text: {translated_text}
 
-        Target language: {target_language}
-
-        Please provide your edited version:
+        Please provide your refined version, focusing on making the text read as if it were originally written by a skilled native {target_language} author:
         """
     )
     return run_model([{"role": "user", "content": prompt.format(translated_text=translated_text, target_language=target_language)}], temp_choice, select_model)
+
+def polish_text(edited_text, target_language, temp_choice, select_model):
+    prompt = PromptTemplate(
+        input_variables=["edited_text", "target_language"],
+        template="""
+        You are a master wordsmith and literary expert in {target_language}, known for your ability to craft prose that captivates and flows effortlessly. Your task is to take the following text and elevate it to the highest level of fluency and coherence in {target_language}.
+
+        Guidelines:
+        1. Seamless Flow: Ensure each sentence flows naturally into the next, creating a rhythm that feels inherent to {target_language}.
+        2. Conceptual Coherence: Refine the progression of ideas so that the entire text feels like a single, cohesive thought conceived in {target_language}.
+        3. Linguistic Authenticity: Use turns of phrase, transitional expressions, and structural elements that are quintessentially {target_language}, making the text feel deeply rooted in the language.
+        4. Elegance and Precision: While maintaining accessibility, aim for a level of linguistic sophistication that demonstrates mastery of {target_language}.
+        5. Emotional Resonance: Adjust the tone and word choice to evoke the appropriate emotional response in a native {target_language} reader.
+        6. Rhythm and Cadence: Pay attention to the rhythm of the language, ensuring it aligns with the natural cadence of {target_language} prose.
+
+        Remember, your goal is to make this text indistinguishable from one originally conceived and masterfully written in {target_language}.
+
+        Text to polish:
+        {edited_text}
+
+        Please provide your polished version:
+        """
+    )
+    return run_model([{"role": "user", "content": prompt.format(edited_text=edited_text, target_language=target_language)}], temp_choice, select_model)
 
 def process_feedback(translated_text, human_feedback, target_language, temp_choice, select_model):
     prompt = PromptTemplate(
@@ -308,8 +349,9 @@ def multiagent_translation(select_model):
             analysis = analyze_source_text(combined_text, temp_choice, select_model)
             translation = translate_text(combined_text, analysis, to_language, temp_choice, select_model)
             edited_translation = edit_translation(translation, to_language, temp_choice, select_model)
+            polished_translation = polish_text(edited_translation, to_language, temp_choice, select_model)
             
-            st.session_state.multiagent_translation = edited_translation
+            st.session_state.multiagent_translation = polished_translation
             st.session_state.feedback_round = 0
             st.session_state.translation_complete = False
         elif not combined_text and start_button:
