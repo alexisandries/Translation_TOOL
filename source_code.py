@@ -198,24 +198,9 @@ def process_feedback(edited_text, human_feedback, target_language, temp_choice, 
 
         Human feedback: {human_feedback}
 
-        Please provide:
-        1. Your revised translation
-        2. A brief explanation of the changes you made (2-3 sentences)
-        3. A confidence score (1-10) for your revised translation, where 1 is least confident and 10 is most confident
-
-        Format your response EXACTLY as follows:
-        [START REVISED TRANSLATION]
-        Your revised translation here. This can span multiple lines if necessary.
-        [END REVISED TRANSLATION]
-        [START EXPLANATION]
-        Your explanation here. This can also span multiple lines if needed.
-        [END EXPLANATION]
-        [CONFIDENCE SCORE]: Your confidence score here (must be an integer between 1 and 10)
-
-        Ensure that each part is enclosed in the specified tags and follows the exact format specified above.
+        Please provide your revised translation without further comments:
         """
     )
-    st.write
     return run_model([{"role": "user", "content": prompt.format(edited_text=edited_text, human_feedback=human_feedback, target_language=target_language)}], temp_choice, select_model)
 
 def parse_feedback_response(response):
@@ -389,7 +374,7 @@ def multiagent_translation(select_model):
                     # st.write(f"Confidence score: {confidence}")
                     st.session_state.multiagent_translation = feedback_response
                     st.session_state.feedback_round += 1
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.success("Translation process completed!")
                     st.session_state.last_text = f"{select_model}, Temp {temp_choice}, multiagent translated:\n\n{st.session_state.multiagent_translation}"
