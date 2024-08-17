@@ -194,7 +194,7 @@ def process_feedback(polished_text, human_feedback, target_language, temp_choice
         template="""
         You are a skilled editor and writer in {target_language}. Refine the translation based on human feedback. 
 
-        Current translation: {polished_text}
+        Translation to refine: {polished_text}
 
         Human feedback: {human_feedback}
 
@@ -347,7 +347,7 @@ def multiagent_translation(select_model):
                     # st.write(f"Confidence score: {confidence}")
                     st.session_state.multiagent_translation = feedback_response
                     st.session_state.feedback_round += 1
-                    st.rerun()
+                    # st.rerun()
                 else:
                     st.success("Translation process completed!")
                     st.session_state.last_text = f"{select_model}, Temp {temp_choice}, multiagent translated:\n\n{st.session_state.multiagent_translation}"
