@@ -135,12 +135,12 @@ def translate_text(text, analysis, target_language, temp_choice, select_model):
         - For proper nouns, use the conventional spelling in the target language if one exists, otherwise keep the original.
         - Maintain any formatting present in the source text (e.g., bullet points, paragraph breaks).
 
-        Please provide your translation below. If you have any notes or explanations about specific translation choices, include them in [brackets] after the relevant section.
+        Please provide your translation below, without adding any comment. 
 
         Translation:
         """
     )
-    st.write(f"analysis: {analysis}")
+    
     return run_model([{"role": "user", "content": prompt.format(source_text=text, analysis=analysis, target_language=target_language)}], temp_choice, select_model)
 
 def edit_translation(translated_text, target_language, temp_choice, select_model):
@@ -159,7 +159,7 @@ def edit_translation(translated_text, target_language, temp_choice, select_model
 
         Translated text: {translated_text}
 
-        Please provide your refined version, focusing on making the text read as if it were originally written by a skilled native {target_language} author:
+        Please provide your refined version, without any comment, focusing on making the text read as if it were originally written by a skilled native {target_language} author:
         """
     )
     st.write(translated_text)
@@ -184,7 +184,7 @@ def polish_text(edited_text, target_language, temp_choice, select_model):
         Text to polish:
         {edited_text}
 
-        Please provide your polished version:
+        Please provide your polished version, without adding any comment:
         """
     )
     st.write(edited_text)
@@ -281,16 +281,19 @@ def main():
         st.stop()
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4o', 'MISTRAL large'])
-    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Translation & Enhance', 'Multiagent Translation - under construction'])
+    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Translation & Enhance', 'Multiagent Translation'])
 
     if tool_choice == 'Translation & Enhance':
         translate_with_enhancement(select_model)
-    elif tool_choice == 'Multiagent Translation - under construction':
+    elif tool_choice == 'Multiagent Translation':
         multiagent_translation(select_model)
 
-    manage_central_file()
+        manage_central_file()
 
 def translate_with_enhancement(select_model):
+    
+    
+    
     st.subheader('Translate and upgrade your text')
     
     to_language = display_language_selection('enhance')
