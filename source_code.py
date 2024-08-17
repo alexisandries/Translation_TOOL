@@ -347,9 +347,10 @@ def multiagent_translation(select_model):
             st.session_state.multiagent_translation = feedback_response
             st.session_state.feedback_round += 1
             # st.rerun()
-            st.session_state.last_text = f"{select_model}, Temp {temp_choice}, multiagent translated:\n\n{st.session_state.multiagent_translation}"
+            
             
         if st.button('Add to FILE'):
+            st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{st.session_state.multiagent_translation}"
             if 'central_file' not in st.session_state:
                 st.session_state.central_file = []
             st.session_state.central_file.append(st.session_state.last_text)
