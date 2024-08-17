@@ -179,6 +179,7 @@ def polish_text(edited_text, target_language, temp_choice, select_model):
         6. Rhythm and Cadence: Pay attention to the rhythm of the language, ensuring it aligns with the natural cadence of {target_language} prose.
 
         Remember, your goal is to make this text indistinguishable from one originally conceived and masterfully written in {target_language}.
+        You should not make the text longer or hallucinate.  
 
         Text to polish:
         {edited_text}
