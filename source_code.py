@@ -253,7 +253,9 @@ def main():
     tool_choice = st.sidebar.radio("**Choose your tool:**", ['Translation & Enhance', 'Multiagent Translation'])
 
     if tool_choice == 'Translation & Enhance':
-        translate_with_enhancement(select_model)
+        st.write("**Under revision**")
+        st.write("Please use multiagent translation (=better)")
+        # translate_with_enhancement(select_model)
     if tool_choice == 'Multiagent Translation':
         multiagent_translation(select_model)
 
