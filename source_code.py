@@ -226,6 +226,9 @@ def display_language_selection(key_suffix):
 
 def display_temperature_slider(key_suffix):
     return st.slider('Select a Temperature', min_value=0.1, max_value=1.0, step=0.1, key=f'temp_{key_suffix}')
+    st.write("**Lower Temperature (~0.1 to 0.5):** Recommended for more secure translations.")
+    st.write("**Higher Temperature (~0.6 to 1.0):** Encourages more creative translations.")
+    
 
 # Main app logic
 def main():
@@ -238,11 +241,11 @@ def main():
         st.stop()
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4o', 'MISTRAL large'])
-    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Translate with enhancement', 'Multiagent translation with feedback'])
+    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Translation & Enhance', 'Multiagent Translation - under construction'])
 
-    if tool_choice == 'Translate with enhancement':
+    if tool_choice == 'Translation & Enhance':
         translate_with_enhancement(select_model)
-    elif tool_choice == 'Multiagent translation with feedback':
+    elif tool_choice == 'Multiagent Translation - under construction':
         multiagent_translation(select_model)
 
     manage_central_file()
