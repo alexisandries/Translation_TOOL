@@ -168,7 +168,8 @@ def polish_text(edited_text, target_language, temp_choice, select_model):
     prompt = PromptTemplate(
         input_variables=["edited_text", "target_language"],
         template="""
-        You are a master wordsmith and literary expert in {target_language}, known for your ability to craft prose that captivates and flows effortlessly. Your task is to take the following text and elevate it to the highest level of fluency and coherence in {target_language}.
+        You are a master wordsmith and literary expert in {target_language}, known for your ability to craft prose that captivates and flows effortlessly. you are highly specialized in the sector of large medical NGO's and human rights.  
+        Your task is to take the following text and elevate it to the highest level of fluency and coherence in {target_language}.
 
         Guidelines:
         1. Seamless Flow: Ensure each sentence flows naturally into the next, creating a rhythm that feels inherent to {target_language}.
@@ -193,16 +194,66 @@ def process_feedback(polished_text, human_feedback, target_language, temp_choice
     prompt = PromptTemplate(
         input_variables=["polished_text", "human_feedback", "target_language"],
         template="""
-        You are a skilled editor and writer in {target_language}. Refine the translation based on human feedback. 
+        You are an expert linguist and editor specializing in {target_language}. Your task is to refine the translation below, incorporating the provided human feedback to ensure accuracy, clarity, and fluency.
 
-        Translation to refine: {polished_text}
+        Original Translation: {polished_text}
 
-        Human feedback: {human_feedback}
+        Human Feedback: {human_feedback}
 
-        Please provide your revised translation without further comments:
+        Please provide your revised translation directly, without any additional explanations or comments:
         """
     )
     return run_model([{"role": "user", "content": prompt.format(polished_text=polished_text, human_feedback=human_feedback, target_language=target_language)}], temp_choice, select_model)
+
+def translate_enhancetool(text, target_language, temp_choice, select_model):
+    prompt = PromptTemplate(
+        input_variables=["text", "target_language"],
+        template="""
+        You are a professional translator with expertise in {target_language}, specializing in the sectors of large medical NGOs and human rights. 
+        Your task is to translate the following text into {target_language} so that it is clear, convincing, and authentic to a native speaker.
+
+        Guidelines:
+        1. **Accuracy and Adaptability**: Faithfully reflect the original meaning, adapting where necessary to maintain the nuances of {target_language}. Avoid adding new information or content not present in the original text.
+        2. **Terminology**: Use precise and consistent terminology. Refer to [insert preferred glossary/resource if available] as needed.
+        3. **Cultural Sensitivity**: Adjust cultural references to resonate with the target audience. For ambiguous or culture-specific terms, choose the most appropriate translation and add a brief explanation in parentheses if absolutely necessary.
+        4. **Fluidity and Naturalness**: Ensure the translation reads smoothly and naturally, as if originally written in {target_language}.
+        5. **Language Conventions**: Adhere to grammatical, spelling, and formatting conventions specific to {target_language}.
+        6. **Professional Tone**: Maintain a formal tone suitable for medical and human rights contexts, unless the original text suggests a different style.
+        7. **Clarity and Effectiveness**: Prioritize clarity and ensure the translation effectively conveys the intended message. Avoid ambiguity and make sure the translation is easy to read and understand.
+
+         Text to translate: {text}
+         
+         Please review your translation against the previous guidelines to ensure it meets the highest standards before submitting. The submitted text must be of the highest quality on all aspects.
+
+         Provide only the finally approved translation, without any additional comments or explanations."""
+    )
+    return run_model([{"role": "user", "content": prompt.format(text=text, target_language=target_language)}], temp_choice, select_model)
+
+def enhancetool(text, guidelines, target_language, temp_choice, select_model):
+    prompt = PromptTemplate(
+        input_variables=["text", "target_language", "guidelines"]
+        template="""
+        You are an expert writer and editor in {target_language}. 
+        Your task is to improve significantly the following text, with a major focus on optimizing natural fluency, clarity and effectiveness.
+
+        You must also follow the guidelines provided by the human feedback:
+        {guidelines}
+                                
+        The improvement process must be deployed in two steps:
+        
+        1. **Initial Evaluation**
+            - Identify the strengths and weaknesses of the text in terms of fluency, clarity and effectiveness.
+            - Develop ideas and suggestion to adapt the text in line with the guidelines
+        2. **Improvement**
+            Based on the initial evaluation, adjust the structure, content, style, tone, and vocabulary to fully align with the peovided task and guidelines.
+          
+        Text to evaluate and improve:
+        {text}
+
+        The answer only contains the improved text version, and not the results of the initial evaluation or other comments. 
+        """}  
+    ]
+      return run_model([{"role": "user", "content": prompt.format(text=text, target_language=target_language)}], temp_choice, select_model)
 
 
 # UI functions
@@ -276,25 +327,37 @@ def translate_with_enhancement(select_model):
     
     combined_text = file_text + "\n" + manual_text if file_text or manual_text else None
 
+    if 'translation_with_enhance' not in st.session_state:
+        st.session_state.translation_with_enhance = ""
+    
     if st.button('Translate'):
         if combined_text:
             source_lang = detect_language(combined_text)
             st.write(f"Detected language: {source_lang}")
-            translated_text = translate_text(combined_text, "", to_language, temp_choice, select_model)
-            st.session_state.last_text = f"{select_model}, Temp {temp_choice}, 'translated':\n\n{translated_text}"
+            translated_text = translate_enhancetool(combined_text, "", to_language, temp_choice, select_model)
+            st.session_state.translation_with_enhance = f"{select_model}, Temp {temp_choice}, 'translated':\n\n{translated_text}"
+            st.write("Current translation:")
             st.write(translated_text)
         else:
             st.error('Please upload or paste a text to translate.')
 
-    if 'last_text' in st.session_state and st.session_state.last_text:
+    if 'translation_with_enhance' in st.session_state and st.session_state.translation_with_enhance:
         st.write('**Enhance text (translation or latest in memory)**')
-        objectif = st.text_input("Describe the purpose of the text and/or add guidelines for enhancement.")
-        public_cible = st.text_input("Describe target audience")
-        
+        guidelines = st.text_input("Add extra information and/or guidelines to guide AI during enhancement.")
+                
         if st.button('Enhance'):
-            enhanced_text = edit_translation(st.session_state.last_text, to_language, temp_choice, select_model)
+            enhanced_text = enhancetool(translated_text, guidelines, to_language, temp_choice, select_model)
             st.session_state.last_text = f"{select_model}, Temp {temp_choice}, enhanced:\n\n{enhanced_text}"
-            st.write(st.session_state.last_text)
+            st.write("Enhanced translation:")
+            st.write(enhanced_text)
+
+    if st.sidebar.button('Add to FILE'):
+            st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{st.session_state.multiagent_translation}"
+            if 'central_file' not in st.session_state:
+                st.session_state.central_file = []
+            st.session_state.central_file.append(st.session_state.last_text)
+            st.success('Text added to central file!')
+
 
 def multiagent_translation(select_model):
     st.subheader('Multiagent Translation with Human Feedback')
