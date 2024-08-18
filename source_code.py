@@ -307,7 +307,7 @@ def main():
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4o', 'MISTRAL large'])
     tool_choice = st.sidebar.radio("**Choose your tool:**", ['Single Agent Translation', 'Multiagent Translation'])
-    st.write("*The multiagent translation system is likely to produce slightly superior results, albeit at the cost of increased computational resources.*")
+    st.sidebar.write("*The multiagent translation system is likely to produce slightly superior results, albeit at the cost of increased computational resources.*")
 
     if tool_choice == 'Single Agent Translation':
         translate_with_enhancement(select_model)
@@ -354,18 +354,18 @@ def translate_with_enhancement(select_model):
             # If translated_text is empty, use the stored translation
             text_to_enhance = translated_text or st.session_state.translation_with_enhance.split('\n\n', 1)[1]
             enhanced_text = enhancetool(text_to_enhance, guidelines, to_language, temp_choice, select_model)
-            st.session_state.last_text = f"{select_model}, Temp {temp_choice}, enhanced:\n\n{enhanced_text}"
+            st.session_state.translation_with_enhance = f"{select_model}, Temp {temp_choice}, enhanced:\n\n{enhanced_text}"
             st.write("Enhanced translation:")
             st.write(enhanced_text)
             st.write("Translation before enhancement")
             st.write(text_to_enhance)
             
     if st.sidebar.button('Add to FILE'):
-            st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{st.session_state.multiagent_translation}"
-            if 'central_file' not in st.session_state:
-                st.session_state.central_file = []
-            st.session_state.central_file.append(st.session_state.last_text)
-            st.success('Text added to central file!')
+        st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{st.session_state.translation_with_enhance}"
+        if 'central_file' not in st.session_state:
+            st.session_state.central_file = []
+        st.session_state.central_file.append(st.session_state.last_text)
+        st.success('Text added to central file!')
 
 
 def multiagent_translation(select_model):
