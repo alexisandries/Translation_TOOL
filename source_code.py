@@ -356,7 +356,9 @@ def translate_with_enhancement(select_model):
             st.session_state.last_text = f"{select_model}, Temp {temp_choice}, enhanced:\n\n{enhanced_text}"
             st.write("Enhanced translation:")
             st.write(enhanced_text)
-
+            st.write("Translation before enhancement")
+            st.write(text_to_enhance)
+            
     if st.sidebar.button('Add to FILE'):
             st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{st.session_state.multiagent_translation}"
             if 'central_file' not in st.session_state:
