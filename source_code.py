@@ -331,6 +331,8 @@ def translate_with_enhancement(select_model):
 
     if 'translation_with_enhance' not in st.session_state:
         st.session_state.translation_with_enhance = ""
+
+    translated_text = ""
     
     if st.button('Translate'):
         if combined_text:
