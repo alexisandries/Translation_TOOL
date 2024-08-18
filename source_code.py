@@ -65,7 +65,7 @@ def run_openai_model(messages, temp_choice, model):
     if model == 'GPT 4o':
         model = 'gpt-4o'
     else: 
-        model = 'gpt-4o-mini'
+        model = model
         
     try:
         response = openai_client.chat.completions.create(
@@ -307,6 +307,7 @@ def main():
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4o', 'MISTRAL large'])
     tool_choice = st.sidebar.radio("**Choose your tool:**", ['Single Agent Translation', 'Multiagent Translation'])
+    st.write("*The multiagent translation system is likely to produce slightly superior results, albeit at the cost of increased computational resources.*")
 
     if tool_choice == 'Single Agent Translation':
         translate_with_enhancement(select_model)
