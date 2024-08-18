@@ -61,10 +61,10 @@ def detect_language(text):
         return "Unable to detect language"
 
 # Model-specific functions
-def run_openai_model(messages, temp_choice):
+def run_openai_model(messages, temp_choice, model):
     try:
         response = openai_client.chat.completions.create(
-            model='gpt-4o',
+            model=model,
             messages=messages,
             temperature=temp_choice
         )
@@ -87,7 +87,7 @@ def run_model(messages, temp_choice, select_model):
     if select_model == 'MISTRAL large':
         return run_mistral_model(messages, temp_choice)
     else:
-        return run_openai_model(messages, temp_choice)
+        return run_openai_model(messages, temp_choice, select_model)
 
 # Translation process functions
 def analyze_source_text(text, temp_choice, select_model):
@@ -105,7 +105,7 @@ def analyze_source_text(text, temp_choice, select_model):
         Please provide your analysis:
         """
     )
-    return run_model([{"role": "user", "content": prompt.format(source_text=text)}], temp_choice, select_model)
+    return run_model([{"role": "user", "content": prompt.format(source_text=text)}], temp_choice, 'gpt-4o-mini')
 
 def translate_text(text, analysis, target_language, temp_choice, select_model):
     prompt = PromptTemplate(
