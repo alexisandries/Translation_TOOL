@@ -255,7 +255,6 @@ def enhancetool(text, guidelines, target_language, temp_choice, select_model):
     )
     return run_model([{"role": "user", "content": prompt.format(text=text, guidelines=guidelines, target_language=target_language)}], temp_choice, select_model)
 
-
 # UI functions
 def display_file_uploader():
     uploaded_file = st.file_uploader("Upload file (PDF, PPTX, XLSX, DOCX)", type=['pdf', 'pptx', 'xlsx', 'docx'])
