@@ -231,7 +231,7 @@ def translate_enhancetool(text, target_language, temp_choice, select_model):
 
 def enhancetool(text, guidelines, target_language, temp_choice, select_model):
     prompt = PromptTemplate(
-        input_variables=["text", "target_language", "guidelines"]
+        input_variables=["text", "target_language", "guidelines"],
         template="""
         You are an expert writer and editor in {target_language}. 
         Your task is to improve significantly the following text, with a major focus on optimizing natural fluency, clarity and effectiveness.
