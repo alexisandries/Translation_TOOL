@@ -302,12 +302,10 @@ def main():
         st.stop()
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4o', 'MISTRAL large'])
-    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Translation & Enhance', 'Multiagent Translation'])
+    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Single Agent Translation', 'Multiagent Translation'])
 
-    if tool_choice == 'Translation & Enhance':
-        st.write("**Under revision**")
-        st.write("Please use multiagent translation (=better)")
-        # translate_with_enhancement(select_model)
+    if tool_choice == 'Single Agent Translation':
+        translate_with_enhancement(select_model)
     if tool_choice == 'Multiagent Translation':
         multiagent_translation(select_model)
 
