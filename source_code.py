@@ -346,16 +346,16 @@ def translate_with_enhancement(select_model):
             st.error('Please upload or paste a text to translate.')
 
     if translated_text or ('translation_with_enhance' in st.session_state and st.session_state.translation_with_enhance):
-    st.write('**Enhance text (translation or latest in memory)**')
-    guidelines = st.text_input("Add extra information and/or guidelines to guide AI during enhancement.")
+        st.write('**Enhance text (translation or latest in memory)**')
+        guidelines = st.text_input("Add extra information and/or guidelines to guide AI during enhancement.")
             
-    if st.button('Enhance'):
-        # If translated_text is empty, use the stored translation
-        text_to_enhance = translated_text or st.session_state.translation_with_enhance.split('\n\n', 1)[1]
-        enhanced_text = enhancetool(text_to_enhance, guidelines, to_language, temp_choice, select_model)
-        st.session_state.last_text = f"{select_model}, Temp {temp_choice}, enhanced:\n\n{enhanced_text}"
-        st.write("Enhanced translation:")
-        st.write(enhanced_text)
+        if st.button('Enhance'):
+            # If translated_text is empty, use the stored translation
+            text_to_enhance = translated_text or st.session_state.translation_with_enhance.split('\n\n', 1)[1]
+            enhanced_text = enhancetool(text_to_enhance, guidelines, to_language, temp_choice, select_model)
+            st.session_state.last_text = f"{select_model}, Temp {temp_choice}, enhanced:\n\n{enhanced_text}"
+            st.write("Enhanced translation:")
+            st.write(enhanced_text)
 
     if st.sidebar.button('Add to FILE'):
             st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{st.session_state.multiagent_translation}"
