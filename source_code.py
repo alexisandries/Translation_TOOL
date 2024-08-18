@@ -105,7 +105,7 @@ def analyze_source_text(text, temp_choice, select_model):
         Please provide your analysis:
         """
     )
-    return run_model([{"role": "user", "content": prompt.format(source_text=text)}], temp_choice, 'gpt-4o-mini')
+    return run_model([{"role": "user", "content": prompt.format(source_text=text)}], temp_choice, select_model)
 
 def translate_text(text, analysis, target_language, temp_choice, select_model):
     prompt = PromptTemplate(
