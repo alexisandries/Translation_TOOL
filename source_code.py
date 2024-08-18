@@ -343,7 +343,8 @@ def translate_with_enhancement(select_model):
         else:
             st.error('Please upload or paste a text to translate.')
 
-    if 'translation_with_enhance' in st.session_state and st.session_state.translation_with_enhance:
+    # if 'translation_with_enhance' in st.session_state and st.session_state.translation_with_enhance:
+    if translated_text:
         st.write('**Enhance text (translation or latest in memory)**')
         guidelines = st.text_input("Add extra information and/or guidelines to guide AI during enhancement.")
                 
