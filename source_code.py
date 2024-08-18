@@ -253,7 +253,7 @@ def enhancetool(text, guidelines, target_language, temp_choice, select_model):
         The answer only contains the improved text version, and not the results of the initial evaluation or other comments. 
         """ 
     )
-      return run_model([{"role": "user", "content": prompt.format(text=text, target_language=target_language)}], temp_choice, select_model)
+    return run_model([{"role": "user", "content": prompt.format(text=text, target_language=target_language)}], temp_choice, select_model)
 
 
 # UI functions
