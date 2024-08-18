@@ -332,7 +332,7 @@ def translate_with_enhancement(select_model):
         if combined_text:
             source_lang = detect_language(combined_text)
             st.write(f"Detected language: {source_lang}")
-            translated_text = translate_enhancetool(combined_text, "", to_language, temp_choice, select_model)
+            translated_text = translate_enhancetool(combined_text, to_language, temp_choice, select_model)
             st.session_state.translation_with_enhance = f"{select_model}, Temp {temp_choice}, 'translated':\n\n{translated_text}"
             st.write("Current translation:")
             st.write(translated_text)
