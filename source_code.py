@@ -62,7 +62,7 @@ def detect_language(text):
 
 # Model-specific functions
 def run_openai_model(messages, temp_choice, model):
-    if model = 'GPT 4o':
+    if model == 'GPT 4o':
         model = 'gpt-4o'
     else: 
         model = 'gpt-4o-mini'
