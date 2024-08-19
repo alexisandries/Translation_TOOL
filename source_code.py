@@ -410,7 +410,7 @@ def multiagent_translation(select_model):
         st.write(st.session_state.multiagent_translation)
 
         
-        human_feedback = st.text_area("Provide feedback for improvement (or leave empty if satisfied):", key="feedback_input")
+        human_feedback = st.text_area("**Provide feedback for improvement if needed:**", key="feedback_input")
         submit_feedback = st.button("Submit Feedback", key="submit_feedback")
 
         if submit_feedback:
@@ -424,8 +424,8 @@ def multiagent_translation(select_model):
             st.session_state.feedback_round += 1
             # st.rerun()
             
-            
-        if st.sidebar.button('Add to FILE'):
+        st.sidebar.write("**Save last translation to file:**")    
+        if st.sidebar.button('Save'):
             st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{st.session_state.multiagent_translation}"
             if 'central_file' not in st.session_state:
                 st.session_state.central_file = []
@@ -435,7 +435,7 @@ def multiagent_translation(select_model):
 def manage_central_file():
     st.sidebar.write("\n\n")
     if 'central_file' in st.session_state and st.session_state.central_file:
-        st.sidebar.write('**Manage central file**')
+        st.sidebar.write('**Manage saved translations file:**')
         if st.sidebar.button('DISPLAY'):
             st.write("Contents of the translations file:", st.session_state.central_file)
         
