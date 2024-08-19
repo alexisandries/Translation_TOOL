@@ -360,7 +360,8 @@ def translate_with_enhancement(select_model):
             st.write("Translation before enhancement")
             st.write(text_to_enhance)
             
-    if st.sidebar.button('Add to FILE'):
+    st.sidebar.write("**Save last translation to central file.**")
+    if st.sidebar.button('Save'):
         st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{st.session_state.translation_with_enhance}"
         if 'central_file' not in st.session_state:
             st.session_state.central_file = []
