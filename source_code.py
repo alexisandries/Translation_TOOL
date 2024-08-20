@@ -307,7 +307,7 @@ def main():
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4o', 'MISTRAL large'])
     tool_choice = st.sidebar.radio("**Choose your tool:**", ['Single Agent Translation', 'Multiagent Translation'])
-    st.sidebar.write("*The multiagent system is likely to produce better results, albeit at the cost of increased resources.*")
+    st.sidebar.write("*The multi-agent system is likely to produce better results, albeit with a higher footprint and longer runtime.*")
     st.sidebar.write("*Making smart use of the feedback mechanisms can yield great results. Give it a try.*")
     
     if tool_choice == 'Single Agent Translation':
