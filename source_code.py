@@ -349,7 +349,7 @@ def translate_with_enhancement(select_model):
 
     if translated_text or ('translation_with_enhance' in st.session_state and st.session_state.translation_with_enhance):
         st.write('**Enhance text (latest in memory)**')
-        guidelines = st.text_input("Add extra information and/or guidelines to guide AI during enhancement.")
+        guidelines = st.text_input("Provide extra details, clear guidelines and/or specific feedback to effectively guide the AI through the enhancement process.")
             
         if st.button('Enhance'):
             # If translated_text is empty, use the stored translation
