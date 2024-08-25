@@ -10,6 +10,7 @@ from mistralai.client import MistralClient
 # from mistralai.models.chat_completion import ChatMessage
 from langchain.prompts import PromptTemplate
 import langdetect
+from difflib import SequenceMatcher
 
 # Configuration
 st.set_page_config(layout="wide")
@@ -299,8 +300,7 @@ def iterative_multi_agent_translation(select_model):
     st.subheader('Iterative Multi-Agent Translation')
 
     to_language = display_language_selection('iterative')
-    translator_temp = st.slider('Translator Temperature', min_value=0.1, max_value=1.0, step=0.1, value=0.7, key='translator_temp')
-    editor_temp = st.slider('Editor Temperature', min_value=0.1, max_value=1.0, step=0.1, value=0.7, key='editor_temp')
+    temp_choice = display_temperature_slider('iterative')
 
     file_text = display_file_uploader()
     manual_text = display_text_input()
@@ -311,7 +311,6 @@ def iterative_multi_agent_translation(select_model):
         st.session_state.iterative_translation = {
             'original_text': '',
             'iterations': [],
-            'final_translation': '',
             'agreement_reached': False
         }
 
@@ -325,115 +324,158 @@ def iterative_multi_agent_translation(select_model):
             st.session_state.iterative_translation = {
                 'original_text': combined_text,
                 'iterations': [],
-                'final_translation': '',
                 'agreement_reached': False
             }
             
-            st.session_state.current_iteration = 0
+            perform_iterations(combined_text, to_language, temp_choice, select_model)
         else:
             st.error('Please upload or paste a text to translate.')
-            return
 
-    if 'current_iteration' in st.session_state and st.session_state.current_iteration < 5:
-        if st.button('Perform Next Iteration'):
-            perform_iteration(st.session_state.iterative_translation['original_text'], to_language, translator_temp, editor_temp, select_model)
-            st.session_state.current_iteration += 1
-            st.experimental_rerun()
+    display_results()
 
-    display_iterations()
-    display_final_result()
-
-    st.sidebar.write("**Save last translation to file:**")    
+    st.sidebar.write("**Save translation history to file:**")    
     if st.sidebar.button('Save'):
-        save_translation_to_file(select_model, translator_temp, editor_temp)
+        save_translation_to_file(select_model, temp_choice)
 
-def perform_iteration(original_text, to_language, translator_temp, editor_temp, select_model):
-    iterations = st.session_state.iterative_translation['iterations']
-    iteration_number = len(iterations) + 1
-
-    if iteration_number == 1:
-        translator_prompt = f"""
-        You are a world-class translator. Translate the following text to {to_language}.
-        Original text: {original_text}
-
-        Provide your translation.
-        """
-    else:
-        translator_prompt = f"""
-        You are a world-class translator. Review and if necessary, improve the following translation to {to_language}.
-        Original text: {original_text}
-        Previous translation: {iterations[-1]['editor_translation']}
+def perform_iterations(original_text, to_language, temp_choice, select_model):
+    for i in range(5):
+        st.write(f"Iteration {i+1}:")
         
-        If you agree with the previous translation, state 'I agree with the previous translation.'
-        If not, provide your improved translation and explain your changes.
-        """
-
-    translator_response = run_model([{"role": "user", "content": translator_prompt}], translator_temp, select_model)
-
-    if iteration_number > 1 and "I agree with the previous translation" in translator_response:
-        st.session_state.iterative_translation['agreement_reached'] = True
-        st.session_state.iterative_translation['final_translation'] = iterations[-1]['editor_translation']
-        return
-
-    editor_prompt = f"""
-    You are a senior editor. Review the following translation:
-    Original text: {original_text}
-    Translator's version: {translator_response}
-    
-    If you agree with the translator's version, state 'I agree with the translator's version.'
-    If not, provide your edited version and explain your changes.
-    """
-
-    editor_response = run_model([{"role": "user", "content": editor_prompt}], editor_temp, select_model)
-
-    if "I agree with the translator's version" in editor_response:
-        st.session_state.iterative_translation['agreement_reached'] = True
-        st.session_state.iterative_translation['final_translation'] = translator_response
-    else:
+        # Translator's turn
+        translator_input = original_text if i == 0 else st.session_state.iterative_translation['iterations'][-1]['editor_translation']
+        translator_prompt = create_translator_prompt(original_text, translator_input, to_language, st.session_state.iterative_translation['iterations'])
+        translator_response = run_model([{"role": "user", "content": translator_prompt}], temp_choice, select_model)
+        translation, translator_comments = parse_agent_response(translator_response)
+        
+        st.write("Translator's version:")
+        st.write(translation)
+        st.write("Translator's comments:")
+        st.write(translator_comments)
+        
+        # Editor's turn
+        editor_prompt = create_editor_prompt(original_text, translation, to_language, st.session_state.iterative_translation['iterations'], translator_comments)
+        editor_response = run_model([{"role": "user", "content": editor_prompt}], temp_choice, select_model)
+        edited_translation, editor_comments = parse_agent_response(editor_response)
+        
+        st.write("Editor's version:")
+        st.write(edited_translation)
+        st.write("Editor's comments:")
+        st.write(editor_comments)
+        
+        # Save iteration
         st.session_state.iterative_translation['iterations'].append({
-            'iteration': iteration_number,
-            'translator_translation': translator_response,
-            'editor_translation': editor_response
+            'iteration': i+1,
+            'translator_translation': translation,
+            'translator_comments': translator_comments,
+            'editor_translation': edited_translation,
+            'editor_comments': editor_comments
         })
+        
+        # Check for agreement
+        if texts_are_similar(translation, edited_translation):
+            st.session_state.iterative_translation['agreement_reached'] = True
+            st.success("Agreement reached!")
+            break
+        
+        st.write("---")
 
-def display_iterations():
-    if 'iterative_translation' in st.session_state and st.session_state.iterative_translation['iterations']:
-        for iteration in st.session_state.iterative_translation['iterations']:
-            st.write(f"Iteration {iteration['iteration']}:")
-            st.write("Translator's version:")
-            st.write(iteration['translator_translation'])
-            st.write("Editor's version:")
-            st.write(iteration['editor_translation'])
-            st.write("---")
+def create_translator_prompt(original_text, current_text, target_language, history):
+    prompt = f"""You are a world-class translator. Your task is to translate the following text into {target_language}.
 
-def display_final_result():
-    if 'iterative_translation' in st.session_state:
+Original text: {original_text}
+
+Current text to translate: {current_text}
+
+Translation history: {history}
+
+Please provide your translation, followed by your comments about the choices you made during translation.
+Use the format:
+
+Translation:
+[Your translation here]
+
+Comments:
+[Your comments here]
+"""
+    return prompt
+
+def create_editor_prompt(original_text, translation, target_language, history, translator_comments):
+    prompt = f"""You are a senior editor specializing in {target_language}. Your task is to review and edit the following translation.
+
+Original text: {original_text}
+
+Translator's version: {translation}
+
+Translator's comments: {translator_comments}
+
+Translation history: {history}
+
+Please provide your edited version, followed by your comments about the changes you made.
+Use the format:
+
+Edited Translation:
+[Your edited translation here]
+
+Comments:
+[Your comments here]
+"""
+    return prompt
+
+def parse_agent_response(response):
+    parts = response.split("Comments:", 1)
+    text = parts[0].replace("Translation:", "").replace("Edited Translation:", "").strip()
+    comments = parts[1].strip() if len(parts) > 1 else ""
+    return text, comments
+
+def texts_are_similar(text1, text2, threshold=0.95):
+    return SequenceMatcher(None, text1, text2).ratio() > threshold
+
+def display_results():
+    if st.session_state.iterative_translation['iterations']:
+        st.write("Translation process completed.")
+        st.write("Final translation:")
+        final_iteration = st.session_state.iterative_translation['iterations'][-1]
         if st.session_state.iterative_translation['agreement_reached']:
-            st.write("Final agreed translation:")
-            st.write(st.session_state.iterative_translation['final_translation'])
-        elif len(st.session_state.iterative_translation['iterations']) == 5:
-            st.write("No agreement reached after 5 iterations. Final versions:")
+            st.write(final_iteration['editor_translation'])
+        else:
+            st.write("No agreement reached. Final versions:")
             col1, col2 = st.columns(2)
             with col1:
-                st.write("Translator's final version:")
-                st.write(st.session_state.iterative_translation['iterations'][-1]['translator_translation'])
+                st.write("Translator's version:")
+                st.write(final_iteration['translator_translation'])
             with col2:
-                st.write("Editor's final version:")
-                st.write(st.session_state.iterative_translation['iterations'][-1]['editor_translation'])
+                st.write("Editor's version:")
+                st.write(final_iteration['editor_translation'])
+        
+        if st.button("View Complete History"):
+            st.write("Complete Translation History:")
+            for iteration in st.session_state.iterative_translation['iterations']:
+                st.write(f"Iteration {iteration['iteration']}:")
+                st.write("Translator's version:")
+                st.write(iteration['translator_translation'])
+                st.write("Translator's comments:")
+                st.write(iteration['translator_comments'])
+                st.write("Editor's version:")
+                st.write(iteration['editor_translation'])
+                st.write("Editor's comments:")
+                st.write(iteration['editor_comments'])
+                st.write("---")
 
-def save_translation_to_file(select_model, translator_temp, editor_temp):
-    if st.session_state.iterative_translation['agreement_reached']:
-        translation = st.session_state.iterative_translation['final_translation']
-    else:
-        translation = f"Translator's version:\n{st.session_state.iterative_translation['iterations'][-1]['translator_translation']}\n\nEditor's version:\n{st.session_state.iterative_translation['iterations'][-1]['editor_translation']}"
+def save_translation_to_file(select_model, temp_choice):
+    history = "\n\n".join([
+        f"Iteration {i['iteration']}:\n"
+        f"Translator: {i['translator_translation']}\n"
+        f"Translator comments: {i['translator_comments']}\n"
+        f"Editor: {i['editor_translation']}\n"
+        f"Editor comments: {i['editor_comments']}"
+        for i in st.session_state.iterative_translation['iterations']
+    ])
     
-    st.session_state.last_text = f"{select_model}, Translator Temp {translator_temp}, Editor Temp {editor_temp}:\n\n{translation}"
+    st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{history}"
     if 'central_file' not in st.session_state:
         st.session_state.central_file = []
     st.session_state.central_file.append(st.session_state.last_text)
-    st.success('Text added to central file!')
-
-
+    st.success('Translation history added to central file!')
 
 # Main app logic
 def main():
