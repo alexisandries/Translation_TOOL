@@ -296,8 +296,8 @@ def display_language_selection(key_suffix):
 def display_temperature_slider(key_suffix):
     return st.slider('**Select a Temperature**', min_value=0.1, max_value=1.0, step=0.1, key=f'temp_{key_suffix}')
 
-def iterative_refinement_translation(select_model):
-    st.subheader('Iterative Refinement Translation')
+def iterative_polish_translation(select_model):
+    st.subheader('Iterative Polish Translation')
 
     to_language = display_language_selection('iterative')
     temp_choice = display_temperature_slider('iterative')
@@ -307,104 +307,79 @@ def iterative_refinement_translation(select_model):
     
     combined_text = file_text + "\n" + manual_text if file_text or manual_text else None
 
-    # Initialize session state
-    if 'iterative_refinement' not in st.session_state:
-        st.session_state.iterative_refinement = {
+    if 'iterative_polish' not in st.session_state:
+        st.session_state.iterative_polish = {
             'original_text': '',
             'initial_translation': '',
-            'iterations': [],
             'final_translation': ''
         }
 
-    start_button = st.button('Start Iterative Refinement Translation')
+    start_button = st.button('Start Iterative Polish Translation')
 
     if start_button and combined_text:
         source_lang = detect_language(combined_text)
         st.write(f"Detected language: {source_lang}")
         
-        # Initial translation using translate_with_enhancement
+        # Initial translation using translate_enhancetool
         initial_translation = translate_enhancetool(combined_text, to_language, temp_choice, select_model)
         
-        st.session_state.iterative_refinement = {
+        st.session_state.iterative_polish = {
             'original_text': combined_text,
             'initial_translation': initial_translation,
-            'iterations': [],
             'final_translation': ''
         }
         
         st.write("Initial Translation:")
         st.write(initial_translation)
         
-        perform_iterative_refinement(initial_translation, to_language, temp_choice, select_model)
+        perform_iterative_polish(initial_translation, to_language, temp_choice, select_model)
     elif start_button and not combined_text:
         st.error('Please upload or paste a text to translate.')
 
-    display_refinement_results()
+    display_polish_results()
 
-    st.sidebar.write("**Save refinement history to file:**")    
+    st.sidebar.write("**Save final polished translation to file:**")    
     if st.sidebar.button('Save'):
-        save_refinement_to_file(select_model, temp_choice)
+        save_polish_to_file(select_model, temp_choice)
 
-def perform_iterative_refinement(initial_translation, to_language, temp_choice, select_model):
+def perform_iterative_polish(initial_translation, to_language, temp_choice, select_model):
     current_text = initial_translation
     
-    for i in range(6):  # 3 iterations for each agent
-        st.write(f"Refinement Iteration {i+1}:")
+    for i in range(5):  # 5 iterations of polish
+        st.write(f"Polish Iteration {i+1}:")
         
-        if i % 2 == 0:  # Edit translation agent's turn
-            refined_text = edit_translation(current_text, to_language, temp_choice, select_model)
-            agent = "Editor"
-        else:  # Polish text agent's turn
-            refined_text = polish_text(current_text, to_language, temp_choice, select_model)
-            agent = "Polisher"
+        polished_text = polish_text(current_text, to_language, temp_choice, select_model)
         
-        st.write(f"{agent}'s version:")
-        st.write(refined_text)
+        st.write(f"Polished version {i+1}:")
+        st.write(polished_text)
         
-        # Save iteration
-        st.session_state.iterative_refinement['iterations'].append({
-            'iteration': i+1,
-            'agent': agent,
-            'text': refined_text
-        })
-        
-        current_text = refined_text
+        current_text = polished_text
         
         st.write("---")
     
-    st.session_state.iterative_refinement['final_translation'] = current_text
+    st.session_state.iterative_polish['final_translation'] = current_text
 
-def display_refinement_results():
-    if 'iterative_refinement' in st.session_state and st.session_state.iterative_refinement['iterations']:
-        st.write("Refinement process completed.")
-        st.write("Final refined translation:")
-        st.write(st.session_state.iterative_refinement['final_translation'])
+def display_polish_results():
+    if 'iterative_polish' in st.session_state and st.session_state.iterative_polish['final_translation']:
+        st.write("Polish process completed.")
+        st.write("Final polished translation:")
+        st.write(st.session_state.iterative_polish['final_translation'])
         
-        if st.button("View Refinement History"):
-            st.write("Complete Refinement History:")
+        if st.button("View Initial Translation"):
             st.write("Initial Translation:")
-            st.write(st.session_state.iterative_refinement['initial_translation'])
-            st.write("---")
-            for iteration in st.session_state.iterative_refinement['iterations']:
-                st.write(f"Iteration {iteration['iteration']} ({iteration['agent']}):")
-                st.write(iteration['text'])
-                st.write("---")
+            st.write(st.session_state.iterative_polish['initial_translation'])
 
-def save_refinement_to_file(select_model, temp_choice):
-    if 'iterative_refinement' in st.session_state and st.session_state.iterative_refinement['iterations']:
-        history = "Initial Translation:\n" + st.session_state.iterative_refinement['initial_translation'] + "\n\n"
-        history += "\n\n".join([
-            f"Iteration {i['iteration']} ({i['agent']}):\n{i['text']}"
-            for i in st.session_state.iterative_refinement['iterations']
-        ])
+def save_polish_to_file(select_model, temp_choice):
+    if 'iterative_polish' in st.session_state and st.session_state.iterative_polish['final_translation']:
+        final_translation = st.session_state.iterative_polish['final_translation']
         
-        st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{history}"
+        st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\nFinal Polished Translation:\n{final_translation}"
         if 'central_file' not in st.session_state:
             st.session_state.central_file = []
         st.session_state.central_file.append(st.session_state.last_text)
-        st.success('Refinement history added to central file!')
+        st.success('Final polished translation added to central file!')
     else:
-        st.error('No refinement history to save.')
+        st.error('No polished translation to save.')
         
 # Main app logic
 def main():
@@ -427,7 +402,7 @@ def main():
         multiagent_translation(select_model)
     if tool_choice == 'Iterative Multi-Agent':
         st.title("***under construction***")
-        iterative_refinement_translation(select_model)
+        iterative_polish_translation(select_model)
         
 
     manage_central_file()
