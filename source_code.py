@@ -388,6 +388,8 @@ Current text to translate: {current_text}
 
 Translation history: {history}
 
+You should take into consideration the whole Translation History. 
+
 Please provide your translation, followed by your comments about the choices you made during translation.
 Use the format:
 
@@ -409,6 +411,10 @@ Translator's version: {translation}
 Translator's comments: {translator_comments}
 
 Translation history: {history}
+
+Consider the whole history when editing the text. 
+Your editing should aim to maximize the fluency, coherence and impact of the provided text. Ensure that the text sounds extremely fluent and natural to someone native in {target_language}.
+At all times, challenge yourself to improve every phrase of the text, given the past history. 
 
 Please provide your edited version, followed by your comments about the changes you made.
 Use the format:
