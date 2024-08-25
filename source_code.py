@@ -307,6 +307,7 @@ def iterative_refinement_translation(select_model):
     
     combined_text = file_text + "\n" + manual_text if file_text or manual_text else None
 
+    # Initialize session state
     if 'iterative_refinement' not in st.session_state:
         st.session_state.iterative_refinement = {
             'original_text': '',
@@ -317,27 +318,26 @@ def iterative_refinement_translation(select_model):
 
     start_button = st.button('Start Iterative Refinement Translation')
 
-    if start_button:
-        if combined_text:
-            source_lang = detect_language(combined_text)
-            st.write(f"Detected language: {source_lang}")
-            
-            # Initial translation using translate_with_enhancement
-            initial_translation = translate_enhancetool(combined_text, to_language, temp_choice, select_model)
-            
-            st.session_state.iterative_refinement = {
-                'original_text': combined_text,
-                'initial_translation': initial_translation,
-                'iterations': [],
-                'final_translation': ''
-            }
-            
-            st.write("Initial Translation:")
-            st.write(initial_translation)
-            
-            perform_iterative_refinement(initial_translation, to_language, temp_choice, select_model)
-        else:
-            st.error('Please upload or paste a text to translate.')
+    if start_button and combined_text:
+        source_lang = detect_language(combined_text)
+        st.write(f"Detected language: {source_lang}")
+        
+        # Initial translation using translate_with_enhancement
+        initial_translation = translate_enhancetool(combined_text, to_language, temp_choice, select_model)
+        
+        st.session_state.iterative_refinement = {
+            'original_text': combined_text,
+            'initial_translation': initial_translation,
+            'iterations': [],
+            'final_translation': ''
+        }
+        
+        st.write("Initial Translation:")
+        st.write(initial_translation)
+        
+        perform_iterative_refinement(initial_translation, to_language, temp_choice, select_model)
+    elif start_button and not combined_text:
+        st.error('Please upload or paste a text to translate.')
 
     display_refinement_results()
 
@@ -375,7 +375,7 @@ def perform_iterative_refinement(initial_translation, to_language, temp_choice, 
     st.session_state.iterative_refinement['final_translation'] = current_text
 
 def display_refinement_results():
-    if st.session_state.iterative_refinement['iterations']:
+    if 'iterative_refinement' in st.session_state and st.session_state.iterative_refinement['iterations']:
         st.write("Refinement process completed.")
         st.write("Final refined translation:")
         st.write(st.session_state.iterative_refinement['final_translation'])
@@ -391,18 +391,21 @@ def display_refinement_results():
                 st.write("---")
 
 def save_refinement_to_file(select_model, temp_choice):
-    history = "Initial Translation:\n" + st.session_state.iterative_refinement['initial_translation'] + "\n\n"
-    history += "\n\n".join([
-        f"Iteration {i['iteration']} ({i['agent']}):\n{i['text']}"
-        for i in st.session_state.iterative_refinement['iterations']
-    ])
-    
-    st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{history}"
-    if 'central_file' not in st.session_state:
-        st.session_state.central_file = []
-    st.session_state.central_file.append(st.session_state.last_text)
-    st.success('Refinement history added to central file!')
-
+    if 'iterative_refinement' in st.session_state and st.session_state.iterative_refinement['iterations']:
+        history = "Initial Translation:\n" + st.session_state.iterative_refinement['initial_translation'] + "\n\n"
+        history += "\n\n".join([
+            f"Iteration {i['iteration']} ({i['agent']}):\n{i['text']}"
+            for i in st.session_state.iterative_refinement['iterations']
+        ])
+        
+        st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\n{history}"
+        if 'central_file' not in st.session_state:
+            st.session_state.central_file = []
+        st.session_state.central_file.append(st.session_state.last_text)
+        st.success('Refinement history added to central file!')
+    else:
+        st.error('No refinement history to save.')
+        
 # Main app logic
 def main():
     st.sidebar.title("Translation App")
