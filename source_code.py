@@ -295,6 +295,8 @@ def display_language_selection(key_suffix):
 def display_temperature_slider(key_suffix):
     return st.slider('**Select a Temperature**', min_value=0.1, max_value=1.0, step=0.1, key=f'temp_{key_suffix}')
 
+import streamlit as st
+
 def iterative_multi_agent_translation(select_model):
     st.subheader('Iterative Multi-Agent Translation')
 
@@ -353,32 +355,33 @@ def perform_iteration(original_text, to_language, translator_temp, editor_temp, 
     iteration_number = len(iterations) + 1
 
     if iteration_number == 1:
-        translator_input = original_text
-    else:
-        translator_input = iterations[-1]['editor_translation']
+        translator_prompt = f"""
+        You are a world-class translator. Translate the following text to {to_language}.
+        Original text: {original_text}
 
-    translator_prompt = f"""
-    You are a world-class translator. Translate the following text to {to_language}.
-    Original text: {original_text}
-    Previous translation attempts: {iterations}
-    Current text to translate: {translator_input}
-    
-    If you agree with the previous translation, state 'I agree with the previous translation.'
-    If not, provide your translation and explain your changes.
-    """
+        Provide your translation.
+        """
+    else:
+        translator_prompt = f"""
+        You are a world-class translator. Review and if necessary, improve the following translation to {to_language}.
+        Original text: {original_text}
+        Previous translation: {iterations[-1]['editor_translation']}
+        
+        If you agree with the previous translation, state 'I agree with the previous translation.'
+        If not, provide your improved translation and explain your changes.
+        """
 
     translator_response = run_model([{"role": "user", "content": translator_prompt}], translator_temp, select_model)
 
-    if "I agree with the previous translation" in translator_response:
+    if iteration_number > 1 and "I agree with the previous translation" in translator_response:
         st.session_state.iterative_translation['agreement_reached'] = True
-        st.session_state.iterative_translation['final_translation'] = translator_input
+        st.session_state.iterative_translation['final_translation'] = iterations[-1]['editor_translation']
         return
 
     editor_prompt = f"""
     You are a senior editor. Review the following translation:
     Original text: {original_text}
     Translator's version: {translator_response}
-    Previous iterations: {iterations}
     
     If you agree with the translator's version, state 'I agree with the translator's version.'
     If not, provide your edited version and explain your changes.
@@ -430,10 +433,6 @@ def save_translation_to_file(select_model, translator_temp, editor_temp):
         st.session_state.central_file = []
     st.session_state.central_file.append(st.session_state.last_text)
     st.success('Text added to central file!')
-
-
-
-
 
 # Main app logic
 def main():
