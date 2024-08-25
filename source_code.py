@@ -294,7 +294,147 @@ def display_language_selection(key_suffix):
     
 def display_temperature_slider(key_suffix):
     return st.slider('**Select a Temperature**', min_value=0.1, max_value=1.0, step=0.1, key=f'temp_{key_suffix}')
+
+def iterative_multi_agent_translation(select_model):
+    st.subheader('Iterative Multi-Agent Translation')
+
+    to_language = display_language_selection('iterative')
+    translator_temp = st.slider('Translator Temperature', min_value=0.1, max_value=1.0, step=0.1, key='translator_temp')
+    editor_temp = st.slider('Editor Temperature', min_value=0.1, max_value=1.0, step=0.1, key='editor_temp')
+
+    file_text = display_file_uploader()
+    manual_text = display_text_input()
     
+    combined_text = file_text + "\n" + manual_text if file_text or manual_text else None
+
+    if 'iterative_translation' not in st.session_state:
+        st.session_state.iterative_translation = {
+            'original_text': '',
+            'iterations': [],
+            'final_translation': '',
+            'agreement_reached': False
+        }
+
+    start_button = st.button('Start Iterative Multi-Agent Translation')
+
+    if start_button or st.session_state.iterative_translation['iterations']:
+        if combined_text and start_button:
+            source_lang = detect_language(combined_text)
+            st.write(f"Detected language: {source_lang}")
+            
+            st.session_state.iterative_translation = {
+                'original_text': combined_text,
+                'iterations': [],
+                'final_translation': '',
+                'agreement_reached': False
+            }
+
+            perform_iteration(combined_text, to_language, translator_temp, editor_temp, select_model)
+
+        elif not combined_text and start_button:
+            st.error('Please upload or paste a text to translate.')
+            return
+
+        display_iterations()
+
+        if len(st.session_state.iterative_translation['iterations']) < 5 and not st.session_state.iterative_translation['agreement_reached']:
+            if st.button('Next Iteration'):
+                perform_iteration(st.session_state.iterative_translation['original_text'], to_language, translator_temp, editor_temp, select_model)
+                st.experimental_rerun()
+
+    display_final_result()
+
+    st.sidebar.write("**Save last translation to file:**")    
+    if st.sidebar.button('Save'):
+        save_translation_to_file(select_model, translator_temp, editor_temp)
+
+def perform_iteration(original_text, to_language, translator_temp, editor_temp, select_model):
+    iterations = st.session_state.iterative_translation['iterations']
+    iteration_number = len(iterations) + 1
+
+    if iteration_number == 1:
+        translator_input = original_text
+    else:
+        translator_input = iterations[-1]['editor_translation']
+
+    translator_prompt = f"""
+    You are a world-class translator. Translate the following text to {to_language}.
+    Original text: {original_text}
+    Previous translation attempts: {iterations}
+    Current text to translate: {translator_input}
+    
+    If you agree with the previous translation, state 'I agree with the previous translation.'
+    If not, provide your translation and explain your changes.
+    """
+
+    translator_response = run_model([{"role": "user", "content": translator_prompt}], translator_temp, select_model)
+
+    if "I agree with the previous translation" in translator_response:
+        st.session_state.iterative_translation['agreement_reached'] = True
+        st.session_state.iterative_translation['final_translation'] = translator_input
+        return
+
+    editor_prompt = f"""
+    You are a senior editor. Review the following translation:
+    Original text: {original_text}
+    Translator's version: {translator_response}
+    Previous iterations: {iterations}
+    
+    If you agree with the translator's version, state 'I agree with the translator's version.'
+    If not, provide your edited version and explain your changes.
+    """
+
+    editor_response = run_model([{"role": "user", "content": editor_prompt}], editor_temp, select_model)
+
+    if "I agree with the translator's version" in editor_response:
+        st.session_state.iterative_translation['agreement_reached'] = True
+        st.session_state.iterative_translation['final_translation'] = translator_response
+    else:
+        st.session_state.iterative_translation['iterations'].append({
+            'iteration': iteration_number,
+            'translator_translation': translator_response,
+            'editor_translation': editor_response
+        })
+
+def display_iterations():
+    for iteration in st.session_state.iterative_translation['iterations']:
+        st.write(f"Iteration {iteration['iteration']}:")
+        st.write("Translator's version:")
+        st.write(iteration['translator_translation'])
+        st.write("Editor's version:")
+        st.write(iteration['editor_translation'])
+        st.write("---")
+
+def display_final_result():
+    if st.session_state.iterative_translation['agreement_reached']:
+        st.write("Final agreed translation:")
+        st.write(st.session_state.iterative_translation['final_translation'])
+    elif len(st.session_state.iterative_translation['iterations']) == 5:
+        st.write("No agreement reached after 5 iterations. Final versions:")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("Translator's final version:")
+            st.write(st.session_state.iterative_translation['iterations'][-1]['translator_translation'])
+        with col2:
+            st.write("Editor's final version:")
+            st.write(st.session_state.iterative_translation['iterations'][-1]['editor_translation'])
+
+def save_translation_to_file(select_model, translator_temp, editor_temp):
+    if st.session_state.iterative_translation['agreement_reached']:
+        translation = st.session_state.iterative_translation['final_translation']
+    else:
+        translation = f"Translator's version:\n{st.session_state.iterative_translation['iterations'][-1]['translator_translation']}\n\nEditor's version:\n{st.session_state.iterative_translation['iterations'][-1]['editor_translation']}"
+    
+    st.session_state.last_text = f"{select_model}, Translator Temp {translator_temp}, Editor Temp {editor_temp}:\n\n{translation}"
+    if 'central_file' not in st.session_state:
+        st.session_state.central_file = []
+    st.session_state.central_file.append(st.session_state.last_text)
+    st.success('Text added to central file!')
+
+
+
+
+
 # Main app logic
 def main():
     st.sidebar.title("Translation App")
@@ -316,6 +456,7 @@ def main():
         multiagent_translation(select_model)
     if tool_choice == 'Iterative Multi-Agent':
         st.write("**under construction**")
+        iterative_multi_agent_translation(select_model)
         
 
     manage_central_file()
