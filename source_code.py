@@ -514,7 +514,7 @@ def main():
         multiagent_translation(select_model)
     elif tool_choice == 'Refinement Factory':
         st.title("***under construction***")
-        refinement_factory(select_model)    
+        refinement_factory_translation(select_model)    
 
     manage_central_file()
 
