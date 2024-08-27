@@ -486,9 +486,11 @@ def main():
         st.stop()
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4o', 'MISTRAL large'])
-    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Single Agent', 'Multi-Agent', 'Iterative Multi-Agent'])
+    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Single Agent', 'Multi-Agent', 'Refinement Factory'])
     st.sidebar.write("*The multi-agent system is likely to produce better results, albeit with a higher footprint and longer runtime.*")
     st.sidebar.write("*Making smart use of the feedback mechanisms can yield great results. Give it a try.*")
+    st.sidebar.write("*The third tool is under construction.*")
+    
     
     if tool_choice == 'Single Agent':
         translate_with_enhancement(select_model)
