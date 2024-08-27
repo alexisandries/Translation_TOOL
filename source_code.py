@@ -334,7 +334,30 @@ def refinement_factory_translation(select_model):
         save_refinement_to_file(select_model, temp_choice)
 
 def perform_refinement_factory(original_text, to_language, temp_choice, select_model):
-    # ... [previous steps remain the same] ...
+    # Step 1: Initial translation and enhancement
+    enhanced_translation = translate_and_enhance(original_text, to_language, temp_choice, select_model)
+    st.session_state.refinement_factory['enhanced_translation'] = enhanced_translation
+    
+    # Step 2: SWOT analysis
+    swot_analysis = perform_swot_analysis(enhanced_translation, to_language, temp_choice, select_model)
+    st.session_state.refinement_factory['swot_analysis'] = swot_analysis
+    
+    # Step 3: Specialized editors
+    editors = [
+        ('Medical/Scientific', 'arguments first, credibility minded'),
+        ('Fundraiser/Marketeer', 'emotion first, engagement minded'),
+        ('Activist/Lobbyist', 'message first, impact minded'),
+        ('Journalist/writer', 'quality first, clarity minded'),
+        ('Lawyer/philosopher', 'persuasiveness first, logic minded')
+    ]
+    
+    for editor, focus in editors:
+        edited_version = editor_refinement(enhanced_translation, swot_analysis, editor, focus, to_language, temp_choice, select_model)
+        st.session_state.refinement_factory['editor_versions'][editor] = edited_version
+    
+    # Step 4: Critique
+    critique = critique_versions(st.session_state.refinement_factory['editor_versions'], to_language, temp_choice, select_model)
+    st.session_state.refinement_factory['critique'] = critique
     
     # Step 5: Judgement
     judgement_versions = judge_versions(st.session_state.refinement_factory['editor_versions'], critique, to_language, temp_choice, select_model)
@@ -344,7 +367,53 @@ def perform_refinement_factory(original_text, to_language, temp_choice, select_m
     final_versions = editor_in_chief(judgement_versions, critique, to_language, temp_choice, select_model)
     st.session_state.refinement_factory['final_versions'] = final_versions
 
-# ... [other functions remain the same] ...
+def translate_and_enhance(text, target_language, temp_choice, select_model):
+    translate_prompt = f"""
+    You are a professional translator with expertise in {target_language}, specializing in the sectors of large medical NGOs and human rights. 
+    Translate the following text into {target_language} so that it is clear, convincing, and authentic to a native speaker.
+    After translation, improve the text to meet the highest standards in terms of coherence, impact and fluency.
+
+    Text to translate and enhance: {text}
+
+    Provide only the finally approved translation, without any additional comments or explanations.
+    """
+    return run_model([{"role": "user", "content": translate_prompt}], temp_choice, select_model)
+
+def perform_swot_analysis(text, target_language, temp_choice, select_model):
+    swot_prompt = f"""
+    As an analytical linguist, perform a comprehensive SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis of the following text in {target_language}. 
+    Consider all aspects including language use, structure, tone, persuasiveness, and potential impact on the target audience.
+
+    Text to analyze: {text}
+
+    Provide a concise SWOT analysis.
+    """
+    return run_model([{"role": "user", "content": swot_prompt}], temp_choice, select_model)
+
+def editor_refinement(text, swot_analysis, editor_type, focus, target_language, temp_choice, select_model):
+    editor_prompt = f"""
+    As a {editor_type} Editor ({focus}) in {target_language}, refine the following text based on the provided SWOT analysis. 
+    Focus on your specific area of expertise while improving the overall quality of the text.
+
+    Original text: {text}
+
+    SWOT Analysis: {swot_analysis}
+
+    Provide your refined version of the text, focusing on {focus}.
+    """
+    return run_model([{"role": "user", "content": editor_prompt}], temp_choice, select_model)
+
+def critique_versions(editor_versions, target_language, temp_choice, select_model):
+    critique_prompt = f"""
+    As a Critique Agent, compare and analyze the following 5 versions of a text in {target_language}. 
+    For each version, provide a comprehensive critique and a summary of its strengths and weaknesses.
+
+    Versions to analyze:
+    {json.dumps(editor_versions, indent=2)}
+
+    Provide a detailed critique for each version, followed by a concise summary of strengths and weaknesses.
+    """
+    return run_model([{"role": "user", "content": critique_prompt}], temp_choice, select_model)
 
 def judge_versions(editor_versions, critique, target_language, temp_choice, select_model):
     judge_prompt = f"""
@@ -358,19 +427,10 @@ def judge_versions(editor_versions, critique, target_language, temp_choice, sele
     {critique}
 
     Provide three new versions of the text, each embodying the best elements from the inputs while maintaining coherence and flow.
-    Format your response as a JSON string with keys "version1", "version2", and "version3".
+    Label each version as "Version 1:", "Version 2:", and "Version 3:" respectively.
     """
     response = run_model([{"role": "user", "content": judge_prompt}], temp_choice, select_model)
-    try:
-        return json.loads(response)
-    except json.JSONDecodeError:
-        # If JSON parsing fails, return the raw string response split into three parts
-        parts = response.split('\n\n', 2)
-        return {
-            "version1": parts[0] if len(parts) > 0 else "",
-            "version2": parts[1] if len(parts) > 1 else "",
-            "version3": parts[2] if len(parts) > 2 else ""
-        }
+    return parse_versions(response)
 
 def editor_in_chief(judgement_versions, critique, target_language, temp_choice, select_model):
     chief_editor_prompt = f"""
@@ -383,44 +443,83 @@ def editor_in_chief(judgement_versions, critique, target_language, temp_choice, 
     Previous critique:
     {critique}
 
-    Provide two final versions: 1) Absolutely recommended text, 2) Alternative version.
-    Format your response as a JSON string with keys "recommended" and "alternative".
+    Provide two final versions: 
+    1) Label the absolutely recommended text as "Recommended Version:"
+    2) Label the alternative version as "Alternative Version:"
     """
     response = run_model([{"role": "user", "content": chief_editor_prompt}], temp_choice, select_model)
-    try:
-        return json.loads(response)
-    except json.JSONDecodeError:
-        # If JSON parsing fails, return the raw string response split into two parts
-        parts = response.split('\n\n', 1)
-        return {
-            "recommended": parts[0] if len(parts) > 0 else "",
-            "alternative": parts[1] if len(parts) > 1 else ""
-        }
+    return parse_versions(response, keys=["Recommended Version:", "Alternative Version:"])
+
+def parse_versions(text, keys=None):
+    if keys is None:
+        keys = ["Version 1:", "Version 2:", "Version 3:"]
+    result = {}
+    current_key = None
+    current_text = []
+    
+    for line in text.split('\n'):
+        if any(key in line for key in keys):
+            if current_key:
+                result[current_key] = '\n'.join(current_text).strip()
+                current_text = []
+            current_key = next(key for key in keys if key in line)
+        elif current_key:
+            current_text.append(line)
+    
+    if current_key:
+        result[current_key] = '\n'.join(current_text).strip()
+    
+    return result
 
 def display_refinement_results():
     if 'refinement_factory' in st.session_state and st.session_state.refinement_factory['final_versions']:
         st.write("Refinement process completed.")
         
-        # ... [previous expanders remain the same] ...
+        with st.expander("Initial Enhanced Translation"):
+            st.write(st.session_state.refinement_factory['enhanced_translation'])
         
-        with st.expander("Judgement Versions"):
-            for key, version in st.session_state.refinement_factory['judgement_versions'].items():
-                st.write(f"Judgement {key}:")
+        with st.expander("SWOT Analysis"):
+            st.write(st.session_state.refinement_factory['swot_analysis'])
+        
+        with st.expander("Specialized Editor Versions"):
+            for editor, version in st.session_state.refinement_factory['editor_versions'].items():
+                st.write(f"{editor} Editor's Version:")
                 st.write(version)
                 st.write("---")
         
+        with st.expander("Critique"):
+            st.write(st.session_state.refinement_factory['critique'])
+        
+        with st.expander("Judgement Versions"):
+            judgement_versions = st.session_state.refinement_factory['judgement_versions']
+            if isinstance(judgement_versions, dict):
+                for key, version in judgement_versions.items():
+                    st.write(f"{key}")
+                    st.write(version)
+                    st.write("---")
+            else:
+                st.write(judgement_versions)
+        
         st.write("Final Versions:")
-        st.write("Absolutely Recommended Version:")
-        st.write(st.session_state.refinement_factory['final_versions'].get('recommended', 'Not available'))
-        st.write("Alternative Version:")
-        st.write(st.session_state.refinement_factory['final_versions'].get('alternative', 'Not available'))
+        final_versions = st.session_state.refinement_factory['final_versions']
+        if isinstance(final_versions, dict):
+            st.write("Absolutely Recommended Version:")
+            st.write(final_versions.get('Recommended Version:', 'Not available'))
+            st.write("Alternative Version:")
+            st.write(final_versions.get('Alternative Version:', 'Not available'))
+        else:
+            st.write(final_versions)
+
 def save_refinement_to_file(select_model, temp_choice):
     if 'refinement_factory' in st.session_state and st.session_state.refinement_factory['final_versions']:
         final_versions = st.session_state.refinement_factory['final_versions']
         
         content = f"{select_model}, Temp {temp_choice}:\n\n"
-        content += f"Recommended Version:\n{final_versions['recommended']}\n\n"
-        content += f"Alternative Version:\n{final_versions['alternative']}"
+        if isinstance(final_versions, dict):
+            content += f"Recommended Version:\n{final_versions.get('Recommended Version:', 'Not available')}\n\n"
+            content += f"Alternative Version:\n{final_versions.get('Alternative Version:', 'Not available')}"
+        else:
+            content += f"Final Versions:\n{final_versions}"
         
         st.session_state.last_text = content
         if 'central_file' not in st.session_state:
