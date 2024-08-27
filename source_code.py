@@ -8,15 +8,7 @@ from io import BytesIO
 from openai import OpenAI
 from mistralai.client import MistralClient
 # from mistralai.models.chat_completion import ChatMessage
-from langchain.prompts import PromptTemplate
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
-from langchain.chains import LLMChain
-from langchain.agents import Tool, AgentExecutor, LLMSingleActionAgent
-from langchain.schema import AgentAction, AgentFinish
-import re
-import langdetect
-from difflib import SequenceMatcher
+from functools import partial
 
 # Configuration
 st.set_page_config(layout="wide")
@@ -302,7 +294,7 @@ def display_language_selection(key_suffix):
 def display_temperature_slider(key_suffix):
     return st.slider('**Select a Temperature**', min_value=0.1, max_value=1.0, step=0.1, key=f'temp_{key_suffix}')
 
-def refinement_factory(select_model):
+def refinement_factory_translation(select_model):
     st.subheader('Refinement Factory Translation')
 
     to_language = display_language_selection('refinement')
@@ -319,8 +311,8 @@ def refinement_factory(select_model):
             'enhanced_translation': '',
             'swot_analysis': '',
             'editor_versions': {},
-            'critique': '',
-            'judgment_versions': [],
+            'critique': {},
+            'judgement_versions': [],
             'final_versions': {}
         }
 
@@ -334,146 +326,170 @@ def refinement_factory(select_model):
     elif start_button and not combined_text:
         st.error('Please upload or paste a text to translate.')
 
-    display_refinement_factory_results()
+    display_refinement_results()
 
-    st.sidebar.write("**Save Refinement Factory results to file:**")    
+    st.sidebar.write("**Save final translations to file:**")    
     if st.sidebar.button('Save'):
-        save_refinement_factory_to_file(select_model, temp_choice)
+        save_refinement_to_file(select_model, temp_choice)
 
 def perform_refinement_factory(original_text, to_language, temp_choice, select_model):
-    # Initialize LangChain components
-    llm = ChatOpenAI(temperature=temp_choice, model=select_model)
-    
-    # Step 1: Enhanced Translation
-    enhanced_translation = enhance_translation(original_text, to_language, llm)
+    # Step 1: Initial translation and enhancement
+    enhanced_translation = translate_and_enhance(original_text, to_language, temp_choice, select_model)
     st.session_state.refinement_factory['enhanced_translation'] = enhanced_translation
     
-    # Step 2: SWOT Analysis
-    swot_analysis = perform_swot_analysis(enhanced_translation, llm)
+    # Step 2: SWOT analysis
+    swot_analysis = perform_swot_analysis(enhanced_translation, to_language, temp_choice, select_model)
     st.session_state.refinement_factory['swot_analysis'] = swot_analysis
     
-    # Step 3: Editor Refinements
-    editor_versions = perform_editor_refinements(enhanced_translation, swot_analysis, llm)
-    st.session_state.refinement_factory['editor_versions'] = editor_versions
+    # Step 3: Specialized editors
+    editors = [
+        ('Medical/Scientific', 'arguments first, credibility minded'),
+        ('Fundraiser/Marketeer', 'emotion first, engagement minded'),
+        ('Activist/Lobbyist', 'message first, impact minded'),
+        ('Journalist/writer', 'quality first, clarity minded'),
+        ('Lawyer/philosopher', 'persuasiveness first, logic minded')
+    ]
+    
+    for editor, focus in editors:
+        edited_version = editor_refinement(enhanced_translation, swot_analysis, editor, focus, to_language, temp_choice, select_model)
+        st.session_state.refinement_factory['editor_versions'][editor] = edited_version
     
     # Step 4: Critique
-    critique = perform_critique(editor_versions, llm)
+    critique = critique_versions(st.session_state.refinement_factory['editor_versions'], to_language, temp_choice, select_model)
     st.session_state.refinement_factory['critique'] = critique
     
-    # Step 5: Judgment
-    judgment_versions = perform_judgment(editor_versions, critique, llm)
-    st.session_state.refinement_factory['judgment_versions'] = judgment_versions
+    # Step 5: Judgement
+    judgement_versions = judge_versions(st.session_state.refinement_factory['editor_versions'], critique, to_language, temp_choice, select_model)
+    st.session_state.refinement_factory['judgement_versions'] = judgement_versions
     
-    # Step 6: Final Editing
-    final_versions = perform_final_editing(judgment_versions, critique, llm)
+    # Step 6: Editor in Chief
+    final_versions = editor_in_chief(judgement_versions, critique, to_language, temp_choice, select_model)
     st.session_state.refinement_factory['final_versions'] = final_versions
 
-def enhance_translation(text, target_language, llm):
-    prompt = ChatPromptTemplate.from_template(
-        "Translate the following text to {language} and enhance it to meet the highest standards in terms of coherence, impact, and fluency:\n\n{text}"
-    )
-    chain = LLMChain(llm=llm, prompt=prompt)
-    return chain.run(language=target_language, text=text)
+def translate_and_enhance(text, target_language, temp_choice, select_model):
+    translate_prompt = f"""
+    You are a professional translator with expertise in {target_language}, specializing in the sectors of large medical NGOs and human rights. 
+    Translate the following text into {target_language} so that it is clear, convincing, and authentic to a native speaker.
+    After translation, improve the text to meet the highest standards in terms of coherence, impact and fluency.
 
-def perform_swot_analysis(text, llm):
-    prompt = ChatPromptTemplate.from_template(
-        "Perform a comprehensive SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis of the following text, focusing on its linguistic and rhetorical aspects:\n\n{text}"
-    )
-    chain = LLMChain(llm=llm, prompt=prompt)
-    return chain.run(text=text)
+    Text to translate and enhance: {text}
 
-def perform_editor_refinements(text, swot_analysis, llm):
-    editors = {
-        "Medical/Scientific": "Refine the text with a focus on arguments and credibility. Prioritize scientific accuracy and logical flow.",
-        "Fundraiser/Marketeer": "Refine the text with a focus on emotion and engagement. Make it compelling for potential donors or supporters.",
-        "Activist/Lobbyist": "Refine the text with a focus on the core message and its impact. Make it persuasive for policy makers and the public.",
-        "Journalist/Writer": "Refine the text with a focus on quality and clarity. Ensure it's accessible and engaging for a general audience.",
-        "Lawyer/Philosopher": "Refine the text with a focus on persuasiveness and logic. Strengthen the argumentation and ethical considerations."
-    }
-    
-    editor_versions = {}
-    for editor, instruction in editors.items():
-        prompt = ChatPromptTemplate.from_template(
-            f"{instruction}\n\nText: {{text}}\n\nSWOT Analysis: {{swot_analysis}}"
-        )
-        chain = LLMChain(llm=llm, prompt=prompt)
-        editor_versions[editor] = chain.run(text=text, swot_analysis=swot_analysis)
-    
-    return editor_versions
+    Provide only the finally approved translation, without any additional comments or explanations.
+    """
+    return run_model([{"role": "user", "content": translate_prompt}], temp_choice, select_model)
 
-def perform_critique(editor_versions, llm):
-    prompt = ChatPromptTemplate.from_template(
-        "Compare and critique the following 5 versions of a text. Provide a comprehensive critique and a summary of strengths and weaknesses for each:\n\n{versions}"
-    )
-    chain = LLMChain(llm=llm, prompt=prompt)
-    versions_text = "\n\n".join([f"{editor}:\n{text}" for editor, text in editor_versions.items()])
-    return chain.run(versions=versions_text)
+def perform_swot_analysis(text, target_language, temp_choice, select_model):
+    swot_prompt = f"""
+    As an analytical linguist, perform a comprehensive SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis of the following text in {target_language}. 
+    Consider all aspects including language use, structure, tone, persuasiveness, and potential impact on the target audience.
 
-def perform_judgment(editor_versions, critique, llm):
-    prompt = ChatPromptTemplate.from_template(
-        "Based on the following edited versions and their critique, create three new versions that combine the strongest elements of all inputs. Ensure each version has a seamless flow and strong structure:\n\nVersions: {versions}\n\nCritique: {critique}"
-    )
-    chain = LLMChain(llm=llm, prompt=prompt)
-    versions_text = "\n\n".join([f"{editor}:\n{text}" for editor, text in editor_versions.items()])
-    result = chain.run(versions=versions_text, critique=critique)
-    
-    # Assuming the result contains three versions separated by some delimiter
-    return result.split("\n\n")
+    Text to analyze: {text}
 
-def perform_final_editing(judgment_versions, critique, llm):
-    prompt = ChatPromptTemplate.from_template(
-        "As the Editor in Chief, review the following versions and critique. Create one recommended version and one alternative version. You may make further edits as needed:\n\nVersions: {versions}\n\nCritique: {critique}"
-    )
-    chain = LLMChain(llm=llm, prompt=prompt)
-    versions_text = "\n\n".join([f"Version {i+1}:\n{text}" for i, text in enumerate(judgment_versions)])
-    result = chain.run(versions=versions_text, critique=critique)
-    
-    # Assuming the result contains two versions separated by some delimiter
-    recommended, alternative = result.split("\n\n")
-    return {"recommended": recommended, "alternative": alternative}
+    Provide a concise SWOT analysis.
+    """
+    return run_model([{"role": "user", "content": swot_prompt}], temp_choice, select_model)
 
-def display_refinement_factory_results():
+def editor_refinement(text, swot_analysis, editor_type, focus, target_language, temp_choice, select_model):
+    editor_prompt = f"""
+    As a {editor_type} Editor ({focus}) in {target_language}, refine the following text based on the provided SWOT analysis. 
+    Focus on your specific area of expertise while improving the overall quality of the text.
+
+    Original text: {text}
+
+    SWOT Analysis: {swot_analysis}
+
+    Provide your refined version of the text, focusing on {focus}.
+    """
+    return run_model([{"role": "user", "content": editor_prompt}], temp_choice, select_model)
+
+def critique_versions(editor_versions, target_language, temp_choice, select_model):
+    critique_prompt = f"""
+    As a Critique Agent, compare and analyze the following 5 versions of a text in {target_language}. 
+    For each version, provide a comprehensive critique and a summary of its strengths and weaknesses.
+
+    Versions to analyze:
+    {editor_versions}
+
+    Provide a detailed critique for each version, followed by a concise summary of strengths and weaknesses.
+    """
+    return run_model([{"role": "user", "content": critique_prompt}], temp_choice, select_model)
+
+def judge_versions(editor_versions, critique, target_language, temp_choice, select_model):
+    judge_prompt = f"""
+    As a Judgement Agent, create three new versions of the text in {target_language} based on the following edited versions and their critique. 
+    Combine the strongest parts of all inputs to create texts that excel on all levels with seamless flow and strong structure.
+
+    Edited versions:
+    {editor_versions}
+
+    Critique:
+    {critique}
+
+    Provide three new versions of the text, each embodying the best elements from the inputs while maintaining coherence and flow.
+    """
+    return run_model([{"role": "user", "content": judge_prompt}], temp_choice, select_model)
+
+def editor_in_chief(judgement_versions, critique, target_language, temp_choice, select_model):
+    chief_editor_prompt = f"""
+    As the Editor in Chief, review the following three versions of the text in {target_language} and the critique of previous versions. 
+    Create one absolutely recommended text and one alternative version. You may make further edits as needed.
+
+    Judgement versions:
+    {judgement_versions}
+
+    Previous critique:
+    {critique}
+
+    Provide two final versions: 1) Absolutely recommended text, 2) Alternative version.
+    """
+    return run_model([{"role": "user", "content": chief_editor_prompt}], temp_choice, select_model)
+
+def display_refinement_results():
     if 'refinement_factory' in st.session_state and st.session_state.refinement_factory['final_versions']:
-        st.write("Refinement Factory process completed.")
+        st.write("Refinement process completed.")
         
-        with st.expander("Enhanced Translation"):
+        with st.expander("Initial Enhanced Translation"):
             st.write(st.session_state.refinement_factory['enhanced_translation'])
         
         with st.expander("SWOT Analysis"):
             st.write(st.session_state.refinement_factory['swot_analysis'])
         
-        with st.expander("Editor Versions"):
+        with st.expander("Specialized Editor Versions"):
             for editor, version in st.session_state.refinement_factory['editor_versions'].items():
-                st.subheader(editor)
+                st.write(f"{editor} Editor's Version:")
                 st.write(version)
+                st.write("---")
         
         with st.expander("Critique"):
             st.write(st.session_state.refinement_factory['critique'])
         
-        with st.expander("Judgment Versions"):
-            for i, version in enumerate(st.session_state.refinement_factory['judgment_versions']):
-                st.subheader(f"Version {i+1}")
+        with st.expander("Judgement Versions"):
+            for i, version in enumerate(st.session_state.refinement_factory['judgement_versions'], 1):
+                st.write(f"Judgement Version {i}:")
                 st.write(version)
+                st.write("---")
         
-        st.subheader("Final Versions")
-        st.write("Recommended Version:")
+        st.write("Final Versions:")
+        st.write("Absolutely Recommended Version:")
         st.write(st.session_state.refinement_factory['final_versions']['recommended'])
         st.write("Alternative Version:")
         st.write(st.session_state.refinement_factory['final_versions']['alternative'])
 
-def save_refinement_factory_to_file(select_model, temp_choice):
+def save_refinement_to_file(select_model, temp_choice):
     if 'refinement_factory' in st.session_state and st.session_state.refinement_factory['final_versions']:
+        final_versions = st.session_state.refinement_factory['final_versions']
+        
         content = f"{select_model}, Temp {temp_choice}:\n\n"
-        content += f"Recommended Version:\n{st.session_state.refinement_factory['final_versions']['recommended']}\n\n"
-        content += f"Alternative Version:\n{st.session_state.refinement_factory['final_versions']['alternative']}"
+        content += f"Recommended Version:\n{final_versions['recommended']}\n\n"
+        content += f"Alternative Version:\n{final_versions['alternative']}"
         
         st.session_state.last_text = content
         if 'central_file' not in st.session_state:
             st.session_state.central_file = []
         st.session_state.central_file.append(st.session_state.last_text)
-        st.success('Refinement Factory results added to central file!')
+        st.success('Final versions added to central file!')
     else:
-        st.error('No Refinement Factory results to save.')
+        st.error('No refined translations to save.')
         
 # Main app logic
 def main():
