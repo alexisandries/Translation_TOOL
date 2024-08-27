@@ -9,6 +9,7 @@ from openai import OpenAI
 from mistralai.client import MistralClient
 # from mistralai.models.chat_completion import ChatMessage
 from functools import partial
+import json
 
 # Configuration
 st.set_page_config(layout="wide")
