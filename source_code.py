@@ -9,6 +9,12 @@ from openai import OpenAI
 from mistralai.client import MistralClient
 # from mistralai.models.chat_completion import ChatMessage
 from langchain.prompts import PromptTemplate
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+from langchain.chains import LLMChain
+from langchain.agents import Tool, AgentExecutor, LLMSingleActionAgent
+from langchain.schema import AgentAction, AgentFinish
+import re
 import langdetect
 from difflib import SequenceMatcher
 
@@ -296,90 +302,178 @@ def display_language_selection(key_suffix):
 def display_temperature_slider(key_suffix):
     return st.slider('**Select a Temperature**', min_value=0.1, max_value=1.0, step=0.1, key=f'temp_{key_suffix}')
 
-def iterative_polish_translation(select_model):
-    st.subheader('Iterative Polish Translation')
+def refinement_factory(select_model):
+    st.subheader('Refinement Factory Translation')
 
-    to_language = display_language_selection('iterative')
-    temp_choice = display_temperature_slider('iterative')
+    to_language = display_language_selection('refinement')
+    temp_choice = display_temperature_slider('refinement')
 
     file_text = display_file_uploader()
     manual_text = display_text_input()
     
     combined_text = file_text + "\n" + manual_text if file_text or manual_text else None
 
-    if 'iterative_polish' not in st.session_state:
-        st.session_state.iterative_polish = {
+    if 'refinement_factory' not in st.session_state:
+        st.session_state.refinement_factory = {
             'original_text': '',
-            'initial_translation': '',
-            'final_translation': ''
+            'enhanced_translation': '',
+            'swot_analysis': '',
+            'editor_versions': {},
+            'critique': '',
+            'judgment_versions': [],
+            'final_versions': {}
         }
 
-    start_button = st.button('Start Iterative Polish Translation')
+    start_button = st.button('Start Refinement Factory Translation')
 
     if start_button and combined_text:
         source_lang = detect_language(combined_text)
         st.write(f"Detected language: {source_lang}")
         
-        # Initial translation using translate_enhancetool
-        initial_translation = translate_enhancetool(combined_text, to_language, temp_choice, select_model)
-        
-        st.session_state.iterative_polish = {
-            'original_text': combined_text,
-            'initial_translation': initial_translation,
-            'final_translation': ''
-        }
-        
-        st.write("Initial Translation:")
-        st.write(initial_translation)
-        
-        perform_iterative_polish(initial_translation, to_language, temp_choice, select_model)
+        perform_refinement_factory(combined_text, to_language, temp_choice, select_model)
     elif start_button and not combined_text:
         st.error('Please upload or paste a text to translate.')
 
-    display_polish_results()
+    display_refinement_factory_results()
 
-    st.sidebar.write("**Save final polished translation to file:**")    
+    st.sidebar.write("**Save Refinement Factory results to file:**")    
     if st.sidebar.button('Save'):
-        save_polish_to_file(select_model, temp_choice)
+        save_refinement_factory_to_file(select_model, temp_choice)
 
-def perform_iterative_polish(initial_translation, to_language, temp_choice, select_model):
-    current_text = initial_translation
+def perform_refinement_factory(original_text, to_language, temp_choice, select_model):
+    # Initialize LangChain components
+    llm = ChatOpenAI(temperature=temp_choice, model=select_model)
     
-    for i in range(5):  # 5 iterations of polish
-        st.write(f"Polish Iteration {i+1}:")
-        
-        polished_text = polish_text(current_text, to_language, temp_choice, select_model)
-        
-        st.write(f"Polished version {i+1}:")
-        st.write(polished_text)
-        
-        current_text = polished_text
-        
-        st.write("---")
+    # Step 1: Enhanced Translation
+    enhanced_translation = enhance_translation(original_text, to_language, llm)
+    st.session_state.refinement_factory['enhanced_translation'] = enhanced_translation
     
-    st.session_state.iterative_polish['final_translation'] = current_text
+    # Step 2: SWOT Analysis
+    swot_analysis = perform_swot_analysis(enhanced_translation, llm)
+    st.session_state.refinement_factory['swot_analysis'] = swot_analysis
+    
+    # Step 3: Editor Refinements
+    editor_versions = perform_editor_refinements(enhanced_translation, swot_analysis, llm)
+    st.session_state.refinement_factory['editor_versions'] = editor_versions
+    
+    # Step 4: Critique
+    critique = perform_critique(editor_versions, llm)
+    st.session_state.refinement_factory['critique'] = critique
+    
+    # Step 5: Judgment
+    judgment_versions = perform_judgment(editor_versions, critique, llm)
+    st.session_state.refinement_factory['judgment_versions'] = judgment_versions
+    
+    # Step 6: Final Editing
+    final_versions = perform_final_editing(judgment_versions, critique, llm)
+    st.session_state.refinement_factory['final_versions'] = final_versions
 
-def display_polish_results():
-    if 'iterative_polish' in st.session_state and st.session_state.iterative_polish['final_translation']:
-        st.write("Polish process completed.")
-        st.write("Final polished translation:")
-        st.write(st.session_state.iterative_polish['final_translation'])
-        
-        if st.button("View Initial Translation"):
-            st.write("Initial Translation:")
-            st.write(st.session_state.iterative_polish['initial_translation'])
+def enhance_translation(text, target_language, llm):
+    prompt = ChatPromptTemplate.from_template(
+        "Translate the following text to {language} and enhance it to meet the highest standards in terms of coherence, impact, and fluency:\n\n{text}"
+    )
+    chain = LLMChain(llm=llm, prompt=prompt)
+    return chain.run(language=target_language, text=text)
 
-def save_polish_to_file(select_model, temp_choice):
-    if 'iterative_polish' in st.session_state and st.session_state.iterative_polish['final_translation']:
-        final_translation = st.session_state.iterative_polish['final_translation']
+def perform_swot_analysis(text, llm):
+    prompt = ChatPromptTemplate.from_template(
+        "Perform a comprehensive SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis of the following text, focusing on its linguistic and rhetorical aspects:\n\n{text}"
+    )
+    chain = LLMChain(llm=llm, prompt=prompt)
+    return chain.run(text=text)
+
+def perform_editor_refinements(text, swot_analysis, llm):
+    editors = {
+        "Medical/Scientific": "Refine the text with a focus on arguments and credibility. Prioritize scientific accuracy and logical flow.",
+        "Fundraiser/Marketeer": "Refine the text with a focus on emotion and engagement. Make it compelling for potential donors or supporters.",
+        "Activist/Lobbyist": "Refine the text with a focus on the core message and its impact. Make it persuasive for policy makers and the public.",
+        "Journalist/Writer": "Refine the text with a focus on quality and clarity. Ensure it's accessible and engaging for a general audience.",
+        "Lawyer/Philosopher": "Refine the text with a focus on persuasiveness and logic. Strengthen the argumentation and ethical considerations."
+    }
+    
+    editor_versions = {}
+    for editor, instruction in editors.items():
+        prompt = ChatPromptTemplate.from_template(
+            f"{instruction}\n\nText: {{text}}\n\nSWOT Analysis: {{swot_analysis}}"
+        )
+        chain = LLMChain(llm=llm, prompt=prompt)
+        editor_versions[editor] = chain.run(text=text, swot_analysis=swot_analysis)
+    
+    return editor_versions
+
+def perform_critique(editor_versions, llm):
+    prompt = ChatPromptTemplate.from_template(
+        "Compare and critique the following 5 versions of a text. Provide a comprehensive critique and a summary of strengths and weaknesses for each:\n\n{versions}"
+    )
+    chain = LLMChain(llm=llm, prompt=prompt)
+    versions_text = "\n\n".join([f"{editor}:\n{text}" for editor, text in editor_versions.items()])
+    return chain.run(versions=versions_text)
+
+def perform_judgment(editor_versions, critique, llm):
+    prompt = ChatPromptTemplate.from_template(
+        "Based on the following edited versions and their critique, create three new versions that combine the strongest elements of all inputs. Ensure each version has a seamless flow and strong structure:\n\nVersions: {versions}\n\nCritique: {critique}"
+    )
+    chain = LLMChain(llm=llm, prompt=prompt)
+    versions_text = "\n\n".join([f"{editor}:\n{text}" for editor, text in editor_versions.items()])
+    result = chain.run(versions=versions_text, critique=critique)
+    
+    # Assuming the result contains three versions separated by some delimiter
+    return result.split("\n\n")
+
+def perform_final_editing(judgment_versions, critique, llm):
+    prompt = ChatPromptTemplate.from_template(
+        "As the Editor in Chief, review the following versions and critique. Create one recommended version and one alternative version. You may make further edits as needed:\n\nVersions: {versions}\n\nCritique: {critique}"
+    )
+    chain = LLMChain(llm=llm, prompt=prompt)
+    versions_text = "\n\n".join([f"Version {i+1}:\n{text}" for i, text in enumerate(judgment_versions)])
+    result = chain.run(versions=versions_text, critique=critique)
+    
+    # Assuming the result contains two versions separated by some delimiter
+    recommended, alternative = result.split("\n\n")
+    return {"recommended": recommended, "alternative": alternative}
+
+def display_refinement_factory_results():
+    if 'refinement_factory' in st.session_state and st.session_state.refinement_factory['final_versions']:
+        st.write("Refinement Factory process completed.")
         
-        st.session_state.last_text = f"{select_model}, Temp {temp_choice}:\n\nFinal Polished Translation:\n{final_translation}"
+        with st.expander("Enhanced Translation"):
+            st.write(st.session_state.refinement_factory['enhanced_translation'])
+        
+        with st.expander("SWOT Analysis"):
+            st.write(st.session_state.refinement_factory['swot_analysis'])
+        
+        with st.expander("Editor Versions"):
+            for editor, version in st.session_state.refinement_factory['editor_versions'].items():
+                st.subheader(editor)
+                st.write(version)
+        
+        with st.expander("Critique"):
+            st.write(st.session_state.refinement_factory['critique'])
+        
+        with st.expander("Judgment Versions"):
+            for i, version in enumerate(st.session_state.refinement_factory['judgment_versions']):
+                st.subheader(f"Version {i+1}")
+                st.write(version)
+        
+        st.subheader("Final Versions")
+        st.write("Recommended Version:")
+        st.write(st.session_state.refinement_factory['final_versions']['recommended'])
+        st.write("Alternative Version:")
+        st.write(st.session_state.refinement_factory['final_versions']['alternative'])
+
+def save_refinement_factory_to_file(select_model, temp_choice):
+    if 'refinement_factory' in st.session_state and st.session_state.refinement_factory['final_versions']:
+        content = f"{select_model}, Temp {temp_choice}:\n\n"
+        content += f"Recommended Version:\n{st.session_state.refinement_factory['final_versions']['recommended']}\n\n"
+        content += f"Alternative Version:\n{st.session_state.refinement_factory['final_versions']['alternative']}"
+        
+        st.session_state.last_text = content
         if 'central_file' not in st.session_state:
             st.session_state.central_file = []
         st.session_state.central_file.append(st.session_state.last_text)
-        st.success('Final polished translation added to central file!')
+        st.success('Refinement Factory results added to central file!')
     else:
-        st.error('No polished translation to save.')
+        st.error('No Refinement Factory results to save.')
         
 # Main app logic
 def main():
@@ -398,12 +492,11 @@ def main():
     
     if tool_choice == 'Single Agent':
         translate_with_enhancement(select_model)
-    if tool_choice == 'Multi-Agent':
+    elif tool_choice == 'Multi-Agent':
         multiagent_translation(select_model)
-    if tool_choice == 'Iterative Multi-Agent':
+    elif tool_choice == 'Refinement Factory':
         st.title("***under construction***")
-        iterative_polish_translation(select_model)
-        
+        refinement_factory(select_model)    
 
     manage_central_file()
 
