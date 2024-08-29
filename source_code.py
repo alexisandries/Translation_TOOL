@@ -7,6 +7,8 @@ from docx import Document
 from io import BytesIO
 from openai import OpenAI
 from mistralai.client import MistralClient
+from langchain.prompts import PromptTemplate
+from langdetect import detect
 # from mistralai.models.chat_completion import ChatMessage
 from functools import partial
 import json
