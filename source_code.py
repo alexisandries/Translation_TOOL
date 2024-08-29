@@ -340,7 +340,7 @@ def perform_refinement_factory(original_text, to_language, temp_choice, select_m
     st.session_state.refinement_factory['enhanced_translation'] = enhanced_translation
     
     # Step 2: SWOT analysis
-    swot_analysis = perform_swot_analysis(enhanced_translation, to_language, temp_choice, gpt-4o-mini)
+    swot_analysis = perform_swot_analysis(enhanced_translation, to_language, temp_choice, "gpt-4o-mini")
     st.session_state.refinement_factory['swot_analysis'] = swot_analysis
     
     # Step 3: Specialized editors
