@@ -65,11 +65,6 @@ def detect_language(text):
 
 # Model-specific functions
 def run_openai_model(messages, temp_choice, model):
-    if model == 'GPT 4o':
-        model = 'gpt-4o'
-    else: 
-        model = model
-        
     try:
         response = openai_client.chat.completions.create(
             model=model,
@@ -102,12 +97,15 @@ def analyze_source_text(text, temp_choice, select_model):
     prompt = PromptTemplate(
         input_variables=["source_text"],
         template="""
-        You are a skilled linguistic analyst. Analyze the given text and provide insights for translation. Focus on:
+        You are an expert in comparative linguistics. Analyze the given text and provide insights for translation. Focus on:
         1. Idioms, colloquialisms, or culturally specific references
         2. Tone and register of the text
         3. Ambiguous phrases or words with multiple meanings
         4. Specialized terminology or jargon
-
+        5. Any other difficulty in the text
+        
+        Additionally, analyze the broader context of the text to clearly understand its references and how the words should be interpreted.        
+        
         Source text: {source_text}
 
         Please provide your analysis:
@@ -128,7 +126,7 @@ def translate_text(text, analysis, target_language, temp_choice, select_model):
         Target language: {target_language}
 
         Guidelines for translation:
-        1. Meaning and Intent: Preserve the original message and intention with utmost accuracy.
+        1. Meaning and Intent: Preserve the original message and intention.
         2. Tone and Register: Match the style, formality level, and emotional tone of the original text.
         3. Cultural Adaptation: 
            - Adapt idioms, metaphors, and cultural references to resonate with the target audience.
@@ -158,16 +156,16 @@ def edit_translation(translated_text, target_language, temp_choice, select_model
         You are a highly skilled editor and writer, native in {target_language}, with a deep understanding of its nuances, idioms, and cultural context. Your task is to refine and elevate the given translation, making it indistinguishable from text originally written in {target_language}.
 
         Focus areas:
-        1. Fluency and Natural Expression: Ensure the text flows naturally, as if originally conceived in {target_language}. Pay special attention to sentence structures and expressions that are characteristic of native {target_language} writing.
-        2. Coherence and Text Flow: Improve the logical progression of ideas. Ensure sentences and paragraphs transition smoothly, creating a seamless narrative or argument.
+        1. Fluency and Natural Expression: Ensure the text flows naturally, as if originally conceived in {target_language}. Pay special attention to sentence structures, sentence lengths and expressions that are characteristic of native {target_language} writing.
+        2. Coherence and Text Flow: Improve the logical progression of ideas. Ensure sentences and paragraphs transition smoothly, creating a seamless narrative.
         3. Idiomatic Usage: Incorporate idiomatic expressions where appropriate to enhance the text's authenticity in {target_language}.
         4. Cultural Adaptation: Adjust any remaining cultural references or concepts to resonate more deeply with a {target_language} audience.
-        5. Consistency in Style and Tone: Maintain a consistent voice throughout the text that feels authentic to {target_language} writing conventions.
-        6. Precision and Clarity: While maintaining fluency, ensure that the original meaning is preserved and communicated clearly.
+        5. Consistency in Style and Tone: Maintain a consistent voice throughout the text that feels very authentic to {target_language} writing conventions.
+        6. Precision and Clarity: While maintaining fluency, ensure that the key messages of the text are communicated with immediate clarity. 
 
         Translated text: {translated_text}
 
-        Please provide your refined version, without any comment, focusing on making the text read as if it were originally written by a skilled native {target_language} author:
+        Please provide your refined version, without any comments:
         """
     )
     return run_model([{"role": "user", "content": prompt.format(translated_text=translated_text, target_language=target_language)}], temp_choice, select_model)
@@ -176,19 +174,19 @@ def polish_text(edited_text, target_language, temp_choice, select_model):
     prompt = PromptTemplate(
         input_variables=["edited_text", "target_language"],
         template="""
-        You are a master wordsmith and literary expert in {target_language}, known for your ability to craft prose that captivates and flows effortlessly. you are highly specialized in the sector of large medical NGO's and human rights.  
+        You are a master wordsmith and literary expert in {target_language}, known for your ability to craft prose that captivates and flows effortlessly. you are highly specialized in the sector of large medical and human rights NGO's.  
         Your task is to take the following text and elevate it to the highest level of fluency and coherence in {target_language}.
 
         Guidelines:
-        1. Seamless Flow: Ensure each sentence flows naturally into the next, creating a rhythm that feels inherent to {target_language}.
+        1. Seamless Flow: Ensure each sentence flows naturally into the next, creating a rhythm that feels deeply inherent to {target_language}.
         2. Conceptual Coherence: Refine the progression of ideas so that the entire text feels like a single, cohesive thought conceived in {target_language}.
         3. Linguistic Authenticity: Use turns of phrase, transitional expressions, and structural elements that are quintessentially {target_language}, making the text feel deeply rooted in the language.
-        4. Elegance and Precision: While maintaining accessibility, aim for a level of linguistic sophistication that demonstrates mastery of {target_language}.
+        4. Elegance and Precision: While maintaining elegance, aim at conveying the key messages with extreme precision and clarity.
         5. Emotional Resonance: Adjust the tone and word choice to evoke the appropriate emotional response in a native {target_language} reader.
         6. Rhythm and Cadence: Pay attention to the rhythm of the language, ensuring it aligns with the natural cadence of {target_language} prose.
         
         Your goal is to make this text indistinguishable from one originally conceived and masterfully written in {target_language}.
-        While you can rephrase the text for clarity, coherence, fluency, and naturalness, you must not add new information. Maintain the original meaning and content without hallucinating or expanding beyond the given text. 
+        While you can profoundly rephrase the text in line with the guidelines, you must not add new information. Maintain the original meaning and content without hallucinating or expanding beyond the given text. 
        
         Text to polish:
         {edited_text}
@@ -542,7 +540,7 @@ def main():
         st.error('The password you entered is incorrect.')
         st.stop()
 
-    select_model = st.sidebar.radio('**Select your MODEL**', ['GPT 4o', 'MISTRAL large'])
+    select_model = st.sidebar.radio('**Select your MODEL**', ['gpt-4o', 'MISTRAL large'])
     tool_choice = st.sidebar.radio("**Choose your tool:**", ['Single Agent', 'Multi-Agent', 'Refinement Factory'])
     st.sidebar.write("*The multi-agent system is likely to produce better results, albeit with a higher footprint and longer runtime.*")
     st.sidebar.write("*Making smart use of the feedback mechanisms can yield great results. Give it a try.*")
