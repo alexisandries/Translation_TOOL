@@ -371,23 +371,53 @@ def perform_refinement_factory(original_text, to_language, temp_choice, select_m
 def translate_and_enhance(text, target_language, temp_choice, select_model):
     translate_prompt = f"""
     You are a professional translator with expertise in {target_language}, specializing in the sectors of large medical NGOs and human rights. 
-    Translate the following text into {target_language} so that it is clear, convincing, and authentic to a native speaker.
-    After translation, improve the text to meet the highest standards in terms of coherence, impact and fluency.
+    Perform the translation in two steps:
+    **Step 1**: Translate the following text into {target_language} so that it is cristal clear, extremely fluent and perfectly authentic to a native speaker.
+    **Step2**: After translation, improve the text to meet the highest standards in terms of coherence, impact and fluency.
 
     Text to translate and enhance: {text}
 
-    Provide only the finally approved translation, without any additional comments or explanations.
+    Provide only the final translation, after step 2, without any additional comments or explanations.
     """
     return run_model([{"role": "user", "content": translate_prompt}], temp_choice, select_model)
 
 def perform_swot_analysis(text, target_language, temp_choice, select_model):
     swot_prompt = f"""
-    As an analytical linguist, perform a comprehensive SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis of the following text in {target_language}. 
-    Consider all aspects including language use, structure, tone, persuasiveness, and potential impact on the target audience.
-
+    As an expert analytical linguist specializing in {target_language}, conduct a comprehensive SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis of the following text. Your analysis should cover:
+    
+    **Linguistic elements:**
+    - Vocabulary choice and appropriateness
+    - Grammar and syntax
+    - Idiomatic expressions and language authenticity
+    
+    **Structural components:**
+    - Overall organization and flow of ideas
+    - Paragraph structure and transitions
+    - Clarity and coherence of arguments
+        
+    **Stylistic features:**
+    - Tone and register
+    - Rhetorical devices and their effectiveness
+    - Adherence to genre conventions (if applicable)
+        
+    **Content and messaging:**
+    - Clarity and accuracy of information
+    - Persuasiveness of arguments
+    - Relevance to the target audience
+    
+    **Cultural considerations:**
+    - Cultural sensitivity and appropriateness
+    - Localization effectiveness (if applicable)
+        
+    **Potential impact:**
+    - Likely emotional and intellectual response of the target audience
+    - Potential for achieving the text's apparent goals
+    - Possible unintended interpretations or consequences
+      
     Text to analyze: {text}
-
-    Provide a concise SWOT analysis.
+    
+    Provide a concise yet thorough SWOT analysis, clearly delineating Strengths, Weaknesses, Opportunities, and Threats. 
+    For each category, list 3 key points, ensuring a balanced and insightful evaluation. Conclude with a brief overall assessment of the text's effectiveness in achieving its apparent purpose. Copy
     """
     return run_model([{"role": "user", "content": swot_prompt}], temp_choice, select_model)
 
