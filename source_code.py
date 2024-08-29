@@ -365,7 +365,7 @@ def perform_refinement_factory(original_text, to_language, temp_choice, select_m
     st.session_state.refinement_factory['judgement_versions'] = judgement_versions
     
     # Step 6: Editor in Chief
-    final_versions = editor_in_chief(judgement_versions, critique, to_language, temp_choice, select_model)
+    final_versions = editor_in_chief(judgement_versions, to_language, temp_choice, select_model)
     st.session_state.refinement_factory['final_versions'] = final_versions
 
 def translate_and_enhance(text, target_language, temp_choice, select_model):
@@ -425,12 +425,13 @@ def editor_refinement(text, swot_analysis, editor_type, focus, target_language, 
     editor_prompt = f"""
     As a {editor_type} Editor ({focus}) in {target_language}, refine the following text based on the provided SWOT analysis. 
     Focus on your specific area of expertise while improving the overall quality of the text.
+    You should not make a new SWOT analysis of the refined version.
 
     Original text: {text}
 
     SWOT Analysis: {swot_analysis}
 
-    Provide your refined version of the text, focusing on {focus}.
+    Provide your refined version of the text without any further comment. 
     """
     return run_model([{"role": "user", "content": editor_prompt}], temp_choice, select_model)
 
@@ -442,7 +443,7 @@ def critique_versions(editor_versions, target_language, temp_choice, select_mode
     Versions to analyze:
     {json.dumps(editor_versions, indent=2)}
 
-    Provide a detailed critique for each version, followed by a concise summary of strengths and weaknesses.
+    Provide a critique for each version, followed by a concise summary of strengths and weaknesses.
     """
     return run_model([{"role": "user", "content": critique_prompt}], temp_choice, select_model)
 
@@ -463,22 +464,26 @@ def judge_versions(editor_versions, critique, target_language, temp_choice, sele
     response = run_model([{"role": "user", "content": judge_prompt}], temp_choice, select_model)
     return parse_versions(response)
 
-def editor_in_chief(judgement_versions, critique, target_language, temp_choice, select_model):
+def editor_in_chief(judgement_versions, target_language, temp_choice, select_model):
+    # Construct the prompt for the model
     chief_editor_prompt = f"""
-    As the Editor in Chief, review the following three versions of the text in {target_language} and the critique of previous versions. 
-    Create one absolutely recommended text and one alternative version. You may make further edits as needed.
+    As the Editor-in-Chief, review the following three versions of the text in {target_language}. 
+    Your task is to create one "Recommended Version" and one "Alternative Version." You may make further edits as needed.
 
     Judgement versions:
     {json.dumps(judgement_versions, indent=2)}
-
-    Previous critique:
-    {critique}
+    
+    Please use your editorial judgment to assess these versions.
 
     Provide two final versions: 
     1) Label the absolutely recommended text as "Recommended Version:"
     2) Label the alternative version as "Alternative Version:"
     """
+
+    # Run the model with the constructed prompt
     response = run_model([{"role": "user", "content": chief_editor_prompt}], temp_choice, select_model)
+
+    # Parse the response to extract the two versions
     return parse_versions(response, keys=["Recommended Version:", "Alternative Version:"])
 
 def parse_versions(text, keys=None):
