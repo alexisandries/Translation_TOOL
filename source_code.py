@@ -12,6 +12,7 @@ from langdetect import detect
 # from mistralai.models.chat_completion import ChatMessage
 from functools import partial
 import json
+import langdetect
 
 # Configuration
 st.set_page_config(layout="wide")
