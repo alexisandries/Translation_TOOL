@@ -95,6 +95,7 @@ def run_model(messages, temp_choice, select_model):
     else:
         return run_openai_model(messages, temp_choice, select_model)
 
+
 # Translation process functions
 def analyze_source_text(text, temp_choice, select_model):
     prompt = PromptTemplate(
