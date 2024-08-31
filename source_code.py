@@ -13,9 +13,7 @@ from langdetect import detect
 from functools import partial
 import json
 import langdetect
-from SimplerLLM.tools.generic_loader import load_content
-from SimplerLLM.language.llm import LLM, LLMProvider
-from resources import text_to_x_thread, text_to_summary, text_to_newsletter, format_to_json
+
 
 # Configuration
 st.set_page_config(layout="wide")
@@ -570,8 +568,6 @@ def save_refinement_to_file(select_model, temp_choice):
         st.error('No refined translations to save.')
 
 def content_generation():
-      
-    llm_instance = LLM.create(provider=LLMProvider.OPENAI, model_name="gpt-4o")
     
     st.title("Content Generation With A Single Click")
     
@@ -580,15 +576,7 @@ def content_generation():
     if st.button("Generate Content"):
         if input_text:
             try:
-             
-                x_prompt = text_to_x_thread.format(input=input_text.content)
-                newsletter_prompt = text_to_newsletter.format(input=input_text.content)
-                summary_prompt = text_to_summary.format(input=input_text.content)
-    
-                x_thread = llm_instance.generate_response(prompt=x_prompt, max_tokens=1000)
-                newsletter_section = llm_instance.generate_response(prompt=newsletter_prompt, max_tokens=1000)
-                bullet_point_summary = llm_instance.generate_response(prompt=summary_prompt, max_tokens=1000)
-    
+                
                 st.subheader("Generated Twitter Thread")
                 st.write(x_thread)
                 st.markdown("---")
@@ -601,26 +589,7 @@ def content_generation():
                 st.write(bullet_point_summary)
                 st.markdown("---")
     
-                final_prompt = format_to_json.format(
-                    input_1=x_thread, 
-                    input_2=newsletter_section, 
-                    input_3=bullet_point_summary
-                )
-                response = llm_instance.generate_response(prompt=final_prompt, max_tokens=3000)
                 
-                try:
-                    json_data = json.loads(response)
-                    st.markdown("### __Generated JSON Result__")
-                    st.json(json_data)
-                    st.download_button(
-                        label="Download JSON Result",
-                        data=json.dumps(json_data, ensure_ascii=False, indent=4),
-                        file_name="Json_Result.json",
-                        mime="application/json"
-                    )
-                except json.JSONDecodeError as e:
-                    st.error(f"Error in JSON format: {e}")
-                    st.write(response)
             except Exception as e:
                 st.error(f"An error occurred: {e}")
         else:
@@ -651,8 +620,8 @@ def main():
     elif tool_choice == 'Refinement Factory':
         st.title("***under construction***")
         refinement_factory_translation(select_model)    
-    elif tool_choice == 'Content Generator':
-        content_generation()
+    # elif tool_choice == 'Content Generator':
+    #     content_generation()
         
     manage_central_file()
 
