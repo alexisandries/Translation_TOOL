@@ -13,6 +13,9 @@ from langdetect import detect
 from functools import partial
 import json
 import langdetect
+from SimplerLLM.tools.generic_loader import load_content
+from SimplerLLM.language.llm import LLM, LLMProvider
+from resources import text_to_x_thread, text_to_summary, text_to_newsletter, format_to_json
 
 # Configuration
 st.set_page_config(layout="wide")
@@ -566,11 +569,7 @@ def save_refinement_to_file(select_model, temp_choice):
         st.error('No refined translations to save.')
 
 def content_generation():
-    
-    from SimplerLLM.tools.generic_loader import load_content
-    from SimplerLLM.language.llm import LLM, LLMProvider
-    from resources import text_to_x_thread, text_to_summary, text_to_newsletter, format_to_json
-    
+      
     llm_instance = LLM.create(provider=LLMProvider.OPENAI, model_name="gpt-4o")
     
     st.title("Content Generation With A Single Click")
@@ -580,8 +579,7 @@ def content_generation():
     if st.button("Generate Content"):
         if input_text:
             try:
-                file = load_content(url)
-    
+             
                 x_prompt = text_to_x_thread.format(input=input_text.content)
                 newsletter_prompt = text_to_newsletter.format(input=input_text.content)
                 summary_prompt = text_to_summary.format(input=input_text.content)
@@ -628,8 +626,6 @@ def content_generation():
             st.warning("Please enter a text.")
 
 
-
-
 # Main app logic
 def main():
     st.sidebar.title("Translation App")
@@ -655,7 +651,8 @@ def main():
         st.title("***under construction***")
         refinement_factory_translation(select_model)    
     elif tool_choice == 'Content Generator':
-        content_generation(
+        content_generation()
+        
     manage_central_file()
 
 def translate_with_enhancement(select_model):
