@@ -564,7 +564,72 @@ def save_refinement_to_file(select_model, temp_choice):
         st.success('Final versions added to central file!')
     else:
         st.error('No refined translations to save.')
-        
+
+def content_generation():
+    
+    from SimplerLLM.tools.generic_loader import load_content
+    from SimplerLLM.language.llm import LLM, LLMProvider
+    from resources import text_to_x_thread, text_to_summary, text_to_newsletter, format_to_json
+    
+    llm_instance = LLM.create(provider=LLMProvider.OPENAI, model_name="gpt-4o")
+    
+    st.title("Content Generation With A Single Click")
+    
+    input_text = st.text_input("Enter your text here:")
+    
+    if st.button("Generate Content"):
+        if input_text:
+            try:
+                file = load_content(url)
+    
+                x_prompt = text_to_x_thread.format(input=input_text.content)
+                newsletter_prompt = text_to_newsletter.format(input=input_text.content)
+                summary_prompt = text_to_summary.format(input=input_text.content)
+    
+                x_thread = llm_instance.generate_response(prompt=x_prompt, max_tokens=1000)
+                newsletter_section = llm_instance.generate_response(prompt=newsletter_prompt, max_tokens=1000)
+                bullet_point_summary = llm_instance.generate_response(prompt=summary_prompt, max_tokens=1000)
+    
+                st.subheader("Generated Twitter Thread")
+                st.write(x_thread)
+                st.markdown("---")
+    
+                st.subheader("Generated Newsletter Section")
+                st.write(newsletter_section)
+                st.markdown("---")
+    
+                st.subheader("Generated Bullet Point Summary")
+                st.write(bullet_point_summary)
+                st.markdown("---")
+    
+                final_prompt = format_to_json.format(
+                    input_1=x_thread, 
+                    input_2=newsletter_section, 
+                    input_3=bullet_point_summary
+                )
+                response = llm_instance.generate_response(prompt=final_prompt, max_tokens=3000)
+                
+                try:
+                    json_data = json.loads(response)
+                    st.markdown("### __Generated JSON Result__")
+                    st.json(json_data)
+                    st.download_button(
+                        label="Download JSON Result",
+                        data=json.dumps(json_data, ensure_ascii=False, indent=4),
+                        file_name="Json_Result.json",
+                        mime="application/json"
+                    )
+                except json.JSONDecodeError as e:
+                    st.error(f"Error in JSON format: {e}")
+                    st.write(response)
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
+        else:
+            st.warning("Please enter a text.")
+
+
+
+
 # Main app logic
 def main():
     st.sidebar.title("Translation App")
@@ -576,7 +641,7 @@ def main():
         st.stop()
 
     select_model = st.sidebar.radio('**Select your MODEL**', ['gpt-4o', 'MISTRAL large'])
-    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Single Agent', 'Multi-Agent', 'Refinement Factory'])
+    tool_choice = st.sidebar.radio("**Choose your tool:**", ['Single Agent', 'Multi-Agent', 'Refinement Factory', 'Content Generator'])
     st.sidebar.write("*The multi-agent system is likely to produce better results, albeit with a higher footprint and longer runtime.*")
     st.sidebar.write("*Making smart use of the feedback mechanisms can yield great results. Give it a try.*")
     st.sidebar.write("*The third tool is under construction.*")
@@ -589,7 +654,8 @@ def main():
     elif tool_choice == 'Refinement Factory':
         st.title("***under construction***")
         refinement_factory_translation(select_model)    
-
+    elif tool_choice == 'Content Generator':
+        content_generation(
     manage_central_file()
 
 def translate_with_enhancement(select_model):
