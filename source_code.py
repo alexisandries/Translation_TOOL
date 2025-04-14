@@ -342,7 +342,7 @@ def perform_refinement_factory(original_text, to_language, temp_choice, select_m
     st.session_state.refinement_factory['enhanced_translation'] = enhanced_translation
     
     # Step 2: SWOT analysis
-    swot_analysis = perform_swot_analysis(enhanced_translation, to_language, temp_choice, "gpt-4o-mini")
+    swot_analysis = perform_swot_analysis(enhanced_translation, to_language, temp_choice, "gpt-4.1-mini")
     st.session_state.refinement_factory['swot_analysis'] = swot_analysis
     
     # Step 3: Specialized editors
@@ -606,7 +606,7 @@ def main():
         st.error('The password you entered is incorrect.')
         st.stop()
 
-    select_model = st.sidebar.radio('**Select your MODEL**', ['gpt-4o', 'MISTRAL large'])
+    select_model = st.sidebar.radio('**Select your MODEL**', ['gpt-4.1', 'MISTRAL large'])
     tool_choice = st.sidebar.radio("**Choose your tool:**", ['Single Agent', 'Multi-Agent', 'Refinement Factory'])
     st.sidebar.write("*The multi-agent system is likely to produce better results, albeit with a higher footprint and longer runtime.*")
     st.sidebar.write("*Making smart use of the feedback mechanisms can yield great results. Give it a try.*")
