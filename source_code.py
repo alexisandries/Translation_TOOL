@@ -9,7 +9,6 @@ from openai import OpenAI
 from mistralai.client import MistralClient
 from langchain.prompts import PromptTemplate
 from langdetect import detect
-# from mistralai.models.chat_completion import ChatMessage
 from functools import partial
 import json
 import langdetect
@@ -21,6 +20,7 @@ st.set_page_config(layout="wide")
 # Constants
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 MISTRAL_API_KEY = st.secrets["MISTRAL_API_KEY"]
+GOOGLE_APPLICATION_CREDENTIALS = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
 PASSWORD = st.secrets["MDM_PASSWORD"]
 
 # Initialize clients
