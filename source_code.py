@@ -649,7 +649,7 @@ def translate_with_enhancement(select_model):
             source_lang = detect_language(combined_text)
             st.write(f"Detected language: {source_lang}")
             translated_text = translate_enhancetool(combined_text, to_language, temp_choice, select_model)
-            st.session_state.translation_with_enhance = f"Model: {select_model}, Temperature: {temp_choice} \n\n**TRANSLATION:** \n\n{translated_text}"
+            st.session_state.translation_with_enhance = f"Model: {select_model}, Temperature: {temp_choice} \n\n**Translation** \n\n{translated_text}"
             st.write(st.session_state.translation_with_enhance)
         else:
             st.error('Please upload or paste a text to translate.')
