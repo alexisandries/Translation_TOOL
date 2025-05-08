@@ -651,7 +651,7 @@ def translate_with_enhancement(select_model):
             translated_text = translate_enhancetool(combined_text, to_language, temp_choice, select_model)
             st.session_state.translation_with_enhance = f"{select_model}, Temp {temp_choice}, 'translated':\n\n{translated_text}"
             st.write("Current translation:")
-            st.write(translated_text)
+            st.write(st.session_state.translation_with_enhance)
         else:
             st.error('Please upload or paste a text to translate.')
 
