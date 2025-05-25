@@ -86,7 +86,7 @@ finally:
 
 # --- Initialize other clients ---
 client = OpenAI(api_key=OPENAI_API_KEY)
-mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
+# mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
 vertexai.init(project=project_id, location=LOCATION, credentials=gcp_credentials)
 
 st.success("Google Cloud services and other clients successfully initialized!")
