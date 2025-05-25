@@ -43,14 +43,14 @@ except KeyError:
     st.stop()
 except json.JSONDecodeError as e:
     st.error(f"Error while reading Google Cloud service account JSON: {e}")
-    st.stop()
+    # st.stop()
 
 # Creëer referenties (credentials) vanuit de service account informatie
 gcp_credentials = service_account.Credentials.from_service_account_info(gcp_service_account_info)
 project_id = gcp_service_account_info.get("project_id")
 if not project_id:
     st.error("Project ID not found in Google Cloud service account key.")
-    # st.stop()
+    st.stop()
 # Initialize clients
 client = OpenAI(api_key=OPENAI_API_KEY)
 mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
