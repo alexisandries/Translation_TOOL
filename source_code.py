@@ -1789,7 +1789,7 @@ def main():
                 elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
                     file_text = read_docx(uploaded_file)
                 
-            manual_text = display_text_input(basic)
+            manual_text = display_text_input(key=basic_google)
             
             combined_text = file_text + "\n" + manual_text if file_text or manual_text else ""  
             
