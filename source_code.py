@@ -1006,7 +1006,7 @@ def translate_text_with_v3(
 
 
 def create_word_document(
-    text1: str | None, # The refined text 
+    text1: str, # The refined text 
     text2: str         # The original text 
 ) -> bytes: # Always returns bytes if text2 has content, handles empty/None text1
     """
