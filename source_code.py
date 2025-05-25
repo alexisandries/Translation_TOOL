@@ -980,7 +980,7 @@ def translate_text_with_v3(
     source_language_code: str = "nl",
     target_language_code: str = "fr",
     max_chunk_len: int = 5000, # Max length voor chunks (karakters)
-    project_id: str = PROJECT_ID
+    project_id: str = project_id
 ) -> str: 
     
     """Translates text using chunking, suitable for long inputs.
