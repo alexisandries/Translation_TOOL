@@ -37,13 +37,26 @@ LOCATION = st.secrets["LOCATION"]
 
 try:
     gcp_service_account_info_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
+    # --- TEMPORARY DEBUG PRINT ---
+    st.write("--- Raw Secret String (for debugging) ---")
+    st.code(gcp_service_account_info_str)
+    st.write("--- End Raw Secret String ---")
+    # --- END TEMPORARY DEBUG PRINT ---
     gcp_service_account_info = json.loads(gcp_service_account_info_str)
-except KeyError:
-    st.error("Google Cloud service account key (GOOGLE_APPLICATION_CREDENTIALS) not found in secrets.toml.")
-    st.stop()
-except json.JSONDecodeError as e:
+except Exception as e: # Catch a broader exception to see the raw string if it's the issue
     st.error(f"Error while reading Google Cloud service account JSON: {e}")
-    # st.stop()
+    # If the error is here, the st.code() above should show the problematic string
+    st.stop()
+
+# try:
+#     gcp_service_account_info_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
+#     gcp_service_account_info = json.loads(gcp_service_account_info_str)
+# except KeyError:
+#     st.error("Google Cloud service account key (GOOGLE_APPLICATION_CREDENTIALS) not found in secrets.toml.")
+#     st.stop()
+# except json.JSONDecodeError as e:
+#     st.error(f"Error while reading Google Cloud service account JSON: {e}")
+#     # st.stop()
 
 # Creëer referenties (credentials) vanuit de service account informatie
 gcp_credentials = service_account.Credentials.from_service_account_info(gcp_service_account_info)
