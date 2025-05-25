@@ -46,7 +46,7 @@ try:
 except Exception as e: # Catch a broader exception to see the raw string if it's the issue
     st.error(f"Error while reading Google Cloud service account JSON: {e}")
     # If the error is here, the st.code() above should show the problematic string
-    st.stop()
+    # st.stop()
 
 # try:
 #     gcp_service_account_info_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
