@@ -20,12 +20,20 @@ import langid
 from functools import partial
 from google.cloud import translate_v3
 import tiktoken
-import os, json, math, requests
+import requests
+import math
 from google.oauth2 import service_account
 #  from typing import List, Dict
 
 # Configuration
 st.set_page_config(layout="wide")
+
+import json
+import vertexai
+from google.cloud import translate_v3
+from google.oauth2 import service_account
+import tempfile
+import os  # Make sure os is imported for tempfile path
 
 # --- Constants ---
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
@@ -35,32 +43,46 @@ LOCATION = st.secrets["LOCATION"]
 
 # --- Google Cloud Credentials Handling ---
 gcp_service_account_info_str = None
-gcp_service_account_info = None # Initialize gcp_service_account_info here
+gcp_service_account_info = None  # Initialize gcp_service_account_info here
 
 try:
     gcp_service_account_info_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
-    gcp_service_account_info = json.loads(gcp_service_account_info_str) # This is where it should be assigned
+
+    # Use a temporary file to store the credentials, as this is the most robust way
+    # for Google's libraries to read potentially problematic JSON strings.
+    with tempfile.NamedTemporaryFile(mode='w+', delete=False, encoding='utf-8', suffix='.json') as temp_file:
+        temp_file.write(gcp_service_account_info_str)
+        temp_file_path = temp_file.name  # Get the path of the temporary file
+
+        # Initialize credentials from the temporary file path
+        gcp_credentials = service_account.Credentials.from_service_account_file(temp_file_path)
+
+    # Now, parse the string to get project_id (this should be safe since it's cleaner JSON)
+    gcp_service_account_info = json.loads(gcp_service_account_info_str)
+    project_id = gcp_service_account_info.get("project_id")
+
+    if not project_id:
+        st.error("Project ID not found in Google Cloud service account key.")
+        st.stop()
+
 except KeyError:
     st.error("Google Cloud service account key (GOOGLE_APPLICATION_CREDENTIALS) not found in secrets.toml.")
     st.stop()
 except json.JSONDecodeError as e:
-    st.error(f"Error while reading Google Cloud service account JSON: {e}")
+    st.error(f"Error parsing Google Cloud service account JSON from secrets.toml (after writing to temp file): {e}")
     st.stop()
-except Exception as e: # Catch any other unexpected errors during loading
-    st.error(f"An unexpected error occurred during Google Cloud secret loading: {e}")
+except Exception as e:  # Catch any other unexpected errors during loading
+    st.error(f"An unexpected error occurred during Google Cloud secret setup: {e}")
     st.stop()
+finally:
+    # IMPORTANT: Clean up the temporary file immediately after use
+    if os.path.exists(temp_file_path): # Check if the variable is defined and the file exists
+        os.remove(temp_file_path)
 
 # --- Verification after the try-except block ---
 if gcp_service_account_info is None:
     st.error("Failed to load Google Cloud service account info. Check secrets.toml and JSON format.")
-    st.stop() # This should ideally be caught by previous except blocks, but is a safeguard
-
-# Creëer referenties (credentials) vanuit de service account informatie
-gcp_credentials = service_account.Credentials.from_service_account_info(gcp_service_account_info)
-project_id = gcp_service_account_info.get("project_id")
-if not project_id:
-    st.error("Project ID not found in Google Cloud service account key.")
-    st.stop()
+    st.stop()  # This should ideally be caught by previous except blocks, but is a safeguard
 
 # --- Initialize other clients ---
 client = OpenAI(api_key=OPENAI_API_KEY)
