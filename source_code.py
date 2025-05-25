@@ -1876,8 +1876,8 @@ def main():
             if 'translated_gemini_raw' not in st.session_state:
                 st.session_state.translated_gemini_raw = ""
             
-            if st.button('Translate', key='gemini):
-                
+            if st.button('Translate', key='gemini'):
+            
                 if combined_text:
                     source_lang = detect_language(combined_text)
                     st.write(f"Detected language: {source_lang[1]}")
