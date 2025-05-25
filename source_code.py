@@ -27,36 +27,33 @@ from google.oauth2 import service_account
 # Configuration
 st.set_page_config(layout="wide")
 
-# Constants
+# --- Constants ---
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-# MISTRAL_API_KEY = st.secrets["MISTRAL_API_KEY"]
-
+MISTRAL_API_KEY = st.secrets["MISTRAL_API_KEY"]
 PASSWORD = st.secrets["MDM_PASSWORD"]
 LOCATION = st.secrets["LOCATION"]
 
+# --- Google Cloud Credentials Handling ---
+gcp_service_account_info_str = None
+gcp_service_account_info = None # Initialize gcp_service_account_info here
 
 try:
     gcp_service_account_info_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
-    # --- TEMPORARY DEBUG PRINT ---
-    st.write("--- Raw Secret String (for debugging) ---")
-    st.code(gcp_service_account_info_str)
-    st.write("--- End Raw Secret String ---")
-    # --- END TEMPORARY DEBUG PRINT ---
-    gcp_service_account_info = json.loads(gcp_service_account_info_str)
-except Exception as e: # Catch a broader exception to see the raw string if it's the issue
+    gcp_service_account_info = json.loads(gcp_service_account_info_str) # This is where it should be assigned
+except KeyError:
+    st.error("Google Cloud service account key (GOOGLE_APPLICATION_CREDENTIALS) not found in secrets.toml.")
+    st.stop()
+except json.JSONDecodeError as e:
     st.error(f"Error while reading Google Cloud service account JSON: {e}")
-    # If the error is here, the st.code() above should show the problematic string
-    # st.stop()
+    st.stop()
+except Exception as e: # Catch any other unexpected errors during loading
+    st.error(f"An unexpected error occurred during Google Cloud secret loading: {e}")
+    st.stop()
 
-# try:
-#     gcp_service_account_info_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
-#     gcp_service_account_info = json.loads(gcp_service_account_info_str)
-# except KeyError:
-#     st.error("Google Cloud service account key (GOOGLE_APPLICATION_CREDENTIALS) not found in secrets.toml.")
-#     st.stop()
-# except json.JSONDecodeError as e:
-#     st.error(f"Error while reading Google Cloud service account JSON: {e}")
-#     # st.stop()
+# --- Verification after the try-except block ---
+if gcp_service_account_info is None:
+    st.error("Failed to load Google Cloud service account info. Check secrets.toml and JSON format.")
+    st.stop() # This should ideally be caught by previous except blocks, but is a safeguard
 
 # Creëer referenties (credentials) vanuit de service account informatie
 gcp_credentials = service_account.Credentials.from_service_account_info(gcp_service_account_info)
@@ -64,12 +61,13 @@ project_id = gcp_service_account_info.get("project_id")
 if not project_id:
     st.error("Project ID not found in Google Cloud service account key.")
     st.stop()
-# Initialize clients
+
+# --- Initialize other clients ---
 client = OpenAI(api_key=OPENAI_API_KEY)
 mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
 vertexai.init(project=project_id, location=LOCATION, credentials=gcp_credentials)
 
-
+st.success("Google Cloud services and other clients successfully initialized!")
 # # Utility functions
 # def read_pdf(file):
 #     text = ''
