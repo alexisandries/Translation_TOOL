@@ -29,9 +29,6 @@ from google.oauth2 import service_account
 st.set_page_config(layout="wide")
 
 import json
-import vertexai
-from google.cloud import translate_v3
-from google.oauth2 import service_account
 import tempfile
 import os  # Make sure os is imported for tempfile path
 
@@ -43,21 +40,35 @@ LOCATION = st.secrets["LOCATION"]
 
 # --- Google Cloud Credentials Handling ---
 gcp_service_account_info_str = None
-gcp_service_account_info = None  # Initialize gcp_service_account_info here
+gcp_service_account_info = None
+temp_file_path = None # Initialize temp_file_path to ensure it's always defined for the finally block
 
 try:
     gcp_service_account_info_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
 
-    # Use a temporary file to store the credentials, as this is the most robust way
-    # for Google's libraries to read potentially problematic JSON strings.
+    # --- DEBUGGING STEP START ---
+    st.write("--- DEBUG: Raw GCP Secret String ---")
+    st.code(f"Length: {len(gcp_service_account_info_str)}")
+    st.code(f"First 50 chars: {gcp_service_account_info_str[:50].encode('utf-8')}") # Show raw bytes
+    st.code(f"Last 50 chars: {gcp_service_account_info_str[-50:].encode('utf-8')}")
+    st.code(f"Starts with '{gcp_service_account_info_str[0]}'?")
+    st.code(f"Content: \n{gcp_service_account_info_str}") # DANGER: This will show the whole key
+    st.write("--- DEBUG: End Raw GCP Secret String ---")
+    # --- DEBUGGING STEP END ---
+
+    if not gcp_service_account_info_str:
+        st.error("Google Cloud service account key (GOOGLE_APPLICATION_CREDENTIALS) is empty in secrets.toml.")
+        st.stop()
+
+    # Create a temporary file
     with tempfile.NamedTemporaryFile(mode='w+', delete=False, encoding='utf-8', suffix='.json') as temp_file:
         temp_file.write(gcp_service_account_info_str)
-        temp_file_path = temp_file.name  # Get the path of the temporary file
+        temp_file_path = temp_file.name
 
-        # Initialize credentials from the temporary file path
-        gcp_credentials = service_account.Credentials.from_service_account_file(temp_file_path)
+    # Initialize credentials from the temporary file path
+    gcp_credentials = service_account.Credentials.from_service_account_file(temp_file_path)
 
-    # Now, parse the string to get project_id (this should be safe since it's cleaner JSON)
+    # Now, parse the string to get project_id (this should be safe if file loading worked)
     gcp_service_account_info = json.loads(gcp_service_account_info_str)
     project_id = gcp_service_account_info.get("project_id")
 
@@ -71,18 +82,19 @@ except KeyError:
 except json.JSONDecodeError as e:
     st.error(f"Error parsing Google Cloud service account JSON from secrets.toml (after writing to temp file): {e}")
     st.stop()
-except Exception as e:  # Catch any other unexpected errors during loading
+except Exception as e:
     st.error(f"An unexpected error occurred during Google Cloud secret setup: {e}")
     st.stop()
 finally:
     # IMPORTANT: Clean up the temporary file immediately after use
-    if os.path.exists(temp_file_path): # Check if the variable is defined and the file exists
+    if temp_file_path and os.path.exists(temp_file_path):
         os.remove(temp_file_path)
+
 
 # --- Verification after the try-except block ---
 if gcp_service_account_info is None:
     st.error("Failed to load Google Cloud service account info. Check secrets.toml and JSON format.")
-    st.stop()  # This should ideally be caught by previous except blocks, but is a safeguard
+    st.stop()
 
 # --- Initialize other clients ---
 client = OpenAI(api_key=OPENAI_API_KEY)
