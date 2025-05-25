@@ -88,8 +88,9 @@ finally:
 client = OpenAI(api_key=OPENAI_API_KEY)
 # mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
 vertexai.init(project=project_id, location=LOCATION, credentials=gcp_credentials)
+translate_client = translate_v3.TranslationServiceClient(credentials=gcp_credentials)
 
-st.success("Google Cloud services and other clients successfully initialized!")
+
 
 # # Utility functions
 # def read_pdf(file):
@@ -979,10 +980,10 @@ def translate_text_with_v3(
     text: str = "YOUR_TEXT_TO_TRANSLATE",
     source_language_code: str = "nl",
     target_language_code: str = "fr",
-    max_chunk_len: int = 5000, # Max length voor chunks (karakters)
-    project_id: str = project_id
-) -> str: 
-    
+    max_chunk_len: int = 5000, # Max length for chunks (karakters)
+    project_id: str = project_id, # This project_id should also come from the global scope
+    translate_client_obj: translate_v3.TranslationServiceClient = None 
+) -> str:
     """Translates text using chunking, suitable for long inputs.
 
     Args:
@@ -990,10 +991,10 @@ def translate_text_with_v3(
         source_language_code: The code of the source language.
         target_language_code: The code of the target language.
         max_chunk_len: Maximum character length for each chunk. Google Cloud
-                       Translate v3 has limits (e.g., 30k *bytes* per request),
-                       so keep this reasonably low (e.g., 5000-15000 characters).
-        project_id: Your Google Cloud Project ID. If None, tries to get from
-                    'GOOGLE_CLOUD_PROJECT' environment variable.
+                        Translate v3 has limits (e.g., 30k *bytes* per request),
+                        so keep this reasonably low (e.g., 5000-15000 characters).
+        project_id: Your Google Cloud Project ID.
+        translate_client_obj: The initialized Google Cloud TranslationServiceClient object.
 
     Returns:
         The translated text as a single string.
@@ -1004,17 +1005,21 @@ def translate_text_with_v3(
     """
     if not text:
         return ""
-    
+
+    # Ensure the client object is provided
+    if translate_client_obj is None:
+        raise ValueError("TranslationServiceClient object must be provided to translate_text_with_v3.")
+
     # Chunk de tekst
-    
     text_chunks = chunk_text(text, max_len=max_chunk_len)
 
-    client = translate_v3.TranslationServiceClient()
+    # Use the passed client object
+    client = translate_client_obj
     parent = f"projects/{project_id}/locations/global"
     mime_type = "text/plain"
 
     translated_pieces = []
-    for chunk in text_chunks:  
+    for chunk in text_chunks:
         response = client.translate_text(
             contents=[chunk],
             parent=parent,
@@ -1836,7 +1841,13 @@ def main():
                     
                     st.write(f"Detected language: {source_lang[1]}")
                     with st.spinner('translating...'):                     
-                        translated_google = translate_text_with_v3(combined_text, source_lang[0], target_lang)
+                        translated_google = translate_text_with_v3(
+                            text=combined_text, 
+                            source_language_code=source_lang[0], 
+                            target_language_code=target_lang,
+                            project_id=project_id,
+                            translate_client_obj=translate_client
+                        )
                         st.session_state['translated_google_raw'] = translated_google
                         st.info("**Here is your translation:**")
                     pass
@@ -2019,7 +2030,13 @@ def main():
                         
                     st.write(f"Detected language: {source_lang[1]}")
                     with st.spinner('Neural network at work, be patient...'):
-                        basic_google = translate_text_with_v3(combined_text, source_lang[0], target_lang)
+                        basic_google = translate_text_with_v3(
+                            text=combined_text, 
+                            source_language_code=source_lang[0], 
+                            target_language_code=target_lang,
+                            project_id=project_id,
+                            translate_client_obj=translate_client
+                        )
                         basic_openai = get_openai_translation(combined_text, source_lang[0], target_lang, temp_choice, model="gpt-4.1")
                         glossary_analysis = check_glossary(combined_text, source_lang[0], target_lang, glossary_data)
                         st.session_state.gloss_instruct = format_terminology_for_prompt(glossary_analysis, source_lang[0], target_lang)
