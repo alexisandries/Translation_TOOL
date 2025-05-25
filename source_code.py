@@ -29,16 +29,31 @@ st.set_page_config(layout="wide")
 # Constants
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 MISTRAL_API_KEY = st.secrets["MISTRAL_API_KEY"]
-GOOGLE_APPLICATION_CREDENTIALS = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
+
 PASSWORD = st.secrets["MDM_PASSWORD"]
 LOCATION = st.secrets["LOCATION"]
-PROJECT_ID = st.secrets["PROJECT_ID"]
 
 
+try:
+    gcp_service_account_info_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
+    gcp_service_account_info = json.loads(gcp_service_account_info_str)
+except KeyError:
+    st.error("Google Cloud service account key (GOOGLE_APPLICATION_CREDENTIALS) not found in secrets.toml.")
+    st.stop()
+except json.JSONDecodeError as e:
+    st.error(f"Error while reading Google Cloud service account JSON: {e}")
+    st.stop()
+
+# Creëer referenties (credentials) vanuit de service account informatie
+gcp_credentials = service_account.Credentials.from_service_account_info(gcp_service_account_info)
+project_id = gcp_service_account_info.get("project_id")
+if not project_id:
+    st.error("Project ID not found in Google Cloud service account key.")
+    st.stop()
 # Initialize clients
 client = OpenAI(api_key=OPENAI_API_KEY)
 mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
-vertexai.init(project=PROJECT_ID, location=LOCATION)
+vertexai.init(project=project_id, location=LOCATION, credentials=gcp_credentials)
 
 
 # Utility functions
