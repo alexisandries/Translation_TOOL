@@ -581,33 +581,6 @@ def save_refinement_to_file(select_model, temp_choice):
     else:
         st.error('No refined translations to save.')
 
-def content_generation():
-    
-    st.title("Content Generation With A Single Click")
-    
-    input_text = st.text_input("Enter your text here:")
-    
-    if st.button("Generate Content"):
-        if input_text:
-            try:
-                
-                st.subheader("Generated Twitter Thread")
-                st.write(x_thread)
-                st.markdown("---")
-    
-                st.subheader("Generated Newsletter Section")
-                st.write(newsletter_section)
-                st.markdown("---")
-    
-                st.subheader("Generated Bullet Point Summary")
-                st.write(bullet_point_summary)
-                st.markdown("---")
-    
-                
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
-        else:
-            st.warning("Please enter a text.")
 
 def translate_with_enhancement(select_model):
     
@@ -1802,7 +1775,7 @@ def main():
             if 'translated_google_raw' not in st.session_state:
                 st.session_state.translated_google_raw = ""
             
-            if st.button('Translate'):
+            if st.button('Translate', key="google_basic"):
                 if combined_text:
                     
                     source_lang = detect_language(combined_text)
@@ -1834,7 +1807,7 @@ def main():
                 st.write('**Refine with Gemini** ✨')
                 guidelines = st.text_input("Your feedback and/or guidelines")
                         # Toon de download knop alleen als er tekst is om te downloaden (ruw of geformatteerd)
-                if st.button('Start Refinement 🚀'):
+                if st.button('Start Refinement 🚀', key='basic_refine'):
                     with st.spinner('Refining... this can take a while'):
                         source_lang = detect_language(combined_text)
                         glossary_analysis = check_glossary(combined_text, source_lang, target_lang, glossary_data)
@@ -1903,7 +1876,7 @@ def main():
             if 'translated_gemini_raw' not in st.session_state:
                 st.session_state.translated_gemini_raw = ""
             
-            if st.button('Translate'):
+            if st.button('Translate', key='gemini):
                 
                 if combined_text:
                     source_lang = detect_language(combined_text)
@@ -1925,7 +1898,7 @@ def main():
                 st.write('**Refine with Gemini** ✨')
                 guidelines = st.text_input("Your feedback and/or guidelines")
                         
-                if st.button('Start Refinement 🚀'):
+                if st.button('Start Refinement 🚀', key='gemini_refine'):
                     with st.spinner('Refining... '):
                         refined_gemini = improve_translation_with_gemini(combined_text, st.session_state['translated_gemini_raw'], guidelines, st.session_state.gloss_instruct, target_lang) 
                         st.session_state.refined_translation = refined_gemini
@@ -1985,7 +1958,7 @@ def main():
             if 'translated_gpt_raw' not in st.session_state:
                 st.session_state.translated_gpt_raw = ""
             
-            if st.button('Translate'):
+            if st.button('Translate', key='openai'):
                 
                 if combined_text:
                     source_lang = detect_language(combined_text)
@@ -2015,8 +1988,8 @@ def main():
                 st.write('**Refine with o3** ✨')
                 guidelines = st.text_input("Your feedback and/or guidelines")
                         # Toon de download knop alleen als er tekst is om te downloaden (ruw of geformatteerd)
-                if st.button('Start Refinement 🚀'):
-                    with st.spinner('Thinking... '):
+                if st.button('Start Refinement 🚀', key="openai_refine"):
+                    with st.spinner('Thinking hardddd... '):
                         
                         refined_gpt = improve_translation_with_gpt(combined_text, st.session_state.translated_gpt_raw, guidelines, target_lang, st.session_state.gloss_instruct) 
                         st.session_state.refined_gpt_translation = refined_gpt
