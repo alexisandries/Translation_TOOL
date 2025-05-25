@@ -21,6 +21,7 @@ from functools import partial
 from google.cloud import translate_v3
 import tiktoken
 import os, json, math, requests
+from google.oauth2 import service_account
 #  from typing import List, Dict
 
 # Configuration
