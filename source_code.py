@@ -40,21 +40,10 @@ LOCATION = st.secrets["LOCATION"]
 
 # --- Google Cloud Credentials Handling ---
 gcp_service_account_info_str = None
-gcp_service_account_info = None
-temp_file_path = None # Initialize temp_file_path to ensure it's always defined for the finally block
+temp_file_path = None
 
 try:
     gcp_service_account_info_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
-
-    # --- DEBUGGING STEP START ---
-    st.write("--- DEBUG: Raw GCP Secret String ---")
-    st.code(f"Length: {len(gcp_service_account_info_str)}")
-    st.code(f"First 50 chars: {gcp_service_account_info_str[:50].encode('utf-8')}") # Show raw bytes
-    st.code(f"Last 50 chars: {gcp_service_account_info_str[-50:].encode('utf-8')}")
-    st.code(f"Starts with '{gcp_service_account_info_str[0]}'?")
-    st.code(f"Content: \n{gcp_service_account_info_str}") # DANGER: This will show the whole key
-    st.write("--- DEBUG: End Raw GCP Secret String ---")
-    # --- DEBUGGING STEP END ---
 
     if not gcp_service_account_info_str:
         st.error("Google Cloud service account key (GOOGLE_APPLICATION_CREDENTIALS) is empty in secrets.toml.")
@@ -66,23 +55,27 @@ try:
         temp_file_path = temp_file.name
 
     # Initialize credentials from the temporary file path
+    # This is the primary and only way to load the credentials from the string in this method
     gcp_credentials = service_account.Credentials.from_service_account_file(temp_file_path)
 
-    # Now, parse the string to get project_id (this should be safe if file loading worked)
-    gcp_service_account_info = json.loads(gcp_service_account_info_str)
-    project_id = gcp_service_account_info.get("project_id")
-
+    # Get project_id directly from the credentials object (more reliable)
+    # The credentials object itself contains the project_id once loaded
+    project_id = gcp_credentials.project_id
     if not project_id:
-        st.error("Project ID not found in Google Cloud service account key.")
-        st.stop()
+        # Fallback to parsing if project_id is not directly available, but it should be
+        # This part should ideally not be reached if the credential file is valid
+        st.warning("Project ID not found directly in credentials object, attempting parse from string.")
+        gcp_service_account_info = json.loads(gcp_service_account_info_str)
+        project_id = gcp_service_account_info.get("project_id")
+        if not project_id:
+            st.error("Project ID not found in Google Cloud service account key.")
+            st.stop()
+
 
 except KeyError:
     st.error("Google Cloud service account key (GOOGLE_APPLICATION_CREDENTIALS) not found in secrets.toml.")
     st.stop()
-except json.JSONDecodeError as e:
-    st.error(f"Error parsing Google Cloud service account JSON from secrets.toml (after writing to temp file): {e}")
-    st.stop()
-except Exception as e:
+except Exception as e: # Catch any other unexpected errors during loading
     st.error(f"An unexpected error occurred during Google Cloud secret setup: {e}")
     st.stop()
 finally:
@@ -91,17 +84,13 @@ finally:
         os.remove(temp_file_path)
 
 
-# --- Verification after the try-except block ---
-if gcp_service_account_info is None:
-    st.error("Failed to load Google Cloud service account info. Check secrets.toml and JSON format.")
-    st.stop()
-
 # --- Initialize other clients ---
 client = OpenAI(api_key=OPENAI_API_KEY)
 mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
 vertexai.init(project=project_id, location=LOCATION, credentials=gcp_credentials)
 
 st.success("Google Cloud services and other clients successfully initialized!")
+
 # # Utility functions
 # def read_pdf(file):
 #     text = ''
