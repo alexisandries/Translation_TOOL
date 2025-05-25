@@ -13,3 +13,4 @@ langid==1.1.6
 google-cloud-translate==3.20.2
 tiktoken==0.9.0
 requests==2.32.3
+mistralai==0.1.8
