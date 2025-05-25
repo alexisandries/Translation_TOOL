@@ -291,8 +291,8 @@ def display_file_uploader():
             return read_docx(uploaded_file)
     return ""
 
-def display_text_input():
-    return st.text_area('Or enter text to translate', height=150)
+def display_text_input(key_display):
+    return st.text_area('Or enter text to translate', height=150, key=key_display)
 
 def display_language_selection(key_suffix):
     # List of predefined language options
@@ -319,7 +319,7 @@ def refinement_factory_translation(select_model):
     temp_choice = display_temperature_slider('refinement')
 
     file_text = display_file_uploader()
-    manual_text = display_text_input()
+    manual_text = display_text_input(refinement)
     
     combined_text = file_text + "\n" + manual_text if file_text or manual_text else None
 
@@ -619,7 +619,7 @@ def translate_with_enhancement(select_model):
     st.write("Higher Temperature (~0.6 to 1.0): Encourages more creative translations.")
 
     file_text = display_file_uploader()
-    manual_text = display_text_input()
+    manual_text = display_text_input(enhancement)
     
     combined_text = file_text + "\n" + manual_text if file_text or manual_text else None
 
@@ -670,7 +670,7 @@ def multiagent_translation(select_model):
     st.write("Higher Temperature (~0.6 to 1.0): Encourages more creative translations.")
 
     file_text = display_file_uploader()
-    manual_text = display_text_input()
+    manual_text = display_text_input(multiagent)
     
     combined_text = file_text + "\n" + manual_text if file_text or manual_text else None
 
@@ -883,8 +883,8 @@ def display_file_uploader():
             return ""
     return ""
 
-def display_text_input():
-    return st.text_area('Or enter text to translate', height=150)
+def display_text_input(disp_key):
+    return st.text_area('Or enter text to translate', height=150, key=disp_key)
 
 
 def chunk_text(text: str, max_len: int = 5000) -> list[str]:
@@ -1789,7 +1789,7 @@ def main():
                 elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
                     file_text = read_docx(uploaded_file)
                 
-            manual_text = display_text_input()
+            manual_text = display_text_input(basic)
             
             combined_text = file_text + "\n" + manual_text if file_text or manual_text else ""  
             
@@ -1890,7 +1890,7 @@ def main():
                     "You can use the feedback box to request layout improvements based on your instructions."
                 )
             
-            manual_text = display_text_input()
+            manual_text = display_text_input(gemini)
 
             combined_text = file_text + "\n" + manual_text if file_text or manual_text else None  
 
