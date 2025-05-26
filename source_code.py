@@ -1901,9 +1901,9 @@ def main():
             st.sidebar.write("**Drawbacks:** results may vary—LLMs are nondeterministic and can hallucinate or misinterpret text.")
             # st.sidebar.info("The prompt lets the model step back from the source to boost fluency, authenticity, and appeal.")
             
-            temp_choice = display_temperature_slider('gemini')
             st.write("Lower Temperature (~0.1 to 0.5): Recommended for more secure translations.")
             st.write("Higher Temperature (~0.6 to 1.0): Encourages more creative translations.")
+            temp_choice = display_temperature_slider('gemini')
 
             uploaded_file = st.file_uploader("Upload file (PDF, PPTX, XLSX, DOCX)", type=['pdf', 'pptx', 'xlsx', 'docx'])
             file_text = ""
