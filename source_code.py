@@ -1786,13 +1786,13 @@ def main():
         
         st.header('Translate your text') 
         
-        select_model = st.sidebar.radio("**Choose your tool**", ['Google Basic', 'Google Gemini', 'ChatGPT'])
+        select_model = st.sidebar.radio("**Choose your tool**", ['Google Translate', 'Google Gemini', 'ChatGPT'])
 
         # Language selection
         target_lang = display_language_selection("target")
        
         
-        if select_model == 'Google Basic':
+        if select_model == 'Google Translate':
 
             st.subheader('Google Translate')
             st.sidebar.write("Good for straightforward sentences and common phrases; it’s inexpensive and low-latency.")
