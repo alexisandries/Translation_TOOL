@@ -788,7 +788,6 @@ def display_language_selection(key_suffix, is_source=False):
     if language_choice == "Other":
         language = st.text_input("Please use ISO-code:")
        
-        st.write(f"You have selected: {language}")
     else:
         language = {"Dutch": "nl", "French": "fr", "English": "en"}.get(language_choice)
         st.write(f"You have selected: {language_choice}")
