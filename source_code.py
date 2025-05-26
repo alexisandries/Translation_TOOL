@@ -1797,7 +1797,7 @@ def main():
             st.subheader('Google Translate')
             st.sidebar.write("Good for straightforward sentences and common phrases; it’s inexpensive and low-latency.")
             st.sidebar.write("**Drawbacks**: limited nuance and contextual understanding, difficulty with ambiguity and complex texts. Translations often mirror the source word-for-word.") 
-            st.sidebar.info("For important content, add a refinement step or use a more advanced tool.")
+            st.sidebar.info("For external use, add a refinement step or use a more advanced model.")
             st.sidebar.write("\n\n")
             
             uploaded_file = st.file_uploader("Upload file (PDF, PPTX, XLSX, DOCX)", type=['pdf', 'pptx', 'xlsx', 'docx'])
