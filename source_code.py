@@ -790,8 +790,7 @@ def display_language_selection(key_suffix, is_source=False):
        
     else:
         language = {"Dutch": "nl", "French": "fr", "English": "en"}.get(language_choice)
-        st.write(f"You have selected: {language_choice}")
-        
+                
     return language
     
 def detect_language(text):
