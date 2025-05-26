@@ -2019,7 +2019,7 @@ def main():
             if 'translated_gpt_raw' not in st.session_state:
                 st.session_state.translated_gpt_raw = ""
             
-            if st.button('Translate', key='openai'):
+            if st.button('Translate', key='openai_o3'):
                 
                 if combined_text:
                     source_lang = detect_language(combined_text)
