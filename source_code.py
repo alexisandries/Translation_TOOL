@@ -1895,8 +1895,8 @@ def main():
         
         elif select_model == 'Google Gemini':
 
-            st.sidebar.write("Powered by **Gemini 2.5 Pro**, Google’s latest reasoning model. The quality will be similar to ChatGPT or to Google Basic tool after use of the Refinement button.") 
-            st.sidebar.write("**Drawbacks:** results may vary—LLMs are nondeterministic and can hallucinate or misinterpret text.")
+            st.sidebar.write("Powered by **Gemini 2.5 Flash & Pro**, Google’s latest reasoning model. The quality will be similar to ChatGPT or to Google Basic tool after use of the Refinement button.") 
+            st.sidebar.write("**Drawbacks:** results may vary—LLMs are nondeterministic and can hallucinate or misinterpret text. Refinement can take a while.")
             # st.sidebar.info("The prompt lets the model step back from the source to boost fluency, authenticity, and appeal.")
             
             st.write("Lower Temperature (~0.1 to 0.5): Recommended for more secure translations.")
