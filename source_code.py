@@ -1958,7 +1958,7 @@ def main():
                 guidelines = st.text_input("Your feedback and/or guidelines")
                         
                 if st.button('Start Refinement 🚀', key='gemini_refine'):
-                    with st.spinner('Refining... '):
+                    with st.spinner('👉 Thinking hard... this can take a while.... '):
                         refined_gemini = improve_translation_with_gemini(combined_text, st.session_state['translated_gemini_raw'], guidelines, st.session_state.gloss_instruct, target_lang) 
                         st.session_state.refined_translation = refined_gemini
                         st.info("**GEMINI IMPROVED 🏋️**")
@@ -2027,7 +2027,7 @@ def main():
                         st.stop()  # stopt de rest van het script hier
                         
                     st.write(f"Detected language: {source_lang[1]}")
-                    with st.spinner('Neural network at work, be patient...'):
+                    with st.spinner('👉 Thinking hard... Please wait a moment.'):
                         basic_google = translate_text_with_v3(
                             text=combined_text, 
                             source_language_code=source_lang[0], 
