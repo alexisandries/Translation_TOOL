@@ -1943,7 +1943,7 @@ def main():
                     with st.spinner('Neural network at work, be patient...'):
                         glossary_analysis = check_glossary(combined_text, source_lang[0], target_lang, glossary_data)
                         st.session_state.gloss_instruct = format_terminology_for_prompt(glossary_analysis, source_lang[0], target_lang)
-                        st.session_state.translated_gemini_raw = translate_text_vertexai_prompting(combined_text, source_lang, target_lang, st.session_state.gloss_instruct, temp_choice)
+                        st.session_state.translated_gemini_raw = translate_text_vertexai_prompting(combined_text, source_lang, target_lang, st.session_state.gloss_instruct, temp_choice, "gemini-2.5-flash-preview-05-20")
                         st.info("**GEMINI TRANSLATED**")
                 else:
                     st.error('Please upload or paste a text to translate.')
