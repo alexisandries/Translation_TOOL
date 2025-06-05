@@ -34,7 +34,7 @@ import os  # Make sure os is imported for tempfile path
 
 # --- Constants ---
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-MISTRAL_API_KEY = st.secrets["MISTRAL_API_KEY"]
+# MISTRAL_API_KEY = st.secrets["MISTRAL_API_KEY"]
 PASSWORD = st.secrets["MDM_PASSWORD"]
 LOCATION = st.secrets["LOCATION"]
 
