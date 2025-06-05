@@ -24,13 +24,13 @@ import requests
 import math
 from google.oauth2 import service_account
 #  from typing import List, Dict
-
-# Configuration
-st.set_page_config(layout="wide")
-
 import json
 import tempfile
 import os  # Make sure os is imported for tempfile path
+
+
+# Configuration
+st.set_page_config(layout="wide")
 
 # --- Constants ---
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
