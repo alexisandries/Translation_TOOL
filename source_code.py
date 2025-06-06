@@ -1768,7 +1768,9 @@ def main():
       {"fr": "Services de Santé Mentale", "nl": "Centra voor Geestelijke Gezondheidszorg", "en": "Mental health services"},
       {"fr": "SSM", "nl": "CGZ", "en": ""},
       {"fr": "Problèmes de santé mentale", "nl": "Geestelijk gezondheidsproblemen", "en": "Mental health issues"},
-      {"fr": "utilisateur de service", "nl": "zorggebruiker", "en": "Healthcare user"}
+      {"fr": "utilisateur de service", "nl": "zorggebruiker", "en": "Healthcare user"},
+      {"fr": "Médecins du Monde", "nl": "Dokters van de Wereld", "en": "Doctors of the World"},
+      {"fr": "CASO", "nl": "COZO", "en": ""}
     ]
         
     st.sidebar.title("Translation App")
