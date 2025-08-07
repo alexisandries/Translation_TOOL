@@ -439,7 +439,7 @@ def translate_text_vertexai_prompting(
     target_language_code: str,
     instructions: str,
     temperature: float,
-    model_name: str = "gemini-2.5-pro-preview-05-06", 
+    model_name: str = "gemini-2.5-pro", 
     max_chunk_len: int = 200000, # Adjust based on model's context window minus prompt length
 ) -> str:
     """
@@ -781,7 +781,7 @@ def improve_translation_with_gemini(original_text, translated_text, guidelines, 
     # Load the chosen model
     try:
         # Use GenerativeModel for Gemini models
-        model = GenerativeModel("gemini-2.5-pro-preview-05-06")
+        model = GenerativeModel("gemini-2.5-pro")
         
     except Exception as e:
         st.write(f"ERROR: Failed to load Vertex AI model: {e}")
@@ -1269,7 +1269,7 @@ def main():
                     with st.spinner('Neural network at work, be patient...'):
                         glossary_analysis = check_glossary(combined_text, source_lang[0], target_lang, glossary_data)
                         st.session_state.gloss_instruct = format_terminology_for_prompt(glossary_analysis, source_lang[0], target_lang)
-                        st.session_state.translated_gemini_raw = translate_text_vertexai_prompting(combined_text, source_lang, target_lang, st.session_state.gloss_instruct, temp_choice, "gemini-2.5-flash-preview-05-20")
+                        st.session_state.translated_gemini_raw = translate_text_vertexai_prompting(combined_text, source_lang, target_lang, st.session_state.gloss_instruct, temp_choice, "gemini-2.5-flash")
                         st.info("**GEMINI TRANSLATED**")
                 else:
                     st.error('Please upload or paste a text to translate.')
