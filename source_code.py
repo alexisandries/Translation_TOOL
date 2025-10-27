@@ -1380,7 +1380,7 @@ def main():
                 guidelines = st.text_input("Your feedback and/or guidelines")
                         # Toon de download knop alleen als er tekst is om te downloaden (ruw of geformatteerd)
                 if st.button('Start Refinement 🚀', key="openai_refine"):
-                    with st.spinner('Thinking hardddd... '):
+                    with st.spinner('Thinking even harder... 🤯'):
                         
                         refined_gpt = improve_translation_with_gpt(combined_text, st.session_state.translated_gpt_raw, guidelines, target_lang, st.session_state.gloss_instruct) 
                         st.session_state.refined_gpt_translation = refined_gpt
