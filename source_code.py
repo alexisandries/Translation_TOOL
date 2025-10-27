@@ -767,7 +767,7 @@ def improve_translation_with_gpt(original_text, translated_text, guidelines, tar
     """
         
     response = client.responses.create(
-        model="gpt-5-pro-2025-10-06",
+        model="gpt-5-2025-08-07",
         # previous_response_id=response.id,
         instructions=instruction,
         input=prompt
