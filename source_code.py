@@ -767,7 +767,7 @@ def improve_translation_with_gpt(original_text, translated_text, guidelines, tar
     """
         
     response = client.responses.create(
-        model="o3",
+        model="gpt-5-pro-2025-10-06",
         # previous_response_id=response.id,
         instructions=instruction,
         input=prompt
@@ -1308,7 +1308,7 @@ def main():
 
         elif select_model == 'ChatGPT':
 
-            st.sidebar.write("Powered by **GPT 4.1 & o3**, OpenAI's latest models. The quality will be similar to Google Gemini but at a higher cost. Can be used to challenge the Gemini translation.") 
+            st.sidebar.write("Powered by **GPT 4.1 & 5**, OpenAI's latest models. The quality will be similar to Google Gemini but at a higher cost. Can be used to challenge the Gemini translation.") 
             st.sidebar.write("**Drawbacks:** results may vary—LLMs are nondeterministic and can hallucinate or misinterpret text.")
             # st.sidebar.info("The prompt lets the model step back from the source to boost fluency, authenticity, and appeal.")
             
@@ -1376,7 +1376,7 @@ def main():
                 st.session_state.refined_gpt_translation = ""
             
             if 'translated_gpt_raw' in st.session_state:
-                st.write('**Refine with o3** ✨')
+                st.write('**Refine with GPT5** ✨')
                 guidelines = st.text_input("Your feedback and/or guidelines")
                         # Toon de download knop alleen als er tekst is om te downloaden (ruw of geformatteerd)
                 if st.button('Start Refinement 🚀', key="openai_refine"):
@@ -1384,7 +1384,7 @@ def main():
                         
                         refined_gpt = improve_translation_with_gpt(combined_text, st.session_state.translated_gpt_raw, guidelines, target_lang, st.session_state.gloss_instruct) 
                         st.session_state.refined_gpt_translation = refined_gpt
-                        st.info("**o3 IMPROVED 🏋️**")
+                        st.info("**GPT5 IMPROVED 🏋️**")
                     pass              
                 
                 st.write(st.session_state.refined_gpt_translation)
